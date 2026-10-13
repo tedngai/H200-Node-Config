@@ -32,7 +32,8 @@ memory utilization at the expense of correctness.
   10-15-minute tasks and is reconsidering the 7% no-MTP gain against MTP speed
   and harness compaction. The user now approved **DP4 attention with lightweight
   MTP enabled and HiCache retained**. That candidate is installed and ready;
-  startup/small smoke passed, but long-context/load qualification is pending.
+  four concurrent 260k prompts and same-worker HiCache restoration passed;
+  sustained production load and broad coding quality remain unqualified.
 - Keep the client-facing model alias `pratt-high`, port 8012, and functioning
   reasoning/tool-call interfaces unless a change is explicitly approved.
 - Model changes, weight quantization changes and migrations require approval.
@@ -115,7 +116,17 @@ request per worker and normalized 2,048-token prefill chunks. Context remains
 262,144 and static memory stays 0.90. Four tiny rank-pinned probes and OpenAI
 tools/separated reasoning passed; metrics showed four active with no queueing
 or retractions. Startup had soft-watchdog/py-spy/JIT fallback warnings, but no
-post-ready runtime issue was found. Long-context concurrency, DP4+MTP host
-restoration and 400k support remain unqualified. New primary code/evidence is
+post-ready runtime issue was found. Scoped runtime tests now passed: four
+independent 260,000-token prompts recalled all codes, then warmed 512-token
+generations ran at about 352 aggregate / 89.6 per-request tok/s. Four 100k
+sessions ran at about 361 aggregate / 91.9 per-request tok/s. Same-worker
+restoration on DP0 returned 259,968 host-hit tokens with zero device hits:
+53.80 seconds cold versus 3.29 seconds restored. Short c1/c4 tests were
+93.5 / 336.6 aggregate tok/s, slower than historical TP-only MTP (165 / 450);
+this is not an isolated HiCache A/B. No queueing, retractions or runtime
+errors were found; tools/separated reasoning passed after load. Six/eight
+active users, sustained real coding load and 400k remain unqualified.
+`glm53-inference/tests/dp4_profile_test.py` is the new DP-aware helper; old
+long-context helpers remain TP-only. New primary code/evidence is
 under `/home/advtech/glm53-inference`; originals are retained. Preferred rollback
 is `sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service`.

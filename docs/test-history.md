@@ -2,9 +2,13 @@
 
 **Current experiment:** TP8 + DP4 attention, lightweight MTP and HiCache
 128 GB/rank is installed and ready. Each worker has 472,768 GPU slots, one
-active request allowed, and a 2,048-token effective prefill chunk. Four small
-rank-pinned probes and OpenAI tools/separated reasoning passed. Context stays
-262,144; long-context/load/host-restore gates are pending. Resume from
+active request allowed, and a 2,048-token effective prefill chunk. Four
+simultaneous 260k retrievals passed, with warmed generation ~352 aggregate /
+89.6 per-request tok/s. DP0 HiCache restored 259,968 host tokens with zero
+device hits (3.29 s versus 53.80 s cold); post-load tools/reasoning passed.
+Context stays 262,144. Sustained coding load, six/eight users, DP1-3 restore
+and 400k are unqualified. New helper: `glm53-inference/tests/dp4_profile_test.py`.
+See the runtime comparison section in `results.md`; resume from
 `/home/advtech/NEXT_EXPERIMENT.md`. New code/evidence is primarily in
 `/home/advtech/glm53-inference/`; older instructions below describe historical
 TP-only experiments and must not be used unchanged to qualify DP4.

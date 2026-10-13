@@ -24,7 +24,7 @@
     </privileges>
     <maintenance>Check active/queued requests; explain downtime and preserve rollback before restart.</maintenance>
   </operations>
-  <live_profile status="dp4_ready_small_rank_tool_smoke_passed_long_context_pending" last_verified_on="2026-10-13">
+  <live_profile status="dp4_scoped_four_near_limit_concurrency_and_rank0_host_restore_passed" last_verified_on="2026-10-13">
     <model>zai-org/GLM-5.3</model>
     <weights_precision>Native FP8</weights_precision>
     <engine version="0.5.18">SGLang</engine>
@@ -114,7 +114,7 @@
       <limitation>RAM cache retains reusable prefixes, not additional full active GPU contexts. TP-only host buffers are replicated across eight ranks.</limitation>
       <risks>Pinned-memory allocation, reclaim/NUMA locality, transfer overhead, startup/teardown delays and a potentially changed GPU token budget.</risks>
     </experiment>
-    <experiment id="dp4-mtp-hicache128" status="installed_ready_small_rank_tool_smoke_passed_long_context_pending">
+    <experiment id="dp4-mtp-hicache128" status="installed_scoped_four_near_limit_concurrency_and_rank0_host_restore_passed">
       <approval>User requests context handoff, MTP and HiCache retained, and testing DP4 before conversation compaction.</approval>
       <candidate>/home/advtech/sglang-glm53-fp8-tests/dp4-mtp-hicache128.service</candidate>
       <rollback>/home/advtech/sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service</rollback>
@@ -129,10 +129,23 @@
       <small_smoke passed="true" rank_pinned_probes="4" prompt_tokens_each="41" peak_actual_running="4" peak_queued="0" retractions="0" exact_retrieval="true" tool_call="passed" separated_reasoning="passed" />
       <post_smoke ready="true" container_oom_killed="false" runtime_issue_lines_since_ready="0" host_mem_available_bytes="857463816192" host_swap_used_bytes="13631488" />
       <runtime_summary>/home/advtech/glm53-inference/evidence/dp4-startup-validation-summary.json</runtime_summary>
-      <runtime_limits>Only small requests are qualified. No near-limit DP4 concurrency, sustained coding load, DP4+MTP host restoration or 400k context has been tested. API context remains 262144.</runtime_limits>
+      <runtime_profile checked_at_utc="2026-10-13T17:52:26Z" service_settings_changed="false">
+        <helper>/home/advtech/glm53-inference/tests/dp4_profile_test.py</helper>
+        <offline_tests passed="9" scope="dp_metric_deduplication_private_pool_context_and_admission_guards" />
+        <short_benchmark concurrency="1" prompt_tokens="28" forced_output_tokens="256" rounds="3" median_client_tps="93.52" raw_completion_speed_only="true" />
+        <short_benchmark concurrency="4" prompt_tokens="28" forced_output_tokens_each="256" rounds="3" median_aggregate_tps="336.61" median_per_request_tps="86.08" peak_actual_running="4" peak_queued="0" retractions="0" raw_completion_speed_only="true" />
+        <historical_short_comparison baseline="TP8_DP1_FP8_MTP_no_HiCache" single_request_change_percent="-43.44" four_request_aggregate_change_percent="-25.15">Prompt/output match but DP, HiCache and normalized prefill chunk differ. This is not an isolated HiCache or DP A/B, nor a real coding-task benchmark.</historical_short_comparison>
+        <long_concurrency concurrency="4" prompt_tokens_each="100000" forced_output_tokens_each="512" rounds="3" initial_retrieval_passed="4" cold_prefix_hits="0" cold_batch_wall_seconds="19.52" warmed="true" median_aggregate_tps="360.63" median_per_request_tps="91.92" cached_device_tokens_each="99968" median_mtp_acceptance="0.9302" peak_actual_running="4" peak_queued="0" retractions="0" />
+        <long_concurrency concurrency="4" prompt_tokens_each="260000" forced_output_tokens_each="512" rounds="3" initial_retrieval_passed="4" cold_prefix_hits="0" cold_batch_wall_seconds="54.96" warmed="true" median_aggregate_tps="352.00" median_per_request_tps="89.60" cached_device_tokens_each="259968" median_mtp_acceptance="0.9221" peak_actual_running="4" peak_queued="0" peak_active_pool_fraction_per_worker="0.55" retractions="0" />
+        <host_restore dp_rank="0" prompt_tokens="260000" pressure_conversations_same_rank="2" passed="true" device_hit_tokens="0" host_hit_tokens="259968" cold_elapsed_seconds="53.80" gpu_warm_elapsed_seconds="1.49" restored_elapsed_seconds="3.29" cold_prefill_seconds="51.24" restored_prefill_seconds="1.29" retrieval_passed_all_stages="true" retractions="0">Natural answer lengths differed; the prefill/restore intervals better isolate cache benefit than end-to-end response time.</host_restore>
+        <post_load ready="true" tool_call="passed" separated_reasoning="passed" runtime_errors_or_watchdog_warnings="0" oom_killed="false" running_requests="0" queued_requests="0" host_mem_available_bytes="857347022848" min_gpu_free_mib="5480" />
+        <comparison_report>/home/advtech/glm53-inference/evidence/dp4-runtime-comparison-20261013T175226Z.json</comparison_report>
+        <decision>Keep current profile and HiCache for now: four near-limit contexts and host restoration passed, but short speed is below historical TP-only MTP. Measure real coding workloads; a causal HiCache on/off comparison needs approval, restart and matched tests.</decision>
+      </runtime_profile>
+      <runtime_limits>Scoped synthetic tests, not sustained coding load or broad quality qualification. Context remains 262144; requests used 260000 prompt plus at most 1024 output, not exact-full occupancy. Six/eight users, 400k context and host restoration on DP1-3 remain untested. Production session-affinity routing is not installed.</runtime_limits>
       <target>Profile at 262k first. Four near-400k contexts are aspirational and need sufficient per-worker capacity, a later context-limit increase and fresh correctness/load tests.</target>
       <validation_requirements>Pin routed_dp_rank 0-3, verify dp_rank metadata, deduplicate/sum per-worker gauges or prove generation-interval overlap, and pin target/pressure requests to the same worker for host restoration.</validation_requirements>
-      <helper_limitations>Existing concurrency_test.py and hicache_test.py are TP-only; adapt rank routing and activity accounting before using them to qualify DP4.</helper_limitations>
+      <helper_limitations>Existing concurrency_test.py and hicache_test.py remain TP-only. New dp4_profile_test.py handles routed_dp_rank, exact prompt/output checks, per-rank gauge deduplication, private-pool guards and same-rank eviction/restoration.</helper_limitations>
       <limitations>DP4 does not automatically double a DP8 pool. Tuned gatherv supports TP=DP/attention TP1 only. Production session-affinity routing is not installed.</limitations>
       <handoff>/home/advtech/NEXT_EXPERIMENT.md</handoff>
     </experiment>
@@ -145,9 +158,10 @@
     <action order="5" status="completed">Forced GPU eviction followed by a 259,968-token host hit passed correct retrieval; end-to-end response improved from 32.18 to 3.38 seconds.</action>
     <action order="6" status="completed_scoped_smoke">Results recorded. HiCache remains installed after correct host restoration, tool checks and six-session 90k validation; sustained real-user load and broader accuracy remain unqualified.</action>
     <action order="7" status="completed">User installed DP4 + MTP + HiCache; unit, pinned image and effective settings verified. Small rank/tool/reasoning smoke passed.</action>
-    <action order="8" status="completed_startup_pool_profiling_input_boundary_pending">Four 472768-token worker pools verified, one active per worker, 2048-token normalized prefill chunks and 9.80-9.85 engine-reported GB headroom. Context remains 262144; near-limit validation is pending.</action>
-    <action order="9" status="pending">Adapt TP-only helpers for routed_dp_rank 0-3 and per-worker activity, then benchmark four independent sessions, checking MTP acceptance, tools, recall and host restoration.</action>
-    <action order="10" status="pending_capacity_results">Consider a larger context toward four near-400k users only after profiling; do not claim that capacity from DP4 alone.</action>
+    <action order="8" status="completed_scoped_near_limit">Four 472768-token worker pools verified, one active per worker and 2048-token normalized prefill chunks. Four simultaneous 260000-token retrievals passed without truncation, queueing or retraction; configured context remains 262144.</action>
+    <action order="9" status="completed_scoped">Added DP-aware profile helper; nine offline tests passed. Short c1/c4, four independent 100k/260k sessions, MTP acceptance, post-load tools/reasoning and same-worker DP0 host restore passed. Evidence and comparison are in the packaged repo.</action>
+    <action order="10" status="pending_explicit_context_change_and_fresh_tests">A larger context toward four near-400k users needs explicit approval, context-limit change and fresh correctness/prefill/load tests. Per-worker allocation alone is not validation.</action>
+    <action order="11" status="pending">Measure sustained real coding task time, six/eight-user admission/queueing and production session affinity. Complete host-restore checks on DP1-3. Any HiCache-on/off experiment requires an approved matched restart comparison.</action>
   </next_actions>
   <references>
     <document>/home/advtech/AGENTS.md</document>

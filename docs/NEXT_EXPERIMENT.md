@@ -1,7 +1,8 @@
 # Resume after conversation compaction: DP4 + MTP + HiCache
 
-Updated 2026-10-13. DP4 is now installed and passed startup/small smoke;
-long-context and sustained-load qualification remain pending.
+Updated 2026-10-13. DP4 is installed and passed scoped four-near-limit
+concurrency, tool/reasoning and DP0 host-restoration tests. Sustained real
+coding load, six/eight users and 400k remain unqualified.
 Read `AGENTS.md`, `PROGRESS.xml`, and `INFERENCE_CONTEXT.md` first.
 
 ## Latest user instruction
@@ -27,11 +28,41 @@ probes passed, metrics showed four active/no queued/no retracted requests,
 and OpenAI tools/separated reasoning passed. Evidence:
 `glm53-inference/evidence/dp4-startup-validation-summary.json`.
 
-The new `glm53-inference/tests/dp4_smoke_test.py` is a small smoke helper only.
-The old long-context helpers still require DP-aware routing/metrics changes.
-**400k is not enabled or validated**, even though the allocated per-worker
-pool is promising. Next: independent near-262k rank-pinned retrieval and
-concurrency, MTP acceptance/client latency, and a same-rank host restore.
+The new `glm53-inference/tests/dp4_profile_test.py` now provides DP-aware
+short/long/concurrency and same-worker host-restoration tests. The old
+`concurrency_test.py`/`hicache_test.py` remain TP-only. Runtime results from
+17:45-17:52 UTC, with no service changes:
+
+- Three-round historical short tests: c1 **93.52 tok/s**; c4 **336.61
+  aggregate / 86.08 per request**. Slower than historical TP-only FP8+MTP
+  (165 / 450), not an isolated HiCache A/B; this raw test is speed-only.
+- Four independent chat-formatted **100k** and **260k** prompts passed
+  simultaneous cold retrieval with zero prefix-cache hits. Cold batch wall
+  times were 19.52 / 54.96 s. Three warmed 512-output rounds ran at
+  **360.63 / 352.00 aggregate**, **91.92 / 89.60 per-request tok/s**.
+  Metrics showed four active, no queued/retracted requests, exact prompt/output
+  lengths and device hits of 99,968 / 259,968 each. MTP acceptance ~93% / 92%.
+- Fresh 260k target plus two pressure conversations pinned to **DP0** proved
+  eviction and restoration: **259,968 host hits, zero device hits**, correct
+  recall. Response times: **53.80 s cold**, **1.49 s GPU-warm**, **3.29 s
+  restored**. Server prefill/restore: **51.24 / 0.086 / 1.29 s**. Natural
+  output lengths differed; this is not streaming TTFT.
+- Post-load tools/separated reasoning passed; no runtime errors/watchdogs,
+  OOM or retractions. RAM available ~857 GB decimal; physical GPU free memory
+  minimum 5480 MiB (~5.35 GiB), below startup but still no OOM.
+- Comparison and linked reports:
+  `glm53-inference/evidence/dp4-runtime-comparison-20261013T175226Z.json`.
+
+**400k is not enabled or validated**, and four 260k prompts plus output are
+not proof of exact-full-context occupancy, six/eight-user capacity, sustained
+production load or broad coding quality. Host restoration was tested on DP0,
+not DP1-3. Keep current profile/HiCache while measuring real coding task time;
+an isolated on/off test needs an approved restart, not a historical comparison.
+
+Remaining priorities: real task/load measurement, production session affinity,
+DP1-3 host restore, and an explicitly approved larger-context candidate only
+with fresh correctness/prefill/load tests. Six/eight users require a separately
+approved admission profile; current effective cap is still one per worker.
 
 ## Prior validated TP-only baseline (rollback)
 
@@ -156,6 +187,25 @@ alone reproduces the Ramjet experiment's session-cache performance.
 - https://github.com/helixml/ramjet/blob/main/EXPERIMENTS.md (2026-09-29 section)
 - Local `srt/layers/dp_attention.py` resolves attention TP as TP/DP.
 
-Startup and small rank/tool gates passed; full long-context/load and DP4+MTP
-host-restoration gates remain pending. Static checks and small smoke are not
-sustained-load or broad quality qualification.
+Startup, tools, four-near-limit concurrency and same-worker DP0 host restore
+passed in scoped synthetic tests. DP1-3 restoration, sustained real workload,
+six/eight-user admission and larger context remain pending. The original
+ordered gates above are retained as the plan, not as evidence of completion.
+
+## Reproduce current-profile tests (idle server only)
+
+```bash
+cd /home/advtech/glm53-inference
+python3 -B -m unittest discover -s tests -p 'test_dp4_profile.py' -v
+python3 -B tests/dp4_profile_test.py --mode short --concurrency 1 --output-tokens 256
+python3 -B tests/dp4_profile_test.py --mode short --concurrency 4 --output-tokens 256
+python3 -B tests/dp4_profile_test.py --mode long --concurrency 4 --prompt-tokens 100000
+python3 -B tests/dp4_profile_test.py --mode long --concurrency 4 --prompt-tokens 260000
+python3 -B tests/dp4_profile_test.py --mode host --rank 0 --prompt-tokens 260000
+python3 -B tests/dp4_smoke_test.py
+```
+
+Run one test at a time; do not run concurrent benchmarks on the same engine.
+The helper checks idle gauges, exact context and private-pool headroom, pins
+ranks, deduplicates TP metric replicas and writes timestamped `evidence/`
+reports, retaining failures. It never flushes caches or changes the service.

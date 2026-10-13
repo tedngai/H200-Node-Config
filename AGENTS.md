@@ -28,6 +28,10 @@ scripts, captured evidence, and documentation copies from the H200 node.
 - Verify the live service with `/server_info` before and after any change.
   Never claim a packaged candidate is deployed or qualified without runtime
   evidence recorded under `evidence/`.
-- The long-context and HiCache helpers are TP-only. DP4 validation requires
+- The older long-context and HiCache helpers are TP-only. DP4 validation requires
   rank-pinned requests (`routed_dp_rank`) and per-rank metric accounting;
   do not sum duplicate TP-rank gauges.
+- `tests/dp4_profile_test.py` is the DP-aware short/long/host-restore helper;
+  older `concurrency_test.py` and `hicache_test.py` remain TP-only. Run one
+  experiment at a time on an idle engine. Keep speed-only forced-output
+  benchmarks distinct from chat retrieval/tool checks and real coding quality.

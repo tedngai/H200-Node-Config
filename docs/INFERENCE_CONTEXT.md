@@ -16,7 +16,8 @@ this document is a record, not proof that a pending candidate is installed.
   tasks and is reconsidering MTP speed versus its 7% token-pool cost. Harness
   compaction is acceptable, but its overhead and quality impact matter. MTP
   is enabled in the installed DP4 + HiCache experiment. Startup and small
-  rank/tool probes passed; long-context and sustained-load validation remain pending.
+  rank/tool, four near-limit concurrent sessions and same-worker host restoration
+  passed; sustained real coding load and broad quality remain pending.
 - Preserve `pratt-high`, port 8012 and reasoning/tool-call functionality.
 
 ## Hardware and paths
@@ -221,16 +222,79 @@ memory 0.90, context 262,144, `pratt-high` and parsers `glm45`/`glm47`.
 - Startup emitted 72 soft-watchdog warnings and 144 failed py-spy diagnostic
   attempts; the known 656-byte HiCache JIT fallback warning remains. No
   post-readiness runtime OOM/CUDA/traceback/watchdog/retraction issue was found.
-- This is **startup plus small smoke**, not near-limit concurrency, sustained
-  performance or DP4+MTP host-restoration qualification. The measured pool is
-  encouraging for ~400k, but context is still capped at 262,144 and no 400k
-  correctness claim is made.
+- Subsequent scoped runtime tests passed four simultaneous 260k prompts and
+  same-worker DP0 host restoration, as described below. This is not sustained
+  production or broad coding-quality qualification. Context remains 262,144;
+  400k is not enabled or validated.
 
 Evidence: `glm53-inference/evidence/dp4-startup-validation-summary.json` and
 `dp4-startup-smoke-20261013T160727Z.json`. The project now includes
-`glm53-inference/tests/dp4_smoke_test.py`; the older long-context helpers still
-need DP-aware routing. One short sample had implausible native throughput,
+`glm53-inference/tests/dp4_smoke_test.py`; the older long-context helpers remain
+TP-only, while `dp4_profile_test.py` now handles DP-aware profiling. One short
+sample had implausible native throughput,
 so no speed comparison is inferred from it.
+
+### Current-config scoped runtime comparison (17:45-17:52 UTC)
+
+The user requested tests on the current config and a comparison. No service,
+model, context, image, MTP or HiCache settings were changed. The new profile
+helper pins ranks and deduplicates TP replicas within each DP worker; nine
+offline guard/accounting tests passed. Idle/queue checks ran before each test.
+
+| Current DP4 + MTP + HiCache workload | Aggregate tok/s | Median per-request tok/s |
+| --- | ---: | ---: |
+| Historical short prompt, c1, 256 forced output | 93.51 | 93.52 |
+| Historical short prompt, c4, 256 forced output each | 336.61 | 86.08 |
+| Four independently GPU-warmed 100k prompts, 512 forced output each | 360.63 | 91.92 |
+| Four independently GPU-warmed 260k prompts, 512 forced output each | 352.00 | 89.60 |
+
+Each timed workload used three rounds and client-observed time/actual output.
+Short prompts matched the earlier raw 28-token speed-only test, not a chat
+quality gate. Current short c1/c4 rates are 43.4% / 25.2% below historical
+TP-only FP8+MTP (165 / 450), but near the TP-only no-MTP rates (97 / 328).
+**This does not isolate HiCache overhead**: DP attention and normalized
+prefill chunks differ too. No engine change was made to create an A/B.
+
+Both long tests began with four simultaneous natural, chat-formatted retrieval
+requests with distinct early prefixes and zero prefix-cache hits. All four
+recalled beginning/middle/end codes and processed exactly 100k or 260k input
+tokens. Cold batch wall times were 19.52 / 54.96 s, including natural output.
+Metrics proved four active workers and no queueing. Warmed timed requests
+reported 99,968 / 259,968 **device** hits each, zero host hits, and every
+512-token output. MTP draft acceptance was about 93.0% / 92.2%. Four 260k
+prompts represent 1.04M independent active prompt tokens, about 55% of each
+private GPU pool. Six/eight active users remain untested under this profile.
+
+For descriptive context, the older TP-only no-MTP six-user 100k gate ran at
+412 aggregate / 68.9 per-request tok/s, and HiCache six-user 90k at 410 / 68.5.
+Those are **not matched comparisons** to four-user DP4 results.
+
+Same-worker HiCache restoration was proved on DP0 using a fresh 260k target,
+GPU-warm reuse, then two distinct 260k pressure conversations on DP0. The
+returning target had **259,968 host hits and zero device hits**, with correct
+recall in every stage and no retractions:
+
+- Cold response: **53.80 s**, server prefill **51.24 s**.
+- GPU-warm response: **1.49 s**, server prefill **0.086 s**.
+- RAM-restored response: **3.29 s**, server restore/prefill **1.29 s**.
+
+Natural answer lengths differed (202 / 120 / 176 output tokens), so the
+prefill/restore intervals better isolate cache benefit. This is not streaming
+TTFT. The host benefit is now demonstrated for DP4+MTP on DP0, not yet DP1-3.
+
+Post-load rank probes, OpenAI tool parsing and separated reasoning passed.
+The service remained ready/idle, with zero cumulative retractions and no
+runtime errors/watchdog warnings since test start. Available RAM was ~857 GB
+decimal, swap use ~13.6 MB, and minimum physical GPU free memory ~5.35 GiB
+(5480 MiB), lower than startup but without OOM. Unit hash/image identity and
+effective settings were verified unchanged.
+
+**Decision:** retain current profile and HiCache while measuring real coding
+workloads. Capacity and recovery improved, but DP4 is not an automatic speed
+upgrade. An isolated HiCache-on/off comparison requires approval, a restart
+and matched tests. No 400k context or sustained-production claim is made.
+Evidence: `glm53-inference/evidence/dp4-runtime-comparison-20261013T175226Z.json`,
+which links all per-test reports and historical baselines.
 
 The user requests retaining HiCache, enabling lightweight MTP and testing DP4.
 Candidate: `sglang-glm53-fp8-tests/dp4-mtp-hicache128.service`. It retains the
@@ -259,8 +323,9 @@ requests across workers. Production session-affinity routing is not installed.
 Do not use DP8-only `SGLANG_DP_USE_GATHERV` for attention TP2.
 
 Read `/home/advtech/NEXT_EXPERIMENT.md` for rollback commands and the remaining
-ordered test gates. Installation and small smoke are complete; near-limit
-rank-pinned testing, host restoration and sustained coding load remain pending.
+ordered test gates. Scoped four-near-limit concurrency and DP0 host restoration
+are complete; sustained coding load, DP1-3 restoration, six/eight users and
+larger-context validation remain pending.
 
 HiCache protects reusable prefixes after GPU eviction. It does not directly
 increase active GPU decoding capacity, and host-to-GPU restoration needs GPU

@@ -231,3 +231,102 @@ DP4+MTP host-restoration qualification or 400k validation**. One short request
 again emitted implausible native decode throughput; no performance comparison
 is based on it. Context remains 262,144. Next: rank-pinned independent long
 retrieval/concurrency and same-rank host restoration before increasing context.
+
+## DP4 runtime tests on unchanged config: four near-limit sessions and host restore
+
+Measured 2026-10-13 17:45-17:52 UTC at user request, keeping the installed
+TP8/DP4 + EAGLE MTP 1/1/2 + HiCache 128/rank configuration unchanged.
+Context remained 262,144, memory 0.90, same pinned image/model/alias/parsers.
+New harness: `/home/advtech/glm53-inference/tests/dp4_profile_test.py`, with
+nine passing offline tests of DP metric deduplication, private-pool capacity,
+context/admission guards and historical prompt compatibility.
+
+### Short benchmark: prompt/output matched to historical tests
+
+| Profile | c1 median tok/s | c4 aggregate tok/s | c4 median per-request tok/s |
+| --- | ---: | ---: | ---: |
+| Historical TP-only FP8 + MTP, no HiCache | 165.35 | 449.74 | 113.41 |
+| Historical TP-only FP8, no MTP, no HiCache | 96.89 | 328.14 | 82.06 |
+| Current DP4 + MTP + HiCache | **93.52** | **336.61** | **86.08** |
+
+One warmup per selected worker and three measured rounds, same raw 28-token
+prompt and 256 forced output tokens as the historical benchmark. Measured
+rounds had zero cache hits, exact outputs, verified rank metadata/activity,
+no queueing and no retractions. This raw completion is **speed-only**, not an
+instruction/coding-quality gate. Native throughput fields are ignored.
+
+Current c1 speed is 43.44% below historical TP-only MTP; c4 aggregate is
+25.15% below it. Against historical TP-only no-MTP, c1 is 3.48% lower and c4
+aggregate 2.58% higher. **Not an isolated HiCache or DP comparison**: attention
+layout, HiCache, and normalized prefill chunks differ. No causal HiCache
+overhead or sustained-task-speed claim follows from this comparison.
+
+### Four independent long sessions
+
+| Prompt per worker | Cold retrieval batch wall time | Warmed aggregate tok/s | Warmed median per-request tok/s | MTP draft acceptance |
+| --- | ---: | ---: | ---: | ---: |
+| 100,000 | 19.52 s | **360.63** | **91.92** | 93.0% |
+| 260,000 | 54.96 s | **352.00** | **89.60** | 92.2% |
+
+Each test used distinct early prefixes, the model's chat template and natural
+synthetic archive records. Four simultaneous initial requests had zero
+prefix-cache hits and all recalled codes at beginning/middle/end with exact
+prompt lengths. Metrics showed one active on every worker, zero queued.
+Cold wall time includes natural answer generation, not streaming TTFT.
+
+Then three GPU-warmed timed rounds each generated 512 forced tokens per
+worker (6144 actual output tokens per context-size test). Every request had
+99,968 / 259,968 device hits and zero host hits, no truncation/retractions,
+and per-DP metrics again confirmed four active, zero queued. Each 260k
+request occupied about 55% of its private pool: 1.04M independent prompt
+tokens active simultaneously. This qualifies a **scoped near-limit test**,
+not exact-full-262144 occupancy or 400k context.
+
+Older six-user TP-only results (100k no-HiCache: 412.40 aggregate / 68.88
+per request; 90k HiCache: 409.98 / 68.47) are descriptive references only.
+Concurrency differs, and the latter also changes context size; neither is
+a matched comparison to these four-user measurements.
+
+### Genuine DP4 + MTP HiCache restoration on DP0
+
+A fresh 260k target and two distinct 260k pressure conversations were all
+pinned to DP0. The returning target reported **259,968 host hits and zero
+device hits**, proving GPU eviction and host restoration, with correct
+retrieval in all five stages and zero retractions.
+
+| Target state | Client response | Server prefill/restore | Actual output tokens |
+| --- | ---: | ---: | ---: |
+| Cold | **53.80 s** | **51.24 s** | 202 |
+| GPU-warm | **1.49 s** | **0.086 s** | 120 |
+| Host-restored | **3.29 s** | **1.29 s** | 176 |
+
+End-to-end response improved about 16.36x, but natural answer lengths differ.
+Server prefill/restore intervals better isolate the cache benefit; neither is
+client streaming TTFT. DP1-3 host restoration is not independently tested.
+
+### Post-test state and decision
+
+Four small rank probes, OpenAI tool calls and separated reasoning passed
+again after load. The server was ready and idle, cumulative retractions zero,
+container not OOM-killed, and no runtime error/watchdog/warning was found
+since test start. RAM available was 857.35 GB decimal; swap used ~13.6 MB;
+minimum physical GPU free memory was 5480 MiB (~5.35 GiB), below startup but
+without OOM. Unit hash/image identity/effective settings were unchanged.
+
+Retain current profile and HiCache while measuring real coding tasks. It
+demonstrates four near-limit active contexts and fast recovery, **not an
+automatic token-speed gain**. These synthetic tests lasted minutes; sustained
+coding performance/quality, six/eight-user admission, production session
+affinity and 400k remain unqualified. A matched HiCache-on/off experiment
+would need approval, downtime/restart and fresh tests with all other flags held.
+
+Primary evidence is under `/home/advtech/glm53-inference/evidence/`:
+
+- `dp4-runtime-comparison-20261013T175226Z.json` (summary and historical links)
+- `dp4-mtp-hicache128-short-20261013T174508Z-c1-256.json`
+- `dp4-mtp-hicache128-short-20261013T174521Z-c4-256.json`
+- `dp4-mtp-hicache128-long-20261013T174543Z-c4-100000.json`
+- `dp4-mtp-hicache128-long-20261013T174636Z-c4-260000.json`
+- `dp4-mtp-hicache128-host-20261013T174803Z-rank0-260000.json`
+- `dp4-startup-smoke-20261013T175121Z.json` (post-load tools/reasoning)
+- `dp4-post-profile-server-info-20261013T175226Z.json`

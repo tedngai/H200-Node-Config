@@ -8,7 +8,7 @@ node.
 
 - `configs/systemd/sglang-glm53.service` — copy of the authoritative configured
   full `zai-org/GLM-5.3` service unit at packaging time.
-- `configs/systemd/candidates/` — FP8/MTP, no-MTP, HiCache, and pending DP4
+- `configs/systemd/candidates/` — FP8/MTP, no-MTP, HiCache, and installed DP4
   service candidates.
 - `configs/systemd/optional/` — separate GLM-5.3-Flash service unit.
 - `tests/` — benchmark, near-limit retrieval/tool-call smoke, concurrency, and
@@ -27,18 +27,22 @@ MTP, HiCache 128 GB per rank, a 262,144-token context, static memory fraction
 `0.90`, four running requests, and eight queued requests (launch setting).
 Startup verification found **472,768 GPU token slots per DP worker**, about
 **1,891,072 unique slots across four private pools**, and one active request
-allowed per worker. Four small rank-pinned probes and OpenAI tools/separated
-reasoning passed; metrics confirmed four active with no queueing/retractions. See
+allowed per worker. Four concurrent 260k retrievals, post-load tools/reasoning
+and same-worker DP0 HiCache restoration passed; no queueing/retractions. See
 `docs/NEXT_EXPERIMENT.md` and `docs/results.md` for the qualification status.
 
 The prior validated production profile (TP8/DP1, MTP off, HiCache 128, six
 running requests) is retained in
 `configs/systemd/candidates/fp8-no-mtp-6-hicache128.service` and its evidence.
 
-The API was not ready during initial packaging but readiness and small smoke
-are now verified. Near-limit/sustained-load and DP4+MTP host-restoration gates
-remain pending. No 400k context is enabled or qualified.
-See `evidence/dp4-startup-validation-summary.json` and `docs/NEXT_EXPERIMENT.md`.
+The API was not ready during initial packaging but scoped runtime tests now
+passed. Four warmed 260k sessions ran at **352 aggregate / 89.6 per-request
+tok/s**. HiCache restored **259,968 host tokens with zero device hits** in
+**3.29 s versus 53.80 s cold**. Short c1/c4 rates (93.5 / 336.6 aggregate)
+were below historical TP-only MTP, so DP4 is not an automatic speed upgrade;
+this does not isolate HiCache overhead. Sustained coding load, six/eight users,
+host restoration on DP1-3 and 400k remain unqualified.
+See `evidence/dp4-runtime-comparison-20261013T175226Z.json` and `docs/results.md`.
 
 ## Install a service unit
 
@@ -64,16 +68,19 @@ the `sglang-glm53` container:
 
 ```bash
 python3 -m py_compile tests/*.py
-python3 tests/benchmark.py --label local-benchmark
-python3 tests/dp4_smoke_test.py
-python3 tests/smoke_test.py --label local-chat-smoke --context-tokens 260000
+python3 -B -m unittest discover -s tests -p 'test_dp4_profile.py' -v
+python3 -B tests/dp4_smoke_test.py
+python3 -B tests/dp4_profile_test.py --mode short --concurrency 4 --output-tokens 256
 ```
 
 Long-context and HiCache tests are intentionally resource-intensive. Use the
 commands and admission guards documented in `docs/test-history.md` and
 `docs/NEXT_EXPERIMENT.md` rather than starting them casually.
 The older concurrency/HiCache helpers are TP-only; do not use them unchanged
-to qualify the live DP4 profile. The new DP4 helper tests only small requests.
+to qualify the live DP4 profile. `dp4_profile_test.py` handles private-pool
+guards, rank pinning, per-worker metrics and same-worker cache eviction.
+`docs/NEXT_EXPERIMENT.md` has the long/host commands. Run one test at a time
+on an idle server; no helper changes the service or flushes caches.
 
 ## Git setup
 
