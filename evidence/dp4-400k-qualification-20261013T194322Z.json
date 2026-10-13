@@ -1,0 +1,169 @@
+{
+  "started_at_utc": "2026-10-13T19:43:22.558093+00:00",
+  "status": "scoped_398k_single_four_and_rank0_host_restore_passed",
+  "context_tokens": 400000,
+  "service_changes_by_tests": false,
+  "stages": [
+    {
+      "stage": "small_rank_tools_smoke",
+      "command": [
+        "/raid/miniconda3/bin/python3",
+        "-B",
+        "tests/dp4_smoke_test.py"
+      ],
+      "returncode": 0,
+      "report": "evidence/dp4-startup-smoke-20261013T194322Z.json",
+      "summary": {
+        "passed": true,
+        "tool_call": {
+          "passed": true,
+          "finish_reason": "tool_calls",
+          "tool_calls": [
+            {
+              "id": "call_5217b3352e3d4d9ab5c6d453",
+              "index": 0,
+              "type": "function",
+              "function": {
+                "name": "lookup_room",
+                "arguments": "{\"room_id\": \"B204\"}"
+              }
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 176,
+            "total_tokens": 220,
+            "completion_tokens": 44,
+            "prompt_tokens_details": null,
+            "reasoning_tokens": 31
+          },
+          "reasoning_content_present": true
+        },
+        "peak_running": 4.0,
+        "peak_queued": 0
+      }
+    },
+    {
+      "stage": "single_398k",
+      "command": [
+        "/raid/miniconda3/bin/python3",
+        "-B",
+        "tests/dp4_profile_test.py",
+        "--mode",
+        "long",
+        "--concurrency",
+        "1",
+        "--prompt-tokens",
+        "398000"
+      ],
+      "returncode": 0,
+      "report": "evidence/dp4-mtp-hicache128-long-20261013T194333Z-c1-398000.json",
+      "summary": {
+        "passed": true,
+        "median_aggregate_tokens_per_second": 88.24036549835111,
+        "median_end_to_end_tokens_per_second_per_request": 88.24391690717796,
+        "peak_running_requests": 1.0,
+        "peak_queued_requests": 0,
+        "total_retractions": 0,
+        "actual_output_tokens": 1536,
+        "median_weighted_mtp_draft_acceptance": 0.9176029962546817
+      }
+    },
+    {
+      "stage": "four_independent_398k",
+      "command": [
+        "/raid/miniconda3/bin/python3",
+        "-B",
+        "tests/dp4_profile_test.py",
+        "--mode",
+        "long",
+        "--concurrency",
+        "4",
+        "--prompt-tokens",
+        "398000"
+      ],
+      "returncode": 0,
+      "report": "evidence/dp4-mtp-hicache128-long-20261013T194535Z-c4-398000.json",
+      "summary": {
+        "passed": true,
+        "median_aggregate_tokens_per_second": 325.3273395946151,
+        "median_end_to_end_tokens_per_second_per_request": 85.46119407458687,
+        "peak_running_requests": 4.0,
+        "peak_queued_requests": 0,
+        "total_retractions": 0,
+        "actual_output_tokens": 6144,
+        "median_weighted_mtp_draft_acceptance": 0.9166666666666666
+      }
+    },
+    {
+      "stage": "rank0_398k_host_restore",
+      "command": [
+        "/raid/miniconda3/bin/python3",
+        "-B",
+        "tests/dp4_profile_test.py",
+        "--mode",
+        "host",
+        "--rank",
+        "0",
+        "--prompt-tokens",
+        "398000"
+      ],
+      "returncode": 0,
+      "report": "evidence/dp4-mtp-hicache128-host-20261013T194739Z-rank0-398000.json",
+      "summary": {
+        "passed": true,
+        "cold_elapsed_seconds": 90.83696108637378,
+        "gpu_warm_elapsed_seconds": 1.9881089497357607,
+        "restored_elapsed_seconds": 4.12788378726691,
+        "cold_prefill_seconds": 88.17620491981506,
+        "gpu_warm_prefill_seconds": 0.10812139511108398,
+        "restored_prefill_seconds": 1.8989317417144775,
+        "host_cached_tokens_on_restore": 397952,
+        "device_cached_tokens_on_restore": 0,
+        "cold_vs_restore_end_to_end_speedup": 22.00569729374996,
+        "all_retrievals_passed": true,
+        "total_retractions": 0,
+        "note": "Natural answer lengths may differ; prefill/restore intervals isolate the cache benefit better."
+      }
+    },
+    {
+      "stage": "post_load_rank_tools_smoke",
+      "command": [
+        "/raid/miniconda3/bin/python3",
+        "-B",
+        "tests/dp4_smoke_test.py"
+      ],
+      "returncode": 0,
+      "report": "evidence/dp4-startup-smoke-20261013T195227Z.json",
+      "summary": {
+        "passed": true,
+        "tool_call": {
+          "passed": true,
+          "finish_reason": "tool_calls",
+          "tool_calls": [
+            {
+              "id": "call_3cc6c086f9b34e8286d82f86",
+              "index": 0,
+              "type": "function",
+              "function": {
+                "name": "lookup_room",
+                "arguments": "{\"room_id\": \"B204\"}"
+              }
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 176,
+            "total_tokens": 220,
+            "completion_tokens": 44,
+            "prompt_tokens_details": null,
+            "reasoning_tokens": 31
+          },
+          "reasoning_content_present": true
+        },
+        "peak_running": 4.0,
+        "peak_queued": 0
+      }
+    }
+  ],
+  "passed": true,
+  "finished_at_utc": "2026-10-13T19:52:37.192179+00:00"
+}

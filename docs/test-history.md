@@ -1,12 +1,15 @@
 # GLM-5.3 FP8 KV / MTP comparison
 
-**Approved next:** 400,000-token context, four active requests, DP4/MTP/HiCache
-retained. Context-only candidate and exact 262k rollback are prepared in
-`glm53-inference/configs/systemd/candidates/`; user install/restart is pending.
-Live context is still 262,144. See `/home/advtech/NEXT_EXPERIMENT.md` for commands
-and queue details: eight waiting per worker (up to 32), 120-second timeout.
+**Current:** 400,000-token context, four active requests, DP4/MTP/HiCache
+retained, installed by the user. One and four independent 398k retrievals and
+DP0 host restoration passed; warmed c4 rate was 325.33 aggregate / 85.46
+per-request tok/s. Root unit snapshot matches live; exact 262k rollback remains
+in `glm53-inference/configs/systemd/candidates/`. Queues are unchanged at eight
+per worker, timeout 120. OpenCode affinity and queue=2 are approved staged
+follow-ups but pending gateway-path/retry verification, not installed. See
+`/home/advtech/NEXT_EXPERIMENT.md` and the new section in `results.md`.
 
-**Current experiment:** TP8 + DP4 attention, lightweight MTP and HiCache
+**Earlier 262k experiment:** TP8 + DP4 attention, lightweight MTP and HiCache
 128 GB/rank is installed and ready. Each worker has 472,768 GPU slots, one
 active request allowed, and a 2,048-token effective prefill chunk. Four
 simultaneous 260k retrievals passed, with warmed generation ~352 aggregate /

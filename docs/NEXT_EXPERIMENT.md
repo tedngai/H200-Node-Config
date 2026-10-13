@@ -1,50 +1,67 @@
-# Resume after conversation compaction: approved 400k DP4 + MTP + HiCache
+# Resume after conversation compaction: 400k live; OpenCode affinity dependency pending
 
-Updated 2026-10-13. DP4 is installed and passed scoped four-near-limit
-concurrency, tool/reasoning and DP0 host-restoration tests. Sustained real
-coding load, six/eight users and 400k remain unqualified. The user approved
-400k/four active requests; that new candidate is prepared, not installed.
+Updated 2026-10-13. The user installed 400k DP4 + MTP + HiCache, and scoped
+single/four independent 398k retrieval/generation and DP0 host restore passed.
+OpenCode affinity and queue=2/worker are approved follow-ups, not installed.
+They depend on verifying the separately hosted gateway path. Do not repeat
+400k qualification just to investigate that path. Sustained coding quality,
+exact-full-400k occupancy and DP1-3 restoration remain unqualified.
 Read `AGENTS.md`, `PROGRESS.xml`, and `INFERENCE_CONTEXT.md` first.
 
 ## Latest user instruction
 
-"400k context limit, and change to 4 concurrent users. now what happens to
-the queued users?"
+"ok let's proceed wit this plan" (400k qualification, session-affine routing,
+then smaller queues after harness-retry verification). User confirmed OpenCode
+services run on user workstations and the public gateway is a reverse proxy.
 
 This approves **400,000 tokens including output and four active requests**,
 not four fixed accounts or exclusive whole-agent-task reservations. Four
 active requests (one per worker) are already configured. Retain DP4, lightweight
 MTP, HiCache 128 per TP rank, full GLM-5.3 and static memory 0.90. Only the
-context limit changes. No queue/routing/timeout settings were authorized to change.
+context limit changed in the installed engine experiment. Session affinity is
+now approved as a subsequent stage; queue=2 per worker is an approved later
+trial after affinity/retries pass. Keep timeout 120, and do not combine settings.
 
-## Next candidate: 400k prepared, pending user install
+## Current deployment: 400k installed and scoped near-limit tests passed
 
-- Candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
+- Installed unit matches `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
 - Exact 262k DP4 rollback:
   `glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
 - Preflight:
   `glm53-inference/evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json`.
-- Authoritative unit/image and baseline `/server_info` were preserved; static
-  systemd and installed-build argument construction passed. The live unit is
-  unchanged, and context remains **262,144** until the user installs/restarts.
-- Candidate differs only in context **262144 -> 400000** and description.
+- Authoritative prior unit/image and baseline `/server_info` were preserved;
+  static/parser checks passed before install. The user installed/restarted:
+  container start **19:09:50 UTC**, ready log **19:18:02 UTC** (~8.2 minutes).
+  API context is now **400,000**; four pools remain **472,768 slots each**.
+- Installed profile differs only in context **262144 -> 400000** and description.
   Prefill chunk resolves to 2048, max-running remains four, queues remain eight
-  per worker, waiting timeout 120 seconds. No engine/weights were launched.
+  per worker, waiting timeout 120 seconds. No other flags/image/model changed.
 - Cached model configs allow 1,048,576 position indexes; this is not evidence
-  of accuracy at 400k. Estimated occupancy is 84.6% of the current pool, with
-  72,768 slots spare; actual pool/input limits/headroom must be reprofiled.
-- Restart the full model on all GPUs, with roughly 9.5-minute prior startup
-  time and loss of GPU/RAM prefixes. Do not launch a second full-model engine.
+  of broad accuracy at 400k. Scoped 398k requests occupied about 84% of each
+  worker's pool. Output/headroom still matter. Do not launch a second engine.
 
-After user restart: verify context/settings and each worker's capacity,
-then small rank/tools/reasoning, one **398,000-token** chat retrieval, then
-four independent 398k requests and warmed forced-output rounds. Allow at
-least 1024 output tokens within 400k; never truncate. Follow with same-worker
-398k host restoration and bounded queue/load checks. Existing profile-helper
-guards must pass on the **new measured** pool; a CLI limit alone is not success.
+Completed tests (19:43-19:52 UTC), with no test-driven service changes:
 
-Run these **only after** the new service is ready and its pools pass inspection;
-do not run benchmarks in parallel or assume the helper starts an engine:
+- Small rank/tools/reasoning smoke passed before and after load.
+- One cold 398k retrieval passed, then three warmed 512-output rounds ran
+  at **88.24 tok/s**. Cold response 93.80 s, zero cache hits.
+- Four independent cold 398k prompts recalled all beginning/middle/end codes;
+  cold batch wall time **92.89 s**, zero cache hits, exact prompt lengths.
+  Three warmed rounds ran at **325.33 aggregate / 85.46 per-request tok/s**,
+  with 397,952 device hits each, four active, no queued/retracted requests.
+  MTP draft acceptance ~91.7%. This is 1.592M independent prompt tokens active.
+- DP0 fresh 398k target plus two same-worker pressure conversations proved
+  **397,952 host hits and zero device hits**, correct retrieval. Response:
+  **90.84 s cold / 1.99 s GPU-warm / 4.13 s RAM-restored**. Server intervals:
+  **88.18 / 0.108 / 1.90 s**. Cold/restored outputs both 191 tokens.
+- No post-ready runtime errors/watchdogs/retractions/OOM; minimum physical GPU
+  free memory after load 4192 MiB (~4.1 GiB), RAM available ~855 GB decimal.
+- Summary: `glm53-inference/evidence/dp4-400k-validation-summary-20261013T204840Z.json`.
+  Earlier 260k c4 warmed rate was 352 / 89.6; actual context length differs,
+  so this is not an isolated flag-overhead or real coding-task comparison.
+
+The following commands reproduce the completed scoped tests. Run only on an
+idle engine, not in parallel; they are not required again for the gateway check:
 
 ```bash
 cd /home/advtech/glm53-inference
@@ -56,7 +73,44 @@ python3 -B tests/dp4_profile_test.py --mode host --rank 0 --prompt-tokens 398000
 
 These use 1024 max output tokens for natural retrieval and 512 forced tokens
 for timed rounds, within 400k including output. Broader coding quality and
-queue overload behavior are separate gates; no 400k test has run yet.
+queue overload behavior are separate gates, not implied by the scoped pass.
+
+## Next stage: OpenCode session affinity, blocked on public gateway path
+
+Confirmed OpenCode services run on **user workstations**. Local OpenCode is
+v2.0.27; provider `Zai`, model alias `pratt-high`, endpoint
+`https://llm.pratt.edu/v1` in the sampled **local GPU-server config**, not an
+inspected workstation config. Workstation versions/endpoints/provider IDs still
+need confirmation. The sampled display name still says GLM-5.3-Flash;
+do not change client metadata or assume the backend until the upstream is verified.
+
+Native SGLang supports `X-Data-Parallel-Rank` on chat/completion HTTP requests;
+OpenCode V2 `http.request` hooks expose a stable session ID. A scoped client
+plugin could pin subsequent turns without adding an inference proxy or changing
+port 8012 **if** the existing request path preserves that header. New sessions
+also need protected worker-load information for least-loaded assignment.
+
+Authenticated, read-only gateway checks found `/metrics` and `/server_info`
+return HTML, not worker gauges/engine information. One tiny neutral request to
+public `pratt-high` with rank header 3 returned HTTP 200 but changed **none**
+of this engine's per-rank decode counters. Its local chat-request counter stayed
+at two (the two qualification tool calls). Additional public inference probes
+were stopped. No private user code/history was sent or credentials logged.
+Evidence: `glm53-inference/evidence/opencode-gateway-dp-header-probe-20261013T204440Z.json`.
+
+Therefore do not deploy a plugin blindly or claim workstation traffic reaches
+this engine. First confirm their actual endpoint; the sampled local config is
+not proof of it. If it is this gateway, inspect the alias's upstream/header and
+protected load-access route. Gateway configuration is on another host and has
+not been supplied; no gateway or client configuration was changed. User asked
+why checking again: **400k is already complete; this check is only for affinity**.
+
+After the public path is verified, implement stable session assignment, preserve
+rank on retries/compaction/tool continuations, confirm real cache hits and bounded
+503 backoff/jitter. Then trial **two queued requests per worker (eight total)**,
+retaining 120-second timeout. Until then live queues remain eight per worker.
+No queue candidate or plugin is prepared/installed yet; approval is conditional
+on the earlier stages, not proof of successful implementation.
 
 ## Queued requests: installed-source review
 
@@ -76,7 +130,7 @@ These details are source-reviewed, not overload-runtime qualification.
 Leave settings unchanged unless separately approved; long outputs/400k cold
 prefill could make the 120-second queue limit important.
 
-## Last verified live state: DP4 ready
+## Earlier 262k DP4 reference (historical)
 
 The user installed `dp4-mtp-hicache128.service`. Verified ready with TP8/DP4,
 EAGLE 1/1/2, FP8 KV, HiCache 128 per TP rank, static memory 0.90 and context
@@ -117,14 +171,13 @@ short/long/concurrency and same-worker host-restoration tests. The old
 - Comparison and linked reports:
   `glm53-inference/evidence/dp4-runtime-comparison-20261013T175226Z.json`.
 
-**400k is not enabled or validated**, and four 260k prompts plus output are
-not proof of exact-full-context occupancy, six/eight-user capacity, sustained
-production load or broad coding quality. Host restoration was tested on DP0,
-not DP1-3. Keep current profile/HiCache while measuring real coding task time;
-an isolated on/off test needs an approved restart, not a historical comparison.
+At that earlier stage 400k was not enabled or validated; the later 400k/398k
+results are now recorded above. Four 260k prompts alone were not proof of full
+occupancy, six/eight users or broad production quality. DP1-3 restoration,
+sustained coding quality and exact-full-context occupancy remain unqualified.
 
-Remaining priorities: install and qualify the approved 400k candidate, real
-task/load measurement, production session affinity and DP1-3 host restore.
+Remaining priorities: resolve the gateway path for session affinity, then the
+approved queue trial, real task/load measurement and DP1-3 host restore.
 Six/eight active requests would require a separately approved admission
 profile; the current approved target is four, one per worker.
 
@@ -209,7 +262,7 @@ The older TP-only fallback remains
 `sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service`, but changes DP and
 MTP too and is not the narrow rollback for this context-only experiment.
 
-## Ordered validation
+## Historical ordered 262k DP4 validation (retained reference)
 
 1. Wait for readiness; inspect errors and verify TP8/DP4, MTP 1/1/2, HiCache
    128, FP8, context 262,144 and memory 0.90. Verify the effective admission
@@ -255,10 +308,10 @@ alone reproduces the Ramjet experiment's session-cache performance.
 - https://github.com/helixml/ramjet/blob/main/EXPERIMENTS.md (2026-09-29 section)
 - Local `srt/layers/dp_attention.py` resolves attention TP as TP/DP.
 
-Startup, tools, four-near-limit concurrency and same-worker DP0 host restore
-passed in scoped synthetic tests. DP1-3 restoration, sustained real workload,
-six/eight-user admission and larger context remain pending. The original
-ordered gates above are retained as the plan, not as evidence of completion.
+The earlier 262k gates and later 400k-enabled 398k tests passed as recorded
+above. DP1-3 restoration, sustained real workload and exact-full-context
+occupancy remain pending. The historical ordered gates are retained as a
+reference, not a request to repeat benchmarks for the gateway investigation.
 
 ## Reproduce current-profile tests (idle server only)
 

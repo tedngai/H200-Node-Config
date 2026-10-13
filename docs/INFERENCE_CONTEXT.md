@@ -10,7 +10,8 @@ this document is a record, not proof that a pending candidate is installed.
   combination, balancing quality, concurrency, latency and reliability.
 - Current approved target: **four active generation requests**, one per DP4
   worker, and **400,000 context tokens including output**. This context-only
-  candidate is prepared; the live limit remains 262,144 pending user install.
+  unit is installed/ready at 400k, with scoped 398k single/four retrieval,
+  warmed generation and DP0 host-restoration checks passed.
   The earlier six/eight-user goal is historical/future work, not authorization
   to raise admission. Do not silently truncate or reduce context to claim success.
 - SGLang first; exhaust its reasonable options before migrating. The user has
@@ -23,26 +24,66 @@ this document is a record, not proof that a pending candidate is installed.
   passed; sustained real coding load and broad quality remain pending.
 - Preserve `pratt-high`, port 8012 and reasoning/tool-call functionality.
 
-## Approved next change: 400k context, four active requests
+## Current deployment: 400k context, four active requests
 
 The user approved 400,000 tokens including output and four active requests.
-Four active requests are already configured, one per DP4 worker; the candidate
-changes **only `--context-length 262144` to `400000`** and the unit description.
+Four active requests remain configured, one per DP4 worker; the installed unit
+changed **only `--context-length 262144` to `400000`** and the unit description.
 MTP, HiCache 128/rank, pinned image/model, memory 0.90, API identity, prefill,
 admission, queue flags and timeouts remain untouched.
 
-- Candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
+- Installed candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
 - Exact narrow rollback: `glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
 - Baseline snapshot: `glm53-inference/evidence/pre-400k-server-info-20261013T181759Z.json`.
 - Preflight: `glm53-inference/evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json`.
 
-Static systemd verification and installed-build argument construction passed
-without launching another engine or loading weights. The live unit remains
-unchanged and context **262,144**. Cached model configs report a 1,048,576
-position-index ceiling, not validated accuracy at 400k. 400k would consume
-84.6% of the existing 472,768 pool and leave 72,768 slots; capacity/headroom
-must be reprofiled after restart. Startup previously took ~9.5 minutes and
-restart clears GPU/RAM prefixes. User performs privileged install/restart.
+Before installation, static/parser preflight passed without launching another
+engine. The user installed/restarted it; container start 19:09:50 UTC and
+ready log 19:18:02 UTC (~8.2 minutes). The authoritative unit matches the
+candidate; API context is **400,000**, memory 0.90, pools **472,768 each**,
+one active per worker, unchanged image/model/MTP/HiCache/alias/port/parsers.
+Engine-reported startup headroom was 9.801-9.846 GB per worker. Startup had
+56 soft-watchdog warnings, 112 failed py-spy diagnostics and eight known
+656-byte JIT fallback warnings; no post-ready runtime issue was found.
+
+### Scoped 398k qualification completed
+
+The idle-guarded test sequence ran 19:43-19:52 UTC, using rank pinning, the
+model's chat template and natural synthetic records with distinct early prefixes.
+
+| Test | Cold retrieval response/batch | Warmed aggregate tok/s | Warmed median per-request tok/s |
+| --- | ---: | ---: | ---: |
+| One independent 398k prompt | 93.80 s | 88.24 | 88.24 |
+| Four independent 398k prompts | 92.89 s | 325.33 | 85.46 |
+
+All initial requests had zero cache hits, exact prompt lengths and correct
+beginning/middle/end code recall. Then three warmed rounds generated exactly
+512 output tokens each, with 397,952 **device** hits per request and zero host
+hits. Metrics proved four active workers, zero queued and zero retractions;
+the four-user MTP draft acceptance was ~91.7%. Each private pool was ~84%
+active, representing 1.592M independent prompt tokens. No truncation occurred.
+The older four-user 260k workload ran at 352 / 89.6 tok/s; longer actual
+prompts make this descriptive, not an isolated context-flag overhead test.
+
+DP0 host restoration used a fresh 398k target and two distinct same-worker
+pressure conversations. The return had **397,952 host hits and zero device
+hits**, with correct recall in every stage:
+
+- Cold response **90.84 s**, server prefill **88.18 s**, 191 output tokens.
+- GPU-warm response **1.99 s**, server prefill **0.108 s**, 153 output tokens.
+- RAM-restored response **4.13 s**, server restore/prefill **1.90 s**, 191 output tokens.
+
+Cold/restored output lengths match in this probe; this still is not a client
+streaming-TTFT distribution. Tools/separated reasoning and rank checks passed
+before and after load. Post-test state was ready/idle, cumulative retractions
+zero, no OOM/runtime errors/watchdogs. RAM available ~855 GB decimal, swap
+used ~13.6 MB; minimum physical GPU free memory 4192 MiB (~4.1 GiB), lower
+than the previous 260k post-load reading but with no OOM.
+
+Summary: `glm53-inference/evidence/dp4-400k-validation-summary-20261013T204840Z.json`.
+This qualifies scoped 398k+output requests on a 400k-enabled engine, not exact
+full occupancy, sustained coding load or broad quality. DP1-3 host restoration
+remains untested. Do not rerun this stage merely to investigate client routing.
 
 ### Queue semantics confirmed in this pinned build
 
@@ -67,13 +108,48 @@ Waiting timeout is **120 seconds** (`SGLANG_REQ_WAITING_TIMEOUT=120`).
 already-open streams can carry abort/error events instead. Client/proxy
 deadlines may be shorter. These are source-reviewed semantics, not a measured
 overload qualification. No queue/timeout/routing setting was changed.
-Long outputs or 400k cold prefill can make the two-minute wait limit important;
-changing it or routing policy would be a separate approved experiment.
+Long outputs or 400k cold prefill can make the two-minute wait limit important.
+The user approved session affinity next, followed by queue=2 per worker after
+retry/backoff verification, with timeout retained at 120. These stages are not
+implemented. No queue flags changed during the completed context test.
 
-Next after user restart: reprofile and check settings; small rank/tools/reasoning,
-one 398k chat retrieval, four independent 398k prompts with output headroom and
-per-worker activity, warmed rounds, same-worker host restoration, bounded
-queue tests. Never infer four near-400k contexts fit just from a CLI flag.
+### OpenCode affinity: gateway dependency pending
+
+User confirmed OpenCode services run on **user workstations**, not this GPU
+server. Local CLI is v2.0.27. The sampled GPU-server config has provider `Zai`
+selecting alias `pratt-high` through `https://llm.pratt.edu/v1`; actual workstation
+configs/versions were not inspected. This is a separately hosted reverse proxy. The
+configured display name is GLM-5.3-Flash; do not infer its current upstream or
+change client metadata until the request path is verified.
+
+OpenCode V2 native HTTP hooks expose sessionID and can set a stable header.
+The installed SGLang source accepts **X-Data-Parallel-Rank** on chat/completion
+requests, overriding body rank. Thus a scoped workstation plugin is a possible
+integration, not a deployed feature. New-session least-loaded assignment needs
+protected worker-load information; retries/compaction/tool continuations should
+preserve rank, not blindly switch to a cold pool. HiCache has no automatic
+cross-worker RAM-to-GPU migration.
+
+Authenticated, read-only `/metrics` and `/server_info` gateway checks returned
+HTML, not engine information. One tiny neutral public request with rank header
+3 returned HTTP 200 but changed **none** of this engine's decode counters;
+local chat HTTP counter remained two (the two qualification tool calls).
+Additional public probes stopped. No private user code/history was sent;
+existing credentials stayed in memory and were not logged. Evidence:
+`glm53-inference/evidence/opencode-gateway-dp-header-probe-20261013T204440Z.json`.
+
+Do not assume workstations use the sampled local endpoint. Confirm their
+actual endpoint first, and do not activate pinning blindly. For this gateway,
+inspect its upstream mapping, header forwarding and protected load
+route first. Gateway config is on another host and was not supplied; no gateway
+or OpenCode configuration was changed. The user asked why checking again:
+the **400k engine change is already complete**; this is only a prerequisite for
+the approved affinity stage, not a reason to repeat the benchmarks.
+
+After that path and bounded 503 retry/backoff are verified, trial two queued
+requests per worker (eight total), retaining 120 seconds. Do not reduce queues
+before that stage or mix in a timeout/routing change. Actual gateway mapping,
+OpenCode context-limit metadata and end-to-end coding behavior remain pending.
 
 ## Hardware and paths
 
@@ -252,7 +328,7 @@ same six-user context sizes on both profiles and leave output headroom; an
 remain comfortable. The next approved candidate is now DP4+MTP+HiCache with
 four active requests, not a TP-only MTP A/B. It is installed; see the next section.
 
-## Current plan: DP4 attention + MTP + HiCache
+## Earlier 262k DP4 profile: historical reference
 
 **Verified live on 2026-10-13:** the user installed the candidate. Container
 started at 15:50:15 UTC and the ready log appeared at 15:59:43 UTC (~9.5 min).
@@ -289,7 +365,7 @@ TP-only, while `dp4_profile_test.py` now handles DP-aware profiling. One short
 sample had implausible native throughput,
 so no speed comparison is inferred from it.
 
-### Current-config scoped runtime comparison (17:45-17:52 UTC)
+### Earlier 262k scoped runtime comparison (17:45-17:52 UTC)
 
 The user requested tests on the current config and a comparison. No service,
 model, context, image, MTP or HiCache settings were changed. The new profile
@@ -366,11 +442,9 @@ attention TP2. An early DSA warning prints the global TP value; verify actual
 groups after startup rather than treating that warning as proof. The exact
 prechange unit is `pre-dp4-mtp-hicache128.service`.
 
-Four near-400k contexts are now an approved **prepared** experiment, not a
-measurement. MLA KV is replicated within each pair, so a DP8 pool does not
-simply double. The 262k profile passed scoped gates; 400k startup/input limits,
-headroom and correctness must be tested after installation. No 400k deployment
-or runtime success is currently claimed.
+The later 400k-enabled profile is installed and passed scoped four-398k gates,
+as recorded above. MLA KV is still replicated within each pair; no DP8 pool
+doubling, exact-full-400k, sustained production or broad-quality claim is made.
 
 Pin requests to `routed_dp_rank` 0-3 and check `dp_rank` metadata. Existing
 helpers need DP-aware routing/activity accounting: a max across metric series
