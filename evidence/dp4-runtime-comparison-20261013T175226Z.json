@@ -1,0 +1,336 @@
+{
+  "checked_at_utc": "2026-10-13T17:52:27.513262+00:00",
+  "status": "dp4_current_config_scoped_short_long_concurrency_host_restore_passed",
+  "no_service_or_model_changes": true,
+  "authoritative_unit_sha256": "b9179ac592c4cd94132482846302c143cd48e0c7aa1442e7527ece7c10dfd61c",
+  "unit_matches_packaged_copy": true,
+  "image_id": "sha256:cb940197908678dacb041556b64798cc0493d547816a8e8a6731fa37dddfc4fb",
+  "pinned_image": "lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1",
+  "config": {
+    "status": "ready",
+    "version": "0.5.18",
+    "model_path": "zai-org/GLM-5.3",
+    "served_model_name": "pratt-high",
+    "context_length": 262144,
+    "tp_size": 8,
+    "dp_size": 4,
+    "ep_size": 1,
+    "enable_dp_attention": true,
+    "kv_cache_dtype": "fp8_e4m3",
+    "mem_fraction_static": 0.9,
+    "max_running_requests": 4,
+    "max_queued_requests": 8,
+    "max_total_num_tokens": 472768,
+    "chunked_prefill_size": 2048,
+    "speculative_algorithm": "EAGLE",
+    "speculative_num_steps": 1,
+    "speculative_eagle_topk": 1,
+    "speculative_num_draft_tokens": 2,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "hicache_write_policy": "write_through",
+    "hicache_io_backend": "kernel",
+    "hicache_mem_layout": "page_first",
+    "enable_cache_report": true,
+    "reasoning_parser": "glm45",
+    "tool_call_parser": "glm47",
+    "allow_auto_truncate": false,
+    "dsa_prefill_backend": "flashmla_sparse_q8",
+    "dsa_decode_backend": "flashmla_kv"
+  },
+  "worker_states": [
+    {
+      "index": 0,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.846,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.107
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "index": 1,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "index": 2,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "index": 3,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    }
+  ],
+  "test_reports": {
+    "short_c1": "dp4-mtp-hicache128-short-20261013T174508Z-c1-256.json",
+    "short_c4": "dp4-mtp-hicache128-short-20261013T174521Z-c4-256.json",
+    "long_c4_100k": "dp4-mtp-hicache128-long-20261013T174543Z-c4-100000.json",
+    "long_c4_260k": "dp4-mtp-hicache128-long-20261013T174636Z-c4-260000.json",
+    "host_restore_rank0_260k": "dp4-mtp-hicache128-host-20261013T174803Z-rank0-260000.json"
+  },
+  "summaries": {
+    "short_c1": {
+      "passed": true,
+      "median_aggregate_tokens_per_second": 93.51135354123186,
+      "median_end_to_end_tokens_per_second_per_request": 93.52047170488778,
+      "peak_running_requests": 1.0,
+      "peak_queued_requests": 0,
+      "total_retractions": 0,
+      "actual_output_tokens": 768,
+      "median_weighted_mtp_draft_acceptance": 0.9393939393939394
+    },
+    "short_c4": {
+      "passed": true,
+      "median_aggregate_tokens_per_second": 336.609769893241,
+      "median_end_to_end_tokens_per_second_per_request": 86.08394040997834,
+      "peak_running_requests": 4.0,
+      "peak_queued_requests": 0,
+      "total_retractions": 0,
+      "actual_output_tokens": 3072,
+      "median_weighted_mtp_draft_acceptance": 0.8566243194192378
+    },
+    "long_c4_100k": {
+      "passed": true,
+      "median_aggregate_tokens_per_second": 360.63293747419374,
+      "median_end_to_end_tokens_per_second_per_request": 91.9240479207067,
+      "peak_running_requests": 4.0,
+      "peak_queued_requests": 0,
+      "total_retractions": 0,
+      "actual_output_tokens": 6144,
+      "median_weighted_mtp_draft_acceptance": 0.930188679245283
+    },
+    "long_c4_260k": {
+      "passed": true,
+      "median_aggregate_tokens_per_second": 351.99645299406563,
+      "median_end_to_end_tokens_per_second_per_request": 89.59588917154707,
+      "peak_running_requests": 4.0,
+      "peak_queued_requests": 0,
+      "total_retractions": 0,
+      "actual_output_tokens": 6144,
+      "median_weighted_mtp_draft_acceptance": 0.9220657276995305
+    },
+    "host_restore_rank0_260k": {
+      "passed": true,
+      "cold_elapsed_seconds": 53.79976805113256,
+      "gpu_warm_elapsed_seconds": 1.489340215921402,
+      "restored_elapsed_seconds": 3.288376822602004,
+      "cold_prefill_seconds": 51.23585605621338,
+      "gpu_warm_prefill_seconds": 0.08567070960998535,
+      "restored_prefill_seconds": 1.2926621437072754,
+      "host_cached_tokens_on_restore": 259968,
+      "device_cached_tokens_on_restore": 0,
+      "cold_vs_restore_end_to_end_speedup": 16.360584857961094,
+      "all_retrievals_passed": true,
+      "total_retractions": 0,
+      "note": "Natural answer lengths may differ; prefill/restore intervals isolate the cache benefit better."
+    }
+  },
+  "short_comparisons": [
+    {
+      "current_report": "dp4-mtp-hicache128-short-20261013T174508Z-c1-256.json",
+      "baseline_report": "fp8-mtp-c1.json",
+      "concurrency": 1,
+      "prompt_and_forced_output_matched": true,
+      "caveats": [
+        "Historical raw completion speed-only test, not chat-quality evidence.",
+        "Current profile also changes DP attention, prefill chunk and HiCache; not an isolated HiCache or DP A/B.",
+        "Workers individually warmed in the current test; 28-token prompts had zero cache hits in measured rounds."
+      ],
+      "current_aggregate_tps": 93.51135354123186,
+      "baseline_aggregate_tps": 165.30899190088653,
+      "aggregate_change_percent": -43.43238533733362,
+      "current_per_request_tps": 93.52047170488778,
+      "baseline_per_request_tps": 165.3535481638493,
+      "per_request_change_percent": -43.442113735462094
+    },
+    {
+      "current_report": "dp4-mtp-hicache128-short-20261013T174508Z-c1-256.json",
+      "baseline_report": "fp8-no-mtp-c1.json",
+      "concurrency": 1,
+      "prompt_and_forced_output_matched": true,
+      "caveats": [
+        "Historical raw completion speed-only test, not chat-quality evidence.",
+        "Current profile also changes DP attention, prefill chunk and HiCache; not an isolated HiCache or DP A/B.",
+        "Workers individually warmed in the current test; 28-token prompts had zero cache hits in measured rounds."
+      ],
+      "current_aggregate_tps": 93.51135354123186,
+      "baseline_aggregate_tps": 96.88282492590045,
+      "aggregate_change_percent": -3.479947438823361,
+      "current_per_request_tps": 93.52047170488778,
+      "baseline_per_request_tps": 96.89498211673393,
+      "per_request_change_percent": -3.4826472311855317
+    },
+    {
+      "current_report": "dp4-mtp-hicache128-short-20261013T174521Z-c4-256.json",
+      "baseline_report": "fp8-mtp-c4.json",
+      "concurrency": 4,
+      "prompt_and_forced_output_matched": true,
+      "caveats": [
+        "Historical raw completion speed-only test, not chat-quality evidence.",
+        "Current profile also changes DP attention, prefill chunk and HiCache; not an isolated HiCache or DP A/B.",
+        "Workers individually warmed in the current test; 28-token prompts had zero cache hits in measured rounds."
+      ],
+      "current_aggregate_tps": 336.609769893241,
+      "baseline_aggregate_tps": 449.7403336299428,
+      "aggregate_change_percent": -25.154640417416594,
+      "current_per_request_tps": 86.08394040997834,
+      "baseline_per_request_tps": 113.41055186927377,
+      "per_request_change_percent": -24.095298901987803
+    },
+    {
+      "current_report": "dp4-mtp-hicache128-short-20261013T174521Z-c4-256.json",
+      "baseline_report": "fp8-no-mtp-c4.json",
+      "concurrency": 4,
+      "prompt_and_forced_output_matched": true,
+      "caveats": [
+        "Historical raw completion speed-only test, not chat-quality evidence.",
+        "Current profile also changes DP attention, prefill chunk and HiCache; not an isolated HiCache or DP A/B.",
+        "Workers individually warmed in the current test; 28-token prompts had zero cache hits in measured rounds."
+      ],
+      "current_aggregate_tps": 336.609769893241,
+      "baseline_aggregate_tps": 328.13597551499896,
+      "aggregate_change_percent": 2.582403335977612,
+      "current_per_request_tps": 86.08394040997834,
+      "baseline_per_request_tps": 82.06420908105844,
+      "per_request_change_percent": 4.8982758426995066
+    }
+  ],
+  "long_descriptive_comparisons": [
+    {
+      "current_report": "dp4-mtp-hicache128-long-20261013T174543Z-c4-100000.json",
+      "baseline_report": "fp8-no-mtp-6-long-c6-100000.json",
+      "matched_comparison": false,
+      "current_users": 4,
+      "baseline_users": 6,
+      "current_prompt_tokens": 100000,
+      "baseline_prompt_tokens": 100000,
+      "current_aggregate_tps": 360.63293747419374,
+      "baseline_aggregate_tps": 412.3964944110438,
+      "current_per_request_tps": 91.9240479207067,
+      "baseline_per_request_tps": 68.87703934314689,
+      "caveat": "Different active-user counts, MTP and DP configurations; second baseline also has a different context size. Descriptive only."
+    },
+    {
+      "current_report": "dp4-mtp-hicache128-long-20261013T174543Z-c4-100000.json",
+      "baseline_report": "hicache128-no-mtp-long-c6-90000.json",
+      "matched_comparison": false,
+      "current_users": 4,
+      "baseline_users": 6,
+      "current_prompt_tokens": 100000,
+      "baseline_prompt_tokens": 90000,
+      "current_aggregate_tps": 360.63293747419374,
+      "baseline_aggregate_tps": 409.97514057824014,
+      "current_per_request_tps": 91.9240479207067,
+      "baseline_per_request_tps": 68.46565448118915,
+      "caveat": "Different active-user counts, MTP and DP configurations; second baseline also has a different context size. Descriptive only."
+    }
+  ],
+  "cold_four_100k_wall_seconds": 19.519373565912247,
+  "cold_four_260k_wall_seconds": 54.95838232478127,
+  "cold_long_prefix_cache_hits": {
+    "long_c4_100k": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_c4_260k": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "post_load_tool_and_rank_smoke_report": "dp4-startup-smoke-20261013T175121Z.json",
+  "post_load_tools_passed": true,
+  "post_load_separated_reasoning_present": true,
+  "post_load_server_info_report": "dp4-post-profile-server-info-20261013T175226Z.json",
+  "runtime_issue_lines_since_test_start": [],
+  "runtime_warning_or_error_lines_since_test_start": [],
+  "container_oom_killed": false,
+  "host_memory_bytes": {
+    "MemAvailable": 857347022848,
+    "Shmem": 1231104004096,
+    "SwapTotal": 8589930496,
+    "SwapFree": 8576299008
+  },
+  "gpu_memory_and_utilization_csv": "index, memory.used [MiB], memory.free [MiB], utilization.gpu [%]\n0, 137582 MiB, 5574 MiB, 0 %\n1, 137652 MiB, 5504 MiB, 0 %\n2, 137618 MiB, 5538 MiB, 0 %\n3, 137610 MiB, 5546 MiB, 0 %\n4, 137676 MiB, 5480 MiB, 0 %\n5, 137648 MiB, 5508 MiB, 0 %\n6, 137620 MiB, 5536 MiB, 0 %\n7, 137132 MiB, 6024 MiB, 0 %\n",
+  "idle_request_and_retraction_metric_lines": [
+    "sglang:num_retracted_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"442\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"446\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"448\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"444\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0"
+  ],
+  "limits": [
+    "Scoped synthetic tests lasting minutes, not a sustained production workload or broad coding accuracy evaluation.",
+    "Four 260000-token prompts plus up to 1024 output tokens fit and passed; not exact-full-262144 occupancy or 400k validation.",
+    "One active request per worker remains; six/eight simultaneous users are not qualified on DP4.",
+    "Host restoration verified on DP0; other workers were not independently evict/restore tested.",
+    "HiCache-on/off and TP-vs-DP causal isolation require approved matched configuration experiments.",
+    "Session affinity is validation-only; production sticky routing is not installed."
+  ],
+  "decision": "Keep current profile and HiCache pending real coding-task measurement. It has demonstrated four near-limit active contexts, but short microbenchmarks are slower than historical TP-only MTP."
+}

@@ -1,7 +1,7 @@
 {
   "package": "glm53-inference",
   "note": "Manifest excludes this file itself.",
-  "file_count": 59,
+  "file_count": 70,
   "files": [
     {
       "path": ".gitignore",
@@ -10,13 +10,13 @@
     },
     {
       "path": "AGENTS.md",
-      "bytes": 1778,
-      "sha256": "876f557e98348eaad21ad2b1d7d1a641e31084f4dcf24d750a137fcd65414824"
+      "bytes": 2089,
+      "sha256": "6f373d8e87bc357f622d6716dcd6549d510162af526ff965e01a9906efeaea4d"
     },
     {
       "path": "README.md",
-      "bytes": 3766,
-      "sha256": "8ce4690fce480fde00fe20d0caf392b205c144a1c40a908fd2630c0b8592fa36"
+      "bytes": 4312,
+      "sha256": "bdc2de6fd5cd529f0bce24c85c578d6d17ddaac47fef9d83be84ce4e0de9e366"
     },
     {
       "path": "configs/systemd/README.md",
@@ -80,38 +80,38 @@
     },
     {
       "path": "docs/AGENTS.md",
-      "bytes": 7551,
-      "sha256": "649ad022293580acd469327cff5cc455e1563dcf98d2821b5bf5d00984e216bf"
+      "bytes": 8351,
+      "sha256": "ed5cd239402e6cededd7af3448976e9df8e8aefb8992b13b2740725ad2792b4f"
     },
     {
       "path": "docs/INFERENCE_CONTEXT.md",
-      "bytes": 17436,
-      "sha256": "ccad13b84097a1d6a5faf585fc59005f1d2e8cfd1d4be482c5ff708d72439532"
+      "bytes": 21313,
+      "sha256": "884fb22d73e7e961c8e4fc1942cd23a5144797ee93e457ae389b46d389152de0"
     },
     {
       "path": "docs/NEXT_EXPERIMENT.md",
-      "bytes": 8670,
-      "sha256": "a8614d377163b27d58b3f8e51e9cd297004259ae879865d60bc5e06731607638"
+      "bytes": 11714,
+      "sha256": "74573b8b5ca885a7ee617c4881750a7390dec231df4b27c3e84f22118aed981c"
     },
     {
       "path": "docs/PROGRESS.xml",
-      "bytes": 17423,
-      "sha256": "76e8c134495cfb99a04bb6f3f6990fcae8cb69fe99a467155e24dc796c8d885e"
+      "bytes": 21171,
+      "sha256": "71e1dee729661607d109610cf0b2c86c6ca596098c52cac00f81241a0a9a5caf"
     },
     {
       "path": "docs/results.md",
-      "bytes": 13156,
-      "sha256": "04b6d672c50a8ebfc6eb55abb93bbe2546fad377ce7691cba1fc203d2adc3ce6"
+      "bytes": 18599,
+      "sha256": "c5f3cb1881ab304286a996cab6b8c8e8ed010fa67ba017b76a91e16fd720e6c7"
     },
     {
       "path": "docs/test-history.md",
-      "bytes": 7184,
-      "sha256": "36f26b57e75187dd211db768a6a645d82a33a113d1840e722936349dbd58c77a"
+      "bytes": 7481,
+      "sha256": "40a350322b55d29c9fae820faa5459f54bfc3a1a3aae047acc6501f741bab581"
     },
     {
       "path": "evidence/README.md",
-      "bytes": 436,
-      "sha256": "53159c96810418aad6ab01232cfef57786a46ffd8693830388e7bed87f0a9b30"
+      "bytes": 811,
+      "sha256": "1ae1afa40e4aeea9f1400e17d53311b2bd8d36cfa849df8fd51e61b9723ebf30"
     },
     {
       "path": "evidence/baseline-bf16-mtp-c1.json",
@@ -129,6 +129,21 @@
       "sha256": "6c857192568cc34344188a01580874a880ae8bf1879ad9db28ab932d1006fd5b"
     },
     {
+      "path": "evidence/dp4-mtp-hicache128-host-20261013T174803Z-rank0-260000.json",
+      "bytes": 722990,
+      "sha256": "f6b77b05994d1e5f6c88e32d54dd9d5bd4b38ac48e5e6f5dad42648a9493f55e"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-long-20261013T174543Z-c4-100000.json",
+      "bytes": 201023,
+      "sha256": "d186a74ac5899009d719e757e4950bc8413b732a8ec99e21de6e6770c51760a7"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-long-20261013T174636Z-c4-260000.json",
+      "bytes": 350554,
+      "sha256": "f5a44261c8babdf1f0a309484f7c749a0ee7badeb3b7baeeefc59856514154ab"
+    },
+    {
       "path": "evidence/dp4-mtp-hicache128-parser-preflight.txt",
       "bytes": 1421,
       "sha256": "f841d116df7b1cb414f172bcd1f35e2c676f3f7e27f6d5959f4bbbdc474b1530"
@@ -137,6 +152,26 @@
       "path": "evidence/dp4-mtp-hicache128-preflight.json",
       "bytes": 1373,
       "sha256": "4be85651ab1b690190400ea7ad9e1108bd5b92bd8e3986d4c314781e8f82175d"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-short-20261013T174508Z-c1-256.json",
+      "bytes": 50632,
+      "sha256": "9fddc91f94b10c1a75052354f903e2f3d34440cfd1d7302737328a1d125afe20"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-short-20261013T174521Z-c4-256.json",
+      "bytes": 78189,
+      "sha256": "57d27c8ece2a4eb36a1242b2278a286b8cff4054bd1f92dbedfceb78485bc2d2"
+    },
+    {
+      "path": "evidence/dp4-post-profile-server-info-20261013T175226Z.json",
+      "bytes": 105411,
+      "sha256": "ab2a9fc56601654798e8504ca7ed307ca7881a438a019ba81e7cfafe7b1e508b"
+    },
+    {
+      "path": "evidence/dp4-runtime-comparison-20261013T175226Z.json",
+      "bytes": 14950,
+      "sha256": "567340cc4b61d2e446dcb69b8da34cf3655f11f43a5e37bbbd6628e1e9a8ea48"
     },
     {
       "path": "evidence/dp4-server-info-20261013T160713Z.json",
@@ -149,6 +184,11 @@
       "sha256": "5c359db87a25615325332c59d92905a221cfd0dea048ab24e82a7d87716f1cad"
     },
     {
+      "path": "evidence/dp4-server-info-20261013T175121Z.json",
+      "bytes": 105395,
+      "sha256": "884e9c8dc5464bd22c99f1d298794d1a8fc7d3e044acea56e18346ab70641823"
+    },
+    {
       "path": "evidence/dp4-startup-smoke-20261013T160713Z.json",
       "bytes": 3094,
       "sha256": "b7ed07d834bcdc9d71b90e000abbaa7182d78e902e95ff4c12d96afe3fe9f7d6"
@@ -157,6 +197,11 @@
       "path": "evidence/dp4-startup-smoke-20261013T160727Z.json",
       "bytes": 25494,
       "sha256": "cb2cfa429ea1b84001b88f315a03bff96e767b10a075fa689f01dc6052e653f5"
+    },
+    {
+      "path": "evidence/dp4-startup-smoke-20261013T175121Z.json",
+      "bytes": 20001,
+      "sha256": "220926b83b7727577095831c61bd9e7344ded241fa7f03fa9fb339caaa3714b7"
     },
     {
       "path": "evidence/dp4-startup-validation-summary.json",
@@ -284,6 +329,11 @@
       "sha256": "780915a3609641e21145a93756cb491ab104dc81f6164ab78fe3a733f88cf357"
     },
     {
+      "path": "tests/dp4_profile_test.py",
+      "bytes": 18620,
+      "sha256": "80c1803342d1a0442a0738273e2716986e9fcd7b6096c73610b24d222ee84294"
+    },
+    {
       "path": "tests/dp4_smoke_test.py",
       "bytes": 7696,
       "sha256": "3e2cce3f5e9c945ed2160b59eac0d537e4047d757c8a58535e8c3468517f1b25"
@@ -297,6 +347,11 @@
       "path": "tests/smoke_test.py",
       "bytes": 6627,
       "sha256": "84856d2b40d3e6ff02d848a46ccba5153936513d6d6a0fb14d9fe7a944e4138f"
+    },
+    {
+      "path": "tests/test_dp4_profile.py",
+      "bytes": 2792,
+      "sha256": "94ecbc6cdff8bfdcec4ca0459deeafb9115e19e0d917402d19b2b4da9412b0f9"
     }
   ]
 }
