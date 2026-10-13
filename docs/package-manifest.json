@@ -1,0 +1,302 @@
+{
+  "package": "glm53-inference",
+  "note": "Manifest excludes this file itself.",
+  "file_count": 59,
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 208,
+      "sha256": "b0b67702978e59b1e428439e3e7ea1ddc80edd156280e25137d0d9d8aaa28209"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 1778,
+      "sha256": "876f557e98348eaad21ad2b1d7d1a641e31084f4dcf24d750a137fcd65414824"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3766,
+      "sha256": "8ce4690fce480fde00fe20d0caf392b205c144a1c40a908fd2630c0b8592fa36"
+    },
+    {
+      "path": "configs/systemd/README.md",
+      "bytes": 610,
+      "sha256": "e6809f7d1b8021a17588d89914f046ed879760edd20f1b787b5cdb47fd54c993"
+    },
+    {
+      "path": "configs/systemd/candidates/dp4-mtp-hicache128.service",
+      "bytes": 2044,
+      "sha256": "b9179ac592c4cd94132482846302c143cd48e0c7aa1442e7527ece7c10dfd61c"
+    },
+    {
+      "path": "configs/systemd/candidates/fp8-mtp.service",
+      "bytes": 1748,
+      "sha256": "b5fade2d89492965aacba415c7f4c57249f38cdff8d721a448802b19ee68b21f"
+    },
+    {
+      "path": "configs/systemd/candidates/fp8-no-mtp-6-hicache128.service",
+      "bytes": 1848,
+      "sha256": "c472d212041f2aa3c6503dd0f1cc77c82477e3c9f961c4417c73646d0d882041"
+    },
+    {
+      "path": "configs/systemd/candidates/fp8-no-mtp-6.service",
+      "bytes": 1628,
+      "sha256": "7514aae40a0da290bf15bbb70974a671d6d83ca42fcab69419dfa97100189e87"
+    },
+    {
+      "path": "configs/systemd/candidates/fp8-no-mtp.service",
+      "bytes": 1617,
+      "sha256": "96301cf0b4e15a7b8ed50eea830fae5d56d5a25cb93064b6d8fd4b5ce06784ae"
+    },
+    {
+      "path": "configs/systemd/candidates/original.service",
+      "bytes": 1542,
+      "sha256": "3902bb83b93a5fa2481545d942f00c121be8680e067888a32b6755a42cb90f34"
+    },
+    {
+      "path": "configs/systemd/candidates/pre-dp4-mtp-hicache128.service",
+      "bytes": 1848,
+      "sha256": "c472d212041f2aa3c6503dd0f1cc77c82477e3c9f961c4417c73646d0d882041"
+    },
+    {
+      "path": "configs/systemd/candidates/pre-hicache128.service",
+      "bytes": 1628,
+      "sha256": "7514aae40a0da290bf15bbb70974a671d6d83ca42fcab69419dfa97100189e87"
+    },
+    {
+      "path": "configs/systemd/legacy/sglang-glm53-root-copy.service",
+      "bytes": 1327,
+      "sha256": "e0db44fd72300d23340082fc4485039b01e9ec45e1eff38148e3907a9cd2262f"
+    },
+    {
+      "path": "configs/systemd/optional/sglang-glm53-flash.service",
+      "bytes": 1468,
+      "sha256": "43a2c24f5fce786b2e8fdf1591c942fe1176dc239e771d1f943451850b364e49"
+    },
+    {
+      "path": "configs/systemd/sglang-glm53.service",
+      "bytes": 2044,
+      "sha256": "b9179ac592c4cd94132482846302c143cd48e0c7aa1442e7527ece7c10dfd61c"
+    },
+    {
+      "path": "docs/AGENTS.md",
+      "bytes": 7551,
+      "sha256": "649ad022293580acd469327cff5cc455e1563dcf98d2821b5bf5d00984e216bf"
+    },
+    {
+      "path": "docs/INFERENCE_CONTEXT.md",
+      "bytes": 17436,
+      "sha256": "ccad13b84097a1d6a5faf585fc59005f1d2e8cfd1d4be482c5ff708d72439532"
+    },
+    {
+      "path": "docs/NEXT_EXPERIMENT.md",
+      "bytes": 8670,
+      "sha256": "a8614d377163b27d58b3f8e51e9cd297004259ae879865d60bc5e06731607638"
+    },
+    {
+      "path": "docs/PROGRESS.xml",
+      "bytes": 17423,
+      "sha256": "76e8c134495cfb99a04bb6f3f6990fcae8cb69fe99a467155e24dc796c8d885e"
+    },
+    {
+      "path": "docs/results.md",
+      "bytes": 13156,
+      "sha256": "04b6d672c50a8ebfc6eb55abb93bbe2546fad377ce7691cba1fc203d2adc3ce6"
+    },
+    {
+      "path": "docs/test-history.md",
+      "bytes": 7184,
+      "sha256": "36f26b57e75187dd211db768a6a645d82a33a113d1840e722936349dbd58c77a"
+    },
+    {
+      "path": "evidence/README.md",
+      "bytes": 436,
+      "sha256": "53159c96810418aad6ab01232cfef57786a46ffd8693830388e7bed87f0a9b30"
+    },
+    {
+      "path": "evidence/baseline-bf16-mtp-c1.json",
+      "bytes": 7814,
+      "sha256": "a8775e593d3ad6c09f3c8aa55d21960327db96ee727385afb4fc0acf83c32542"
+    },
+    {
+      "path": "evidence/baseline-captured-at.txt",
+      "bytes": 33,
+      "sha256": "c223fdcd8ab2a6cfac7ac40b91b40efa1659d9a7617a084fbae163e19d476a1e"
+    },
+    {
+      "path": "evidence/baseline-server-info.json",
+      "bytes": 40673,
+      "sha256": "6c857192568cc34344188a01580874a880ae8bf1879ad9db28ab932d1006fd5b"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-parser-preflight.txt",
+      "bytes": 1421,
+      "sha256": "f841d116df7b1cb414f172bcd1f35e2c676f3f7e27f6d5959f4bbbdc474b1530"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-preflight.json",
+      "bytes": 1373,
+      "sha256": "4be85651ab1b690190400ea7ad9e1108bd5b92bd8e3986d4c314781e8f82175d"
+    },
+    {
+      "path": "evidence/dp4-server-info-20261013T160713Z.json",
+      "bytes": 105149,
+      "sha256": "09887d569fe96e740c5b2a2a7127365865a508291e245060faa99309a14ef583"
+    },
+    {
+      "path": "evidence/dp4-server-info-20261013T160727Z.json",
+      "bytes": 105149,
+      "sha256": "5c359db87a25615325332c59d92905a221cfd0dea048ab24e82a7d87716f1cad"
+    },
+    {
+      "path": "evidence/dp4-startup-smoke-20261013T160713Z.json",
+      "bytes": 3094,
+      "sha256": "b7ed07d834bcdc9d71b90e000abbaa7182d78e902e95ff4c12d96afe3fe9f7d6"
+    },
+    {
+      "path": "evidence/dp4-startup-smoke-20261013T160727Z.json",
+      "bytes": 25494,
+      "sha256": "cb2cfa429ea1b84001b88f315a03bff96e767b10a075fa689f01dc6052e653f5"
+    },
+    {
+      "path": "evidence/dp4-startup-validation-summary.json",
+      "bytes": 8238,
+      "sha256": "342bde5d6199ed27a4264daf3b4349ca72afca9a080875f8e35a14bbeabde399"
+    },
+    {
+      "path": "evidence/fp8-mtp-c1.json",
+      "bytes": 7815,
+      "sha256": "4550987b9274effaa32b08f346a43fca06625fc172bfeb94aee095b73b5cbbb8"
+    },
+    {
+      "path": "evidence/fp8-mtp-c4.json",
+      "bytes": 22299,
+      "sha256": "b0b2db1cc3a47f3d7fd6c99731c9fe2fe51af3d0033808c7c8b52a11032c5b62"
+    },
+    {
+      "path": "evidence/fp8-mtp-chat-smoke-260000.json",
+      "bytes": 2996,
+      "sha256": "f628a038488f27a899faff6556905610cf8e8b7977aca247f9eec5d5012a1e33"
+    },
+    {
+      "path": "evidence/fp8-mtp-server-info.json",
+      "bytes": 40314,
+      "sha256": "44c5dcafabeaab7c13ff69056a1d8ba3925cc70f962aa3b816294a7a467d842d"
+    },
+    {
+      "path": "evidence/fp8-mtp-smoke-260000.json",
+      "bytes": 4091,
+      "sha256": "5de3be4c24f34bf00c68d0dbf0aa3abee2a4d290045d6c85ed1ded4589a96af9"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-6-c6.json",
+      "bytes": 22624,
+      "sha256": "2ccec0c618d69ab0c2338f319145dc8ac9a549afba34c309eaaa63448fdda66e"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-6-long-c6-100000.json",
+      "bytes": 18360,
+      "sha256": "f32a73c77f9892606521b1e8c5a9fc57b3d96de34c42bc20e6a9a33428a8830f"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-6-server-info.json",
+      "bytes": 39936,
+      "sha256": "44911e070e6066b42825e1c38218bd35dab6fca4654a79d31c0f7139cc2bcc4c"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-c1.json",
+      "bytes": 5867,
+      "sha256": "abf1be12b919882a24becd89999aefb7d90ca75ab72f3009599afc79b6151284"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-c4.json",
+      "bytes": 15937,
+      "sha256": "31d4a566234614bd76026ba6694f850a09947f9d2a03351b96ba7e33bbd025c8"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-chat-smoke-260000.json",
+      "bytes": 2518,
+      "sha256": "dd30a04d5da8725a77b77bfc88c39ab75930c5958d4e9c1145ae37b855396ed2"
+    },
+    {
+      "path": "evidence/fp8-no-mtp-server-info.json",
+      "bytes": 39946,
+      "sha256": "a7702f00865fcf1131e1814691210baff70ffa975d71d6b54ed7913c6b5a1c62"
+    },
+    {
+      "path": "evidence/hicache128-allocation.json",
+      "bytes": 724,
+      "sha256": "7bdb9f288dce364b976c4249a05965cc2eccc12469e274ae3d5d670d5e916fca"
+    },
+    {
+      "path": "evidence/hicache128-no-mtp-c1.json",
+      "bytes": 5883,
+      "sha256": "1fda223741384ec36499a7cb474730de12126c06c45d0060bee472e7b0018c2f"
+    },
+    {
+      "path": "evidence/hicache128-no-mtp-c6.json",
+      "bytes": 22615,
+      "sha256": "22bdc22c206ef9b0687061baa59167fc25b2e6390bb71088dfd087ff3c8d5b7a"
+    },
+    {
+      "path": "evidence/hicache128-no-mtp-host-restore-260000.json",
+      "bytes": 8719,
+      "sha256": "90a164a2fb867593e93c5e50d18a2d6b6f734bcba5b9eced686500a8ceb474c6"
+    },
+    {
+      "path": "evidence/hicache128-no-mtp-long-c6-90000.json",
+      "bytes": 18240,
+      "sha256": "d6eabd3b52b6145d07edbb50f8a1d012d4e8ec9ad4e768b19e9ea5ead09dae86"
+    },
+    {
+      "path": "evidence/hicache128-preflight.json",
+      "bytes": 506,
+      "sha256": "04a0aef196fa7990892b14acfd15b7be60b7c55f4f59873a03e62a83787e3481"
+    },
+    {
+      "path": "evidence/hicache128-server-info.json",
+      "bytes": 39947,
+      "sha256": "9f4d985eea7d98ca0b248fd563686bd3d0f4bf01dc4429b6cc0c6c6eef0813ec"
+    },
+    {
+      "path": "evidence/hicache128-validation-summary.json",
+      "bytes": 1339,
+      "sha256": "db06098672421e1d9502d54896134f4ebbab0060d68570f6fc678c0aa985f0c7"
+    },
+    {
+      "path": "evidence/pre-dp4-mtp-hicache128-server-info.json",
+      "bytes": 39960,
+      "sha256": "2dcb350d327ccd096dd3876659ce1d55d53261a48fd2be2c13eac1b0b74a5e66"
+    },
+    {
+      "path": "evidence/pre-hicache128-server-info.json",
+      "bytes": 39950,
+      "sha256": "0a158c75d18b739abd32a46519c7117d743e669b688fb57a325893d71255dacd"
+    },
+    {
+      "path": "tests/benchmark.py",
+      "bytes": 4738,
+      "sha256": "03748594ebc15fce6ae58da3f92b7f457f7f64ea4abc4d17eefa2e2690e2fe37"
+    },
+    {
+      "path": "tests/concurrency_test.py",
+      "bytes": 7790,
+      "sha256": "780915a3609641e21145a93756cb491ab104dc81f6164ab78fe3a733f88cf357"
+    },
+    {
+      "path": "tests/dp4_smoke_test.py",
+      "bytes": 7696,
+      "sha256": "3e2cce3f5e9c945ed2160b59eac0d537e4047d757c8a58535e8c3468517f1b25"
+    },
+    {
+      "path": "tests/hicache_test.py",
+      "bytes": 7053,
+      "sha256": "11a8c76ec6433c85f356de7c7a81423ab49138f96c4f41f64dcced195396f9c2"
+    },
+    {
+      "path": "tests/smoke_test.py",
+      "bytes": 6627,
+      "sha256": "84856d2b40d3e6ff02d848a46ccba5153936513d6d6a0fb14d9fe7a944e4138f"
+    }
+  ]
+}

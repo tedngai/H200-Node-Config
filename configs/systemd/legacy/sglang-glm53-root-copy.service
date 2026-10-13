@@ -1,0 +1,48 @@
+[Unit]
+Description=SGLang GLM-5.3 FP8 server
+Wants=network-online.target
+After=network-online.target docker.service nvidia-fabricmanager.service
+Requires=docker.service nvidia-fabricmanager.service
+Conflicts=sglang-glm52.service sglang-glm53-flash.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm -f sglang-glm53
+ExecStart=/usr/bin/docker run --rm \
+  --name sglang-glm53 \
+  --gpus all \
+  --shm-size 32g \
+  --network host \
+  --ipc host \
+  --volume /raid/advtech/cache/huggingface:/root/.cache/huggingface \
+  --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+  lmsysorg/sglang:latest \
+  sglang serve \
+  --model-path zai-org/GLM-5.3 \
+  --served-model-name pratt-high \
+  --tp 8 \
+  --speculative-algorithm EAGLE \
+  --speculative-num-steps 1 \
+  --speculative-eagle-topk 1 \
+  --speculative-num-draft-tokens 2 \
+  --mem-fraction-static 0.90 \
+  --cuda-graph-max-bs 32 \
+  --chunked-prefill-size 32768 \
+  --max-running-requests 6 \
+  --reasoning-parser glm45 \
+  --tool-call-parser glm47 \
+  --host 0.0.0.0 \
+  --port 8012 \
+  --log-requests \
+  --log-requests-level 1
+ExecStop=/usr/bin/docker stop -t 120 sglang-glm53
+Restart=always
+RestartSec=10
+TimeoutStartSec=infinity
+TimeoutStopSec=150
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

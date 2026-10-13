@@ -1,0 +1,252 @@
+{
+  "label": "hicache128-no-mtp",
+  "prompt_tokens": 260000,
+  "pressure_conversations": 3,
+  "config": {
+    "max_total_num_tokens": 618752,
+    "context_length": 262144,
+    "mem_fraction_static": 0.9,
+    "max_running_requests": 6,
+    "kv_cache_dtype": "fp8_e4m3",
+    "speculative_algorithm": null,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "hicache_write_policy": "write_through",
+    "hicache_io_backend": "kernel",
+    "hicache_mem_layout": "page_first"
+  },
+  "pressure": [
+    {
+      "elapsed_seconds": 28.622364568989724,
+      "prefill_or_restore_seconds": 27.081347465515137,
+      "retrieval_passed": true,
+      "device_cached_tokens": 0,
+      "host_cached_tokens": 0,
+      "answer_text": "The three codes are:\n\n- **ALPHA:** MAPLE-4821\n- **BETA:** RIVER-7306\n- **GAMMA:** CLOUD-9158",
+      "meta_info": {
+        "id": "20232eaaa3284aab89a337e89e1be713",
+        "finish_reason": {
+          "type": "stop",
+          "matched": 154827
+        },
+        "prompt_tokens": 260000,
+        "weight_version": "default",
+        "num_retractions": 0,
+        "forward_entry_time": 1791903946.794209,
+        "prefill_finished_time": 1791903973.8755565,
+        "queue_time": 0.004987001419067383,
+        "reasoning_tokens": 0,
+        "completion_tokens": 134,
+        "cached_tokens": 0,
+        "cached_tokens_details": null,
+        "dp_rank": null,
+        "e2e_latency": 28.599893032107502,
+        "request_received_ts": 1791903946.7795503,
+        "api_server_dispatch_finish_ts": 1791903946.785233,
+        "request_finished_ts": 1791903975.3794434,
+        "decode_throughput": 149.54785390735663,
+        "response_sent_to_client_ts": 1791903975.37962
+      }
+    },
+    {
+      "elapsed_seconds": 29.184216341003776,
+      "prefill_or_restore_seconds": 27.182589054107666,
+      "retrieval_passed": true,
+      "device_cached_tokens": 0,
+      "host_cached_tokens": 0,
+      "answer_text": "The three codes are:\n\n- **ALPHA**: MAPLE-4821\n- **BETA**: RIVER-7306\n- **GAMMA**: CLOUD-9158",
+      "meta_info": {
+        "id": "e6fb925939c343f1a7be827fdc851c44",
+        "finish_reason": {
+          "type": "stop",
+          "matched": 154827
+        },
+        "prompt_tokens": 260000,
+        "weight_version": "default",
+        "num_retractions": 0,
+        "forward_entry_time": 1791903975.4160368,
+        "prefill_finished_time": 1791904002.598626,
+        "queue_time": 0.0029985904693603516,
+        "reasoning_tokens": 0,
+        "completion_tokens": 178,
+        "cached_tokens": 0,
+        "cached_tokens_details": null,
+        "dp_rank": null,
+        "e2e_latency": 29.161377909127623,
+        "request_received_ts": 1791903975.4025052,
+        "api_server_dispatch_finish_ts": 1791903975.4084566,
+        "request_finished_ts": 1791904004.563883,
+        "decode_throughput": 130.75454857510718,
+        "response_sent_to_client_ts": 1791904004.5640616
+      }
+    },
+    {
+      "elapsed_seconds": 29.122045730240643,
+      "prefill_or_restore_seconds": 27.192542552947998,
+      "retrieval_passed": true,
+      "device_cached_tokens": 0,
+      "host_cached_tokens": 0,
+      "answer_text": "The three codes are:\n\n- **ALPHA:** MAPLE-4821\n- **BETA:** RIVER-7306\n- **GAMMA:** CLOUD-9158",
+      "meta_info": {
+        "id": "4d72591103864e258b70c0869090a161",
+        "finish_reason": {
+          "type": "stop",
+          "matched": 154827
+        },
+        "prompt_tokens": 260000,
+        "weight_version": "default",
+        "num_retractions": 0,
+        "forward_entry_time": 1791904004.6005836,
+        "prefill_finished_time": 1791904031.793126,
+        "queue_time": 0.003705263137817383,
+        "reasoning_tokens": 0,
+        "completion_tokens": 171,
+        "cached_tokens": 0,
+        "cached_tokens_details": null,
+        "dp_rank": null,
+        "e2e_latency": 29.099664706736803,
+        "request_received_ts": 1791904004.5864391,
+        "api_server_dispatch_finish_ts": 1791904004.592113,
+        "request_finished_ts": 1791904033.6861038,
+        "decode_throughput": 132.8457330204954,
+        "response_sent_to_client_ts": 1791904033.6863453
+      }
+    }
+  ],
+  "cold": {
+    "elapsed_seconds": 32.17579810414463,
+    "prefill_or_restore_seconds": 30.62634539604187,
+    "retrieval_passed": true,
+    "device_cached_tokens": 0,
+    "host_cached_tokens": 0,
+    "answer_text": "The three codes are:\n\n- **ALPHA**: MAPLE-4821\n- **BETA**: RIVER-7306\n- **GAMMA**: CLOUD-9158",
+    "meta_info": {
+      "id": "511d4a56cf8d46509441051abbeed2a6",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154827
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791903913.1592667,
+      "prefill_finished_time": 1791903943.785612,
+      "queue_time": 0.005146980285644531,
+      "reasoning_tokens": 0,
+      "completion_tokens": 134,
+      "cached_tokens": 0,
+      "cached_tokens_details": null,
+      "dp_rank": null,
+      "e2e_latency": 32.14774404698983,
+      "request_received_ts": 1791903913.1396651,
+      "api_server_dispatch_finish_ts": 1791903913.146526,
+      "request_finished_ts": 1791903945.287409,
+      "decode_throughput": 149.31022673700411,
+      "response_sent_to_client_ts": 1791903945.2876494
+    }
+  },
+  "gpu_warm": {
+    "elapsed_seconds": 1.468990993220359,
+    "prefill_or_restore_seconds": 0.06046724319458008,
+    "retrieval_passed": true,
+    "device_cached_tokens": 259968,
+    "host_cached_tokens": 0,
+    "answer_text": "The three codes are:\n\n- **ALPHA:** MAPLE-4821\n- **BETA:** RIVER-7306\n- **GAMMA:** CLOUD-9158",
+    "meta_info": {
+      "id": "4be2def10d564cf0ba781f7e68b97b29",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154827
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791903945.3275557,
+      "prefill_finished_time": 1791903945.388023,
+      "queue_time": 0.0066568851470947266,
+      "reasoning_tokens": 0,
+      "completion_tokens": 130,
+      "cached_tokens": 259968,
+      "cached_tokens_details": {
+        "device": 259968,
+        "host": 0
+      },
+      "dp_rank": null,
+      "e2e_latency": 1.446037407964468,
+      "request_received_ts": 1791903945.3106678,
+      "api_server_dispatch_finish_ts": 1791903945.316375,
+      "request_finished_ts": 1791903946.756705,
+      "decode_throughput": 151.4916273007458,
+      "response_sent_to_client_ts": 1791903946.7570198
+    }
+  },
+  "restored": {
+    "elapsed_seconds": 3.379383323248476,
+    "prefill_or_restore_seconds": 1.1819920539855957,
+    "retrieval_passed": true,
+    "device_cached_tokens": 0,
+    "host_cached_tokens": 259968,
+    "answer_text": "The three codes are:\n\n- **ALPHA**: MAPLE-4821\n- **BETA**: RIVER-7306\n- **GAMMA**: CLOUD-9158",
+    "meta_info": {
+      "id": "122aa163e4694b3aa0c9771f10becfe2",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154827
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791904033.7367606,
+      "prefill_finished_time": 1791904034.9187527,
+      "queue_time": 0.013952493667602539,
+      "reasoning_tokens": 0,
+      "completion_tokens": 203,
+      "cached_tokens": 259968,
+      "cached_tokens_details": {
+        "device": 0,
+        "host": 259968
+      },
+      "dp_rank": null,
+      "e2e_latency": 3.353535666130483,
+      "request_received_ts": 1791904033.7118268,
+      "api_server_dispatch_finish_ts": 1791904033.718115,
+      "request_finished_ts": 1791904037.0653625,
+      "decode_throughput": 124.44675777627779,
+      "response_sent_to_client_ts": 1791904037.0657997
+    }
+  },
+  "tool_call": {
+    "passed": true,
+    "tool_calls": [
+      {
+        "id": "call_a4a9bfa1fdd64e71b6736c7f",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "lookup_room",
+          "arguments": "{\"room_id\": \"B204\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 179,
+      "total_tokens": 223,
+      "completion_tokens": 44,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 31
+    }
+  },
+  "summary": {
+    "passed": true,
+    "host_cached_tokens_on_restore": 259968,
+    "device_cached_tokens_on_restore": 0,
+    "cold_elapsed_seconds": 32.17579810414463,
+    "gpu_warm_elapsed_seconds": 1.468990993220359,
+    "restored_elapsed_seconds": 3.379383323248476,
+    "cold_vs_restore_end_to_end_speedup": 9.521204026424334,
+    "cold_prefill_seconds": 30.62634539604187,
+    "restored_prefill_seconds": 1.1819920539855957,
+    "total_retractions": 0,
+    "tool_call_passed": true
+  }
+}

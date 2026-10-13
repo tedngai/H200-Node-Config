@@ -1,0 +1,83 @@
+{
+  "label": "fp8-mtp",
+  "config": {
+    "max_total_num_tokens": 660032,
+    "mem_fraction_static": 0.9,
+    "context_length": 262144,
+    "kv_cache_dtype": "fp8_e4m3",
+    "speculative_algorithm": "EAGLE"
+  },
+  "retrieval": {
+    "prompt_tokens_requested": 260000,
+    "elapsed_seconds": 33.27713664481416,
+    "passed": false,
+    "found_codes": {
+      "MAPLE-4821": false,
+      "RIVER-7306": false,
+      "CLOUD-9158": false
+    },
+    "response_text": "padding padding padding0 padding padding padding padding padding padding padding padding padding padding padding\n\n1 padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding\n\n`` padding padding padding padding\uff1apadding padding padding padding padding\n\npadding padding padding padding\u94fe padding padding padding padding padding padding\n\npadding padding padding padding padding\n\npadding padding padding\n\npadding padding\n\npadding1\u3001padding padding padding padding\n\n\u8fd9\u4e2a\u9875\u9762\uff1apadding padding padding padding padding padding padding padding padding padding padding padding padding\n\npadding padding padding padding\n\npadding padding padding\n\npadding padding padding padding padding padding padding padding padding\n\npadding padding padding padding padding padding padding padding padding padding\n\npadding\uff1a padding padding padding padding\n\n\u8fd9\u4e2a\u9875\u9762\u5185\u5bb9\uff0c padding padding padding padding padding padding\n\n\u8fd9\u4e2a\u9875\u9762 padding padding padding padding\n\n\u8fd9\u4e2a\u9875\u9762\n\npadding1\u30011\u3001\u57281\u3001 padding1. padding padding padding padding padding padding padding\n\n\u8fd9\u4e2a\u9875\u9762\uff1a padding padding padding padding padding padding padding : padding padding\n\n\u70b9\u51fb\u6dfb\u52a0 padding1\u3001 padding padding\n\npadding padding1.\u8fd9\u4e2a\u9875\u9762\n\n\u8fd9\u4e2a\u9875\u9762\n\u4eca\u5929\u65e9\u4e0a\u597d\uff0c1. padding padding\n\n```\n\n\u8fd9\u4e2a\u9875\u9762\u9876\u90e80. padding padding padding padding\u5de5\u51771\u3001\u6211\u662f\u4e00\n\n1. padding\n\n```\n\n```\n\n```\n\n```\n\n\u4eca\u5929",
+    "meta_info": {
+      "id": "651249ca3b5a405fa05878d2c221390a",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154820
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791899304.0717535,
+      "prefill_finished_time": 1791899335.078402,
+      "queue_time": 0.0007736682891845703,
+      "reasoning_tokens": 0,
+      "completion_tokens": 260,
+      "cached_tokens": 0,
+      "cached_tokens_details": null,
+      "dp_rank": null,
+      "e2e_latency": 33.253289798274636,
+      "spec_accept_rate": 0.3776595744680851,
+      "spec_accept_length": 1.3829787234042554,
+      "spec_num_correct_drafts": 71,
+      "spec_num_proposed_drafts": 188,
+      "spec_verify_ct": 188,
+      "spec_accepted_drafts": 71,
+      "spec_proposed_drafts": 188,
+      "spec_correct_drafts_histogram": [
+        117,
+        71
+      ],
+      "spec_accept_histogram": [
+        117,
+        71
+      ],
+      "request_received_ts": 1791899304.0566974,
+      "api_server_dispatch_finish_ts": 1791899304.064397,
+      "request_finished_ts": 1791899337.3099873,
+      "decode_throughput": 138.97206548252728,
+      "response_sent_to_client_ts": 1791899337.310172
+    }
+  },
+  "tool_call": {
+    "passed": true,
+    "elapsed_seconds": 1.1102956589311361,
+    "finish_reason": "tool_calls",
+    "tool_calls": [
+      {
+        "id": "call_d5e66b0b49084bf89fa599ff",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "lookup_room",
+          "arguments": "{\"room_id\": \"B204\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 180,
+      "total_tokens": 222,
+      "completion_tokens": 42,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 29
+    }
+  }
+}

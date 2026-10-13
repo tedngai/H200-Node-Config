@@ -1,0 +1,46 @@
+{
+  "checked_at": "2026-10-13T15:10:41.716527+00:00",
+  "profile": {
+    "status": "ready",
+    "max_total_num_tokens": 618752,
+    "context_length": 262144,
+    "mem_fraction_static": 0.9,
+    "max_running_requests": 6,
+    "max_queued_requests": 8,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "speculative_algorithm": null
+  },
+  "host_restore": {
+    "passed": true,
+    "host_cached_tokens_on_restore": 259968,
+    "device_cached_tokens_on_restore": 0,
+    "cold_elapsed_seconds": 32.17579810414463,
+    "gpu_warm_elapsed_seconds": 1.468990993220359,
+    "restored_elapsed_seconds": 3.379383323248476,
+    "cold_vs_restore_end_to_end_speedup": 9.521204026424334,
+    "cold_prefill_seconds": 30.62634539604187,
+    "restored_prefill_seconds": 1.1819920539855957,
+    "total_retractions": 0,
+    "tool_call_passed": true
+  },
+  "long_concurrency": {
+    "passed": true,
+    "peak_running_requests": 6.0,
+    "peak_queued_requests": 0,
+    "peak_active_token_usage": 0.88,
+    "total_retractions": 0,
+    "aggregate_tokens_per_second": 409.97514057824014,
+    "median_tokens_per_second_per_request": 68.46565448118915,
+    "elapsed_seconds": 7.493137256242335,
+    "cached_prompt_tokens": [
+      89984,
+      89984,
+      89984,
+      89984,
+      89984,
+      89984
+    ],
+    "metric_sampling_errors": []
+  }
+}

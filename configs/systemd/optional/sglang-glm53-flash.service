@@ -1,0 +1,51 @@
+[Unit]
+Description=SGLang GLM-5.3-Flash server
+Wants=network-online.target
+After=network-online.target docker.service nvidia-fabricmanager.service
+Requires=docker.service nvidia-fabricmanager.service
+Conflicts=sglang-glm52.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm -f sglang-glm53-flash
+ExecStart=/usr/bin/docker run --rm \
+  --name sglang-glm53-flash \
+  --gpus all \
+  --network host \
+  --ipc host \
+  --volume /raid/advtech/cache/huggingface:/root/.cache/huggingface \
+  --env HF_HUB_OFFLINE=1 \
+  lmsysorg/sglang@sha256:3a97bd50034ca60c6e6c86b8e36a73675d261f6a5eb71197796aee5175409290 \
+  sglang serve \
+  --model-path zai-org/GLM-5.3-Flash \
+  --served-model-name pratt-high \
+  --tp-size 8 \
+  --ep-size 8 \
+  --dsa-prefill-backend tilelang \
+  --dsa-decode-backend tilelang \
+  --kv-cache-dtype bfloat16 \
+  --moe-runner-backend deep_gemm \
+  --disable-shared-experts-fusion \
+  --speculative-algorithm NEXTN \
+  --speculative-num-steps 5 \
+  --speculative-eagle-topk 1 \
+  --speculative-num-draft-tokens 6 \
+  --speculative-adaptive \
+  --max-running-requests 16 \
+  --reasoning-parser glm45 \
+  --tool-call-parser glm47 \
+  --host 0.0.0.0 \
+  --port 8012 \
+  --log-requests \
+  --log-requests-level 1
+ExecStop=/usr/bin/docker stop -t 120 sglang-glm53-flash
+Restart=always
+RestartSec=10
+TimeoutStartSec=infinity
+TimeoutStopSec=150
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
