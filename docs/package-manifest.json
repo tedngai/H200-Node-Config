@@ -1,7 +1,7 @@
 {
   "package": "glm53-inference",
   "note": "Manifest excludes this file itself.",
-  "file_count": 70,
+  "file_count": 74,
   "files": [
     {
       "path": ".gitignore",
@@ -15,13 +15,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 4312,
-      "sha256": "bdc2de6fd5cd529f0bce24c85c578d6d17ddaac47fef9d83be84ce4e0de9e366"
+      "bytes": 5232,
+      "sha256": "e4f06cf5105aad1b46bbe47f32bd22394ba08356c66fdabc32b4aa5b759dfed2"
     },
     {
       "path": "configs/systemd/README.md",
-      "bytes": 610,
-      "sha256": "e6809f7d1b8021a17588d89914f046ed879760edd20f1b787b5cdb47fd54c993"
+      "bytes": 1066,
+      "sha256": "361e53056afea1ef0a9eac52397fecb2f04eed2bad53752461bf21776bbcd945"
+    },
+    {
+      "path": "configs/systemd/candidates/dp4-mtp-hicache128-400k.service",
+      "bytes": 2058,
+      "sha256": "2f0908b49e0f84fbfb43198c0689a4ad35f02e9226965d4cbe604daec64b211c"
     },
     {
       "path": "configs/systemd/candidates/dp4-mtp-hicache128.service",
@@ -54,6 +59,11 @@
       "sha256": "3902bb83b93a5fa2481545d942f00c121be8680e067888a32b6755a42cb90f34"
     },
     {
+      "path": "configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service",
+      "bytes": 2044,
+      "sha256": "b9179ac592c4cd94132482846302c143cd48e0c7aa1442e7527ece7c10dfd61c"
+    },
+    {
       "path": "configs/systemd/candidates/pre-dp4-mtp-hicache128.service",
       "bytes": 1848,
       "sha256": "c472d212041f2aa3c6503dd0f1cc77c82477e3c9f961c4417c73646d0d882041"
@@ -80,33 +90,33 @@
     },
     {
       "path": "docs/AGENTS.md",
-      "bytes": 8351,
-      "sha256": "ed5cd239402e6cededd7af3448976e9df8e8aefb8992b13b2740725ad2792b4f"
+      "bytes": 9503,
+      "sha256": "ff14db7323ac5f7bf3c1e97c5217a6ab93aaab843e633a2966b16a7ff311d604"
     },
     {
       "path": "docs/INFERENCE_CONTEXT.md",
-      "bytes": 21313,
-      "sha256": "884fb22d73e7e961c8e4fc1942cd23a5144797ee93e457ae389b46d389152de0"
+      "bytes": 24891,
+      "sha256": "b3ac943d960fe884ee201cad62f79f5f560f5ad12504ba3dd7f96a80bfb797fd"
     },
     {
       "path": "docs/NEXT_EXPERIMENT.md",
-      "bytes": 11714,
-      "sha256": "74573b8b5ca885a7ee617c4881750a7390dec231df4b27c3e84f22118aed981c"
+      "bytes": 15759,
+      "sha256": "581e17e27cf4180bc3e69bbde6da819d42040ba574176b60ba3bc4449ba94699"
     },
     {
       "path": "docs/PROGRESS.xml",
-      "bytes": 21171,
-      "sha256": "71e1dee729661607d109610cf0b2c86c6ca596098c52cac00f81241a0a9a5caf"
+      "bytes": 24203,
+      "sha256": "7112985c5b13d39243dba76bd3470561184820fd689accf6d1110763af3ea6e6"
     },
     {
       "path": "docs/results.md",
-      "bytes": 18599,
-      "sha256": "c5f3cb1881ab304286a996cab6b8c8e8ed010fa67ba017b76a91e16fd720e6c7"
+      "bytes": 20451,
+      "sha256": "574d0f028303551b97ce13a64f92fa27c529a0e4e99d2d8d375b9c5f31df7849"
     },
     {
       "path": "docs/test-history.md",
-      "bytes": 7481,
-      "sha256": "40a350322b55d29c9fae820faa5459f54bfc3a1a3aae047acc6501f741bab581"
+      "bytes": 7874,
+      "sha256": "205096f6cd89fb5deb660b0cee0579a19ee8df91167acbc7f629cdcff1868dc7"
     },
     {
       "path": "evidence/README.md",
@@ -127,6 +137,11 @@
       "path": "evidence/baseline-server-info.json",
       "bytes": 40673,
       "sha256": "6c857192568cc34344188a01580874a880ae8bf1879ad9db28ab932d1006fd5b"
+    },
+    {
+      "path": "evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json",
+      "bytes": 13401,
+      "sha256": "218f18f4b8839ecb4b523d2770e5ba64627d4fff9a5428f80d08758c86ed18f0"
     },
     {
       "path": "evidence/dp4-mtp-hicache128-host-20261013T174803Z-rank0-260000.json",
@@ -307,6 +322,11 @@
       "path": "evidence/hicache128-validation-summary.json",
       "bytes": 1339,
       "sha256": "db06098672421e1d9502d54896134f4ebbab0060d68570f6fc678c0aa985f0c7"
+    },
+    {
+      "path": "evidence/pre-400k-server-info-20261013T181759Z.json",
+      "bytes": 105411,
+      "sha256": "9f4a7703264c154144f6193b1f17d0d90462c20631c46b7ca6af78da566c4938"
     },
     {
       "path": "evidence/pre-dp4-mtp-hicache128-server-info.json",

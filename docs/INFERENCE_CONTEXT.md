@@ -8,8 +8,11 @@ this document is a record, not proof that a pending candidate is installed.
 
 - Private coding/agent inference with the best useful model/configuration
   combination, balancing quality, concurrency, latency and reliability.
-- Six to eight active users, preserving 262,144 context tokens **including
-  output**. Do not silently truncate or reduce context to claim success.
+- Current approved target: **four active generation requests**, one per DP4
+  worker, and **400,000 context tokens including output**. This context-only
+  candidate is prepared; the live limit remains 262,144 pending user install.
+  The earlier six/eight-user goal is historical/future work, not authorization
+  to raise admission. Do not silently truncate or reduce context to claim success.
 - SGLang first; exhaust its reasonable options before migrating. The user has
   had poor experiences with vLLM.
 - Static GPU memory fraction stays 0.90. The user runs 10-15-minute coding
@@ -19,6 +22,58 @@ this document is a record, not proof that a pending candidate is installed.
   rank/tool, four near-limit concurrent sessions and same-worker host restoration
   passed; sustained real coding load and broad quality remain pending.
 - Preserve `pratt-high`, port 8012 and reasoning/tool-call functionality.
+
+## Approved next change: 400k context, four active requests
+
+The user approved 400,000 tokens including output and four active requests.
+Four active requests are already configured, one per DP4 worker; the candidate
+changes **only `--context-length 262144` to `400000`** and the unit description.
+MTP, HiCache 128/rank, pinned image/model, memory 0.90, API identity, prefill,
+admission, queue flags and timeouts remain untouched.
+
+- Candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
+- Exact narrow rollback: `glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
+- Baseline snapshot: `glm53-inference/evidence/pre-400k-server-info-20261013T181759Z.json`.
+- Preflight: `glm53-inference/evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json`.
+
+Static systemd verification and installed-build argument construction passed
+without launching another engine or loading weights. The live unit remains
+unchanged and context **262,144**. Cached model configs report a 1,048,576
+position-index ceiling, not validated accuracy at 400k. 400k would consume
+84.6% of the existing 472,768 pool and leave 72,768 slots; capacity/headroom
+must be reprofiled after restart. Startup previously took ~9.5 minutes and
+restart clears GPU/RAM prefixes. User performs privileged install/restart.
+
+### Queue semantics confirmed in this pinned build
+
+`max_running_requests=4` resolves to one active request per worker.
+`max_queued_requests=8` is **not divided by DP**; `tp_worker.get_worker_info`
+passes it to each scheduler. Thus up to **eight waiting requests per worker,
+32 total**, with no global FIFO or per-account fairness. Queue limits apply to
+individual generation requests, not dedicated user accounts or a multi-call
+agent's entire task. Tool execution gaps do not reserve an active slot.
+
+Scheduler policy is FCFS per worker. Round-robin routing assigns a worker
+without global queue work-stealing, so a waiting request can remain behind a
+busy worker even if another becomes idle. Queued prompts occupy request/CPU
+state, not a second full active GPU KV context; HiCache can retain a previously
+computed prefix and restore it once that worker admits the request. It does
+not run decoding from RAM or migrate the request to another pool.
+
+Waiting timeout is **120 seconds** (`SGLANG_REQ_WAITING_TIMEOUT=120`).
+`_abort_on_queued_limit` rejects arrivals at a full worker queue, and
+`_abort_on_waiting_timeout` aborts expired waiting requests; both signal
+**503 Service Unavailable**. Non-streaming calls can return HTTP 503;
+already-open streams can carry abort/error events instead. Client/proxy
+deadlines may be shorter. These are source-reviewed semantics, not a measured
+overload qualification. No queue/timeout/routing setting was changed.
+Long outputs or 400k cold prefill can make the two-minute wait limit important;
+changing it or routing policy would be a separate approved experiment.
+
+Next after user restart: reprofile and check settings; small rank/tools/reasoning,
+one 398k chat retrieval, four independent 398k prompts with output headroom and
+per-worker activity, warmed rounds, same-worker host restoration, bounded
+queue tests. Never infer four near-400k contexts fit just from a CLI flag.
 
 ## Hardware and paths
 
@@ -311,10 +366,11 @@ attention TP2. An early DSA warning prints the global TP value; verify actual
 groups after startup rather than treating that warning as proof. The exact
 prechange unit is `pre-dp4-mtp-hicache128.service`.
 
-Four ~400k contexts are an aspiration, not a measurement. MLA KV is replicated
-within each pair, so a DP8 pool does not simply double. Profile first at 262k,
-then decide whether a larger-context candidate has enough output headroom.
-No 400k limit or runtime success is currently claimed.
+Four near-400k contexts are now an approved **prepared** experiment, not a
+measurement. MLA KV is replicated within each pair, so a DP8 pool does not
+simply double. The 262k profile passed scoped gates; 400k startup/input limits,
+headroom and correctness must be tested after installation. No 400k deployment
+or runtime success is currently claimed.
 
 Pin requests to `routed_dp_rank` 0-3 and check `dp_rank` metadata. Existing
 helpers need DP-aware routing/activity accounting: a max across metric series

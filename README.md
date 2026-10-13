@@ -22,6 +22,21 @@ should not be committed to Git.
 
 ## Captured deployment state
 
+**Approved next, not installed:** context **400,000 including output**, four
+active requests total (already configured), preserving DP4/MTP/HiCache and
+memory 0.90. Candidate:
+`configs/systemd/candidates/dp4-mtp-hicache128-400k.service`; exact narrow
+rollback: `configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
+Static/parser preflight passed, not runtime qualification. Live context and
+the root service snapshot below remain **262,144**. See `docs/NEXT_EXPERIMENT.md`
+for user-run installation/rollback and validation commands.
+
+Queue flags stay unchanged: eight waiting requests **per worker** (up to 32),
+120-second waiting timeout, FCFS per worker, round-robin routing. Full/expired
+worker queues return 503-style errors; already-open streams can carry an abort.
+Four active requests are not four dedicated user accounts. Queued requests
+do not decode in RAM or automatically move to a free worker.
+
 The installed and ready unit is TP8 + DP4 attention with lightweight EAGLE
 MTP, HiCache 128 GB per rank, a 262,144-token context, static memory fraction
 `0.90`, four running requests, and eight queued requests (launch setting).

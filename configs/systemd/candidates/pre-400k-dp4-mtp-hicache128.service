@@ -1,0 +1,68 @@
+[Unit]
+Description=SGLang GLM-5.3 TP8 DP4 attention, MTP, HiCache 128GB/rank (test)
+Wants=network-online.target
+After=network-online.target docker.service nvidia-fabricmanager.service
+Requires=docker.service nvidia-fabricmanager.service
+Conflicts=sglang-glm52.service sglang-glm53-flash.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm -f sglang-glm53
+ExecStart=/usr/bin/docker run --rm \
+  --name sglang-glm53 \
+  --gpus all \
+  --shm-size 32g \
+  --ulimit memlock=-1:-1 \
+  --network host \
+  --ipc host \
+  --volume /raid/advtech/cache/huggingface:/root/.cache/huggingface \
+  --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+  --env SGLANG_REQ_WAITING_TIMEOUT=120 \
+  lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1 \
+  sglang serve \
+  --model-path zai-org/GLM-5.3 \
+  --served-model-name pratt-high \
+  --tp 8 \
+  --dp-size 4 \
+  --enable-dp-attention \
+  --moe-a2a-backend none \
+  --speculative-algorithm EAGLE \
+  --speculative-num-steps 1 \
+  --speculative-eagle-topk 1 \
+  --speculative-num-draft-tokens 2 \
+  --kv-cache-dtype fp8_e4m3 \
+  --dsa-prefill-backend flashmla_sparse_q8 \
+  --dsa-decode-backend flashmla_kv \
+  --mem-fraction-static 0.90 \
+  --cuda-graph-max-bs 32 \
+  --context-length 262144 \
+  --chunked-prefill-size 8192 \
+  --max-running-requests 4 \
+  --max-queued-requests 8 \
+  --enable-hierarchical-cache \
+  --hicache-size 128 \
+  --hicache-write-policy write_through \
+  --hicache-io-backend kernel \
+  --hicache-mem-layout page_first \
+  --enable-cache-report \
+  --watchdog-timeout 180 \
+  --soft-watchdog-timeout 60 \
+  --enable-metrics \
+  --enable-request-time-stats-logging \
+  --reasoning-parser glm45 \
+  --tool-call-parser glm47 \
+  --host 0.0.0.0 \
+  --port 8012 \
+  --log-requests \
+  --log-requests-level 1
+ExecStop=/usr/bin/docker stop -t 120 sglang-glm53
+Restart=always
+RestartSec=10
+TimeoutStartSec=infinity
+TimeoutStopSec=150
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
