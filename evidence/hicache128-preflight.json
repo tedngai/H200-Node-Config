@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-13T14:48:33.549388+00:00",
+  "documents_valid": true,
+  "candidate_changes_only_approved_hicache_and_memlock": true,
+  "live_unchanged": true,
+  "current_gpu_token_capacity": 705024,
+  "host_mem_available_bytes": 2104672116736,
+  "estimated_hicache_tokens": 2501563,
+  "estimated_hicache_node_bytes": 1230048545856,
+  "estimated_remaining_available_bytes": 874623570880,
+  "host_allocation_estimates_not_runtime_measurements": true,
+  "status": "prepared_pending_user_install"
+}

@@ -1,0 +1,70 @@
+{
+  "label": "fp8-no-mtp-chat",
+  "prompt_format": "model chat template with synthetic archive records",
+  "config": {
+    "max_total_num_tokens": 705024,
+    "mem_fraction_static": 0.9,
+    "context_length": 262144,
+    "kv_cache_dtype": "fp8_e4m3",
+    "speculative_algorithm": null
+  },
+  "retrieval": {
+    "prompt_tokens_requested": 260000,
+    "elapsed_seconds": 31.069433778058738,
+    "passed": true,
+    "found_codes": {
+      "MAPLE-4821": true,
+      "RIVER-7306": true,
+      "CLOUD-9158": true
+    },
+    "response_text": "The user wants me to find the three codes associated with ALPHA, BETA, and GAMMA from this synthetic document.\n\nLooking at the document:\n- \"ALPHA code is MAPLE-4821.\"\n- \"BETA code is RIVER-7306.\"\n- \"GAMMA code is CLOUD-9158.\"\n\nThe routine archive records are unrelated to those codes, as stated in the prompt. I just need to report the three codes exactly.</think>The three codes are:\n\n- **ALPHA:** MAPLE-4821\n- **BETA:** RIVER-7306\n- **GAMMA:** CLOUD-9158",
+    "answer_text": "The three codes are:\n\n- **ALPHA:** MAPLE-4821\n- **BETA:** RIVER-7306\n- **GAMMA:** CLOUD-9158",
+    "meta_info": {
+      "id": "abf4a2b18c2d43f8b42a09409b42a039",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154827
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791900128.1700213,
+      "prefill_finished_time": 1791900157.716865,
+      "queue_time": 0.0005295276641845703,
+      "reasoning_tokens": 0,
+      "completion_tokens": 138,
+      "cached_tokens": 0,
+      "cached_tokens_details": null,
+      "dp_rank": null,
+      "e2e_latency": 31.04187453025952,
+      "request_received_ts": 1791900128.1562958,
+      "api_server_dispatch_finish_ts": 1791900128.1632106,
+      "request_finished_ts": 1791900159.1981702,
+      "decode_throughput": 145.01967345292317,
+      "response_sent_to_client_ts": 1791900159.19833
+    }
+  },
+  "tool_call": {
+    "passed": true,
+    "elapsed_seconds": 0.6574669820256531,
+    "finish_reason": "tool_calls",
+    "tool_calls": [
+      {
+        "id": "call_b37bf675fc3f4b9691e7ed36",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "lookup_room",
+          "arguments": "{\"room_id\": \"B204\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 180,
+      "total_tokens": 222,
+      "completion_tokens": 42,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 29
+    }
+  }
+}

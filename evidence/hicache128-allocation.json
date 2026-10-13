@@ -1,0 +1,17 @@
+{
+  "captured_at": "2026-10-13T15:06:01.577130+00:00",
+  "gpu_token_capacity_before": 705024,
+  "gpu_token_capacity_hicache": 618752,
+  "gpu_capacity_drop_percent": 12.236746550472041,
+  "host_tokens_per_rank_from_startup_logs": 2501568,
+  "host_main_gb_per_rank_from_startup_logs": 128,
+  "host_indexer_gb_per_rank_from_startup_logs": 25.76,
+  "host_total_decimal_gb_from_rounded_startup_logs": 1230.08,
+  "host_mem_available_bytes": 852238983168,
+  "host_mem_free_bytes": 395548557312,
+  "host_shmem_bytes": 1230797160448,
+  "host_swap_used_bytes": 12845056,
+  "memlock_limits": "(-1, -1)",
+  "indexer_elision_disabled_when_hicache_enabled": true,
+  "jit_transfer_width_656_unsupported_generic_fallback_available": true
+}

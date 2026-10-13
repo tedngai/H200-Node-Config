@@ -1,0 +1,84 @@
+{
+  "label": "fp8-mtp-chat",
+  "prompt_format": "model chat template with synthetic archive records",
+  "config": {
+    "max_total_num_tokens": 660032,
+    "mem_fraction_static": 0.9,
+    "context_length": 262144,
+    "kv_cache_dtype": "fp8_e4m3",
+    "speculative_algorithm": "EAGLE"
+  },
+  "retrieval": {
+    "prompt_tokens_requested": 260000,
+    "elapsed_seconds": 29.667849824298173,
+    "passed": true,
+    "found_codes": {
+      "MAPLE-4821": true,
+      "RIVER-7306": true,
+      "CLOUD-9158": true
+    },
+    "response_text": "The user wants me to find the three codes associated with ALPHA, BETA, and GAMMA from this synthetic document.\n\nLet me search through the document:\n\n1. ALPHA code is MAPLE-4821. (stated at the beginning)\n2. BETA code is RIVER-7306. (stated in the middle, around record 3373)\n3. GAMMA code is CLOUD-9158. (stated near the end, around record 6680)\n\nThe routine archive records are unrelated to those codes, as stated in the instructions.\n\nSo the three codes are:\n- ALPHA: MAPLE-4821\n- BETA: RIVER-7306\n- GAMMA: CLOUD-9158</think>Based on the document, the three codes are:\n\n- **ALPHA**: MAPLE-4821\n- **BETA**: RIVER-7306\n- **GAMMA**: CLOUD-9158",
+    "meta_info": {
+      "id": "d81738bb8b904145bd72e0c3d187e4a5",
+      "finish_reason": {
+        "type": "stop",
+        "matched": 154827
+      },
+      "prompt_tokens": 260000,
+      "weight_version": "default",
+      "num_retractions": 0,
+      "forward_entry_time": 1791899429.6021924,
+      "prefill_finished_time": 1791899457.9874027,
+      "queue_time": 0.0013556480407714844,
+      "reasoning_tokens": 0,
+      "completion_tokens": 205,
+      "cached_tokens": 0,
+      "cached_tokens_details": null,
+      "dp_rank": null,
+      "e2e_latency": 29.644024912267923,
+      "spec_accept_rate": 0.9615384615384616,
+      "spec_accept_length": 1.9711538461538463,
+      "spec_num_correct_drafts": 100,
+      "spec_num_proposed_drafts": 104,
+      "spec_verify_ct": 104,
+      "spec_accepted_drafts": 100,
+      "spec_proposed_drafts": 104,
+      "spec_correct_drafts_histogram": [
+        4,
+        100
+      ],
+      "spec_accept_histogram": [
+        4,
+        100
+      ],
+      "request_received_ts": 1791899429.5888212,
+      "api_server_dispatch_finish_ts": 1791899429.5943668,
+      "request_finished_ts": 1791899459.232846,
+      "decode_throughput": 320.87029119729107,
+      "response_sent_to_client_ts": 1791899459.2329879
+    }
+  },
+  "tool_call": {
+    "passed": true,
+    "elapsed_seconds": 1.0358579838648438,
+    "finish_reason": "tool_calls",
+    "tool_calls": [
+      {
+        "id": "call_cae64fa58c39484da2912b07",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "lookup_room",
+          "arguments": "{\"room_id\": \"B204\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 180,
+      "total_tokens": 224,
+      "completion_tokens": 44,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 31
+    }
+  }
+}

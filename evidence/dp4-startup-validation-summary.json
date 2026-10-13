@@ -1,0 +1,232 @@
+{
+  "checked_at": "2026-10-13T16:08:15.896950+00:00",
+  "status": "installed_ready_small_rank_tool_smoke_passed_long_context_pending",
+  "started_at": "2026-10-13T15:50:15.129338775Z",
+  "ready_log_at": "2026-10-13T15:59:43Z",
+  "config": {
+    "status": "ready",
+    "version": "0.5.18",
+    "model_path": "zai-org/GLM-5.3",
+    "served_model_name": "pratt-high",
+    "context_length": 262144,
+    "tp_size": 8,
+    "dp_size": 4,
+    "ep_size": 1,
+    "kv_cache_dtype": "fp8_e4m3",
+    "mem_fraction_static": 0.9,
+    "max_running_requests": 4,
+    "max_queued_requests": 8,
+    "max_total_num_tokens": 472768,
+    "chunked_prefill_size": 2048,
+    "speculative_algorithm": "EAGLE",
+    "speculative_num_steps": 1,
+    "speculative_eagle_topk": 1,
+    "speculative_num_draft_tokens": 2,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "allow_auto_truncate": false,
+    "reasoning_parser": "glm45",
+    "tool_call_parser": "glm47"
+  },
+  "unit_matches_candidate": true,
+  "image_id": "sha256:cb940197908678dacb041556b64798cc0493d547816a8e8a6731fa37dddfc4fb",
+  "pinned_image": "lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1",
+  "worker_states": [
+    {
+      "internal_state_index": 0,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.846,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.107
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "internal_state_index": 1,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "internal_state_index": 2,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    },
+    {
+      "internal_state_index": 3,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "effective_max_running_requests_per_dp": 1
+    }
+  ],
+  "gpu_capacity_by_tp_rank_from_logs": {
+    "4": {
+      "dp_rank": 2,
+      "gpu_token_slots": 472768
+    },
+    "0": {
+      "dp_rank": 0,
+      "gpu_token_slots": 472768
+    },
+    "5": {
+      "dp_rank": 2,
+      "gpu_token_slots": 472768
+    },
+    "6": {
+      "dp_rank": 3,
+      "gpu_token_slots": 472768
+    },
+    "3": {
+      "dp_rank": 1,
+      "gpu_token_slots": 472768
+    },
+    "7": {
+      "dp_rank": 3,
+      "gpu_token_slots": 472768
+    },
+    "1": {
+      "dp_rank": 0,
+      "gpu_token_slots": 472768
+    },
+    "2": {
+      "dp_rank": 1,
+      "gpu_token_slots": 472768
+    }
+  },
+  "unique_gpu_token_slots_across_four_workers": 1891072,
+  "host_pools_by_tp_rank_from_logs": {
+    "5": {
+      "dp_rank": 2,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "4": {
+      "dp_rank": 2,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "7": {
+      "dp_rank": 3,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "1": {
+      "dp_rank": 0,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "3": {
+      "dp_rank": 1,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "6": {
+      "dp_rank": 3,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "2": {
+      "dp_rank": 1,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    },
+    "0": {
+      "dp_rank": 0,
+      "host_token_slots": 2469952,
+      "main_decimal_gb": 128.0
+    }
+  },
+  "host_indexer_decimal_gb_per_tp_rank": 25.76,
+  "host_total_decimal_gb_from_rounded_logs": 1230.08,
+  "host_memory": {
+    "available_bytes": 857463816192,
+    "shmem_bytes": 1231099817984,
+    "swap_used_bytes": 13631488
+  },
+  "startup_soft_watchdog_warnings": 72,
+  "startup_failed_pyspy_diagnostics": 144,
+  "startup_optional_jit_width656_fallback_warnings": 8,
+  "startup_warning_examples": [
+    "2026-10-13T15:51:47.882143626Z [2026-10-13 15:51:47] TokenizerManager watchdog timeout (self.watchdog_timeout=60.0, self.soft=True)",
+    "2026-10-13T15:52:01.395979244Z [2026-10-13 15:52:01 DP2 TP4] Scheduler watchdog timeout (self.watchdog_timeout=60.0, self.soft=True)",
+    "Multi-thread loading shards:  33% Completed | 47/141 [00:17<00:24,  3.87it/s][2026-10-13 15:51:47] Pyspy failed (py-spy dump --native --pid 1). Error: Error: Failed to copy Py_Version symbol"
+  ],
+  "runtime_issue_lines_since_ready": [],
+  "container_oom_killed": false,
+  "smoke_report": "/home/advtech/glm53-inference/evidence/dp4-startup-smoke-20261013T160727Z.json",
+  "four_rank_pin_and_exact_prompt_retrieval_passed": true,
+  "peak_actual_running_requests": 4.0,
+  "peak_queued_requests": 0,
+  "tool_call_passed": true,
+  "reasoning_content_present": true,
+  "idle_metric_lines": [
+    "sglang:num_retracted_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"442\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"446\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"448\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_retracted_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pid=\"444\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0"
+  ],
+  "limitations": [
+    "Only small 41-token native rank probes and one OpenAI tool request were run.",
+    "No near-262k concurrent retrieval, sustained throughput, or DP4+MTP host-restore qualification yet.",
+    "472768 per-worker pool is allocation, not proof of 400k context support; API context remains 262144.",
+    "Native decode_throughput was implausible on one short probe and is not used for speed claims."
+  ]
+}

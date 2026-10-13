@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inference_optimization schema_version="1" updated_on="2026-10-13">
+  <role>Optimize the best model and serving configuration for private long-context coding inference using measured quality, capacity, latency and reliability.</role>
+  <objective>
+    <preferred_engine>SGLang; exhaust reasonable options before migration</preferred_engine>
+    <concurrent_users minimum="6" ideal_maximum="8" />
+    <context tokens="262144" includes_output="true" silent_truncation_allowed="false" />
+    <new_experiment users="4" layout="TP8_DP4_attention" mtp="enabled" hicache="retained_128_gb_per_rank" initial_context_tokens="262144" aspirational_context_tokens_per_user="400000" larger_context_status="unproven_profile_first" />
+    <static_memory_fraction value="0.90" user_constraint="true" />
+    <speed_priority>Choose by end-to-end coding-task time, quality, compaction and queueing. The user runs 10-15-minute tasks and is reconsidering MTP speed versus its 7% GPU-capacity cost.</speed_priority>
+    <api served_model="pratt-high" port="8012" reasoning_parser="glm45" tool_parser="glm47" />
+  </objective>
+  <hardware>
+    <gpus count="8" model="NVIDIA H200" reported_memory_mib_each="143771" />
+    <host_ram total_tib_approx="2.0" available_tib_before_hicache_approx="1.9" />
+    <swap total_gib="8" used_before_hicache_gib="0" />
+  </hardware>
+  <operations>
+    <unit>/etc/systemd/system/sglang-glm53.service</unit>
+    <container>sglang-glm53</container>
+    <privileges sudo_noninteractive="unavailable" docker_access="available">
+      <chosen_method>User runs privileged install and restart commands personally.</chosen_method>
+      <restriction>No Docker host-root helper or sudo-policy changes without fresh approval.</restriction>
+    </privileges>
+    <maintenance>Check active/queued requests; explain downtime and preserve rollback before restart.</maintenance>
+  </operations>
+  <live_profile status="dp4_ready_small_rank_tool_smoke_passed_long_context_pending" last_verified_on="2026-10-13">
+    <model>zai-org/GLM-5.3</model>
+    <weights_precision>Native FP8</weights_precision>
+    <engine version="0.5.18">SGLang</engine>
+    <image>lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1</image>
+    <image_id>sha256:cb940197908678dacb041556b64798cc0493d547816a8e8a6731fa37dddfc4fb</image_id>
+    <parallelism tp="8" pp="1" dp="4" attention_tp="2" ep="1" moe_a2a_backend="none" />
+    <kv dtype="fp8_e4m3" prefill_backend="flashmla_sparse_q8" decode_backend="flashmla_kv" gpu_tokens_per_dp_worker="472768" unique_gpu_tokens_across_four_workers="1891072" pool_type="four_independent_pools_replicated_within_gpu_pairs" />
+    <mtp enabled="true" algorithm="EAGLE" steps="1" topk="1" draft_tokens="2" />
+    <serving running_requests="4" effective_running_requests_per_dp_worker="1" queued_requests_launch="8" context_tokens="262144" static_memory_fraction="0.90" chunked_prefill_launch_tokens="8192" chunked_prefill_effective_tokens_per_dp_worker="2048" cuda_graph_max_bs="32" auto_truncate="false" />
+    <hicache enabled="true" size_decimal_gb_per_tp_rank="128" host_tokens_per_dp_worker="2469952" write_policy="write_through" io_backend="kernel" layout="page_first" storage_backend="none" cache_reporting="true" mtp_layers_packed="true" />
+    <cache_implementation dsa_indexer_elision="disabled_by_hicache" optional_jit_transfer_656_byte_layout="unsupported_generic_fallback_available" />
+    <startup_headroom engine_reported_gb_per_worker_min="9.801" engine_reported_gb_per_worker_max="9.846" />
+    <rollback_candidate>/home/advtech/sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service</rollback_candidate>
+  </live_profile>
+  <experiments>
+    <experiment id="bf16-mtp-baseline" status="measured_baseline">
+      <profile kv="bfloat16" mtp="enabled" running_requests="4" shared_gpu_tokens="384640" />
+      <short_benchmark concurrency="1" output_tokens_each="256" measured_rounds="3" median_client_tps="190.95" />
+      <evidence>/home/advtech/sglang-glm53-fp8-tests/baseline-bf16-mtp-c1.json</evidence>
+    </experiment>
+    <experiment id="fp8-mtp" status="validated_smoke">
+      <profile kv="fp8_e4m3" mtp="enabled" running_requests="4" shared_gpu_tokens="660032" />
+      <short_benchmark concurrency="1" output_tokens_each="256" median_client_tps="165.35" />
+      <short_benchmark concurrency="4" output_tokens_each="256" median_aggregate_tps="449.74" median_per_request_tps="113.41" />
+      <retrieval prompt_tokens="260000" passed="true" elapsed_seconds="29.67" cold_prefill_seconds="28.39" />
+      <tool_call passed="true" />
+      <errors oom="0" request_retractions="0" />
+      <evidence_directory>/home/advtech/sglang-glm53-fp8-tests</evidence_directory>
+    </experiment>
+    <experiment id="fp8-no-mtp-four" status="validated_smoke">
+      <profile kv="fp8_e4m3" mtp="disabled" running_requests="4" shared_gpu_tokens="705024" />
+      <short_benchmark concurrency="1" output_tokens_each="256" median_client_tps="96.89" />
+      <short_benchmark concurrency="4" output_tokens_each="256" median_aggregate_tps="328.14" median_per_request_tps="82.06" />
+      <retrieval prompt_tokens="260000" passed="true" elapsed_seconds="31.07" cold_prefill_seconds="29.55" />
+      <tool_call passed="true" />
+      <errors oom="0" request_retractions="0" />
+    </experiment>
+    <experiment id="fp8-no-mtp-six" status="installed_and_validated_smoke">
+      <profile kv="fp8_e4m3" mtp="disabled" running_requests="6" shared_gpu_tokens="705024" />
+      <short_benchmark concurrency="6" output_tokens_each="256" measured_rounds="3" median_aggregate_tps="427.51" median_per_request_tps="71.28" />
+      <long_concurrency concurrency="6" distinct_prefixes="true" prompt_tokens_each="100000" output_tokens_each="512" warmed="true" passed="true">
+        <retrieval passed_conversations="6" total_conversations="6" />
+        <actual_activity peak_running="6" peak_queued="0" peak_active_token_usage="0.86" />
+        <performance aggregate_tps="412.40" median_per_request_tps="68.88" elapsed_seconds="7.45" />
+        <cached_tokens_each>99968</cached_tokens_each>
+        <errors oom="0" request_retractions="0" metric_sampling_errors="0" />
+      </long_concurrency>
+      <limits>No simultaneous cold-prefill storm, sustained real-user load, eight-request profile, or six full-262k contexts has been qualified.</limits>
+      <evidence>/home/advtech/sglang-glm53-fp8-tests/fp8-no-mtp-6-long-c6-100000.json</evidence>
+    </experiment>
+    <experiment id="raw-repetitive-retrieval" status="invalid_quality_probe_retained">
+      <prompt tokens="260000" format="raw_completion_without_chat_template" filler="one_repeated_token" />
+      <result>Request completed without OOM or retraction, but retrieval failed. Corrected chat-formatted probes passed.</result>
+      <evidence>/home/advtech/sglang-glm53-fp8-tests/fp8-mtp-smoke-260000.json</evidence>
+    </experiment>
+    <experiment id="hicache-128" status="installed_and_validated_scoped_smoke">
+      <approval>User requests 128 directly; no 64 GB preliminary stage.</approval>
+      <planned_profile host_kv_gb_per_tp_rank="128" gb_bytes="1000000000" write_policy="write_through" io_backend="kernel" memory_layout="page_first" cache_reporting="enabled" storage_backend="none" />
+      <candidate>/home/advtech/sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service</candidate>
+      <exact_prechange_backup>/home/advtech/sglang-glm53-fp8-tests/pre-hicache128.service</exact_prechange_backup>
+      <docker_memlock soft="unlimited" hard="unlimited" previous_soft_bytes="65536" previous_hard_bytes="65536" />
+      <preflight result="passed" scope="static_unit_constraints_xml_and_host_memory_margin" runtime_validation="not_performed">
+        <report>/home/advtech/sglang-glm53-fp8-tests/hicache128-preflight.json</report>
+        <host_memory available_bytes_before="2104672116736" estimated_cache_bytes="1230048545856" estimated_remaining_available_bytes="874623570880" />
+      </preflight>
+      <preserve tp="8" kv="fp8_e4m3" mtp="disabled" running_requests="6" queued_requests="8" context_tokens="262144" static_memory_fraction="0.90" />
+      <estimates actual_allocation_must_be_measured="true" total_host_ram_decimal_gb_approx="1230" unique_host_prefix_tokens_approx="2500000" />
+      <startup ready_at_utc="2026-10-13T14:58:45Z" unit_matches_candidate="true" memlock_unlimited="true" />
+      <allocation source="startup_logs_and_host_memory_snapshot" main_gb_per_rank="128" indexer_gb_per_rank="25.76" total_decimal_gb_rounded="1230.08" host_token_slots="2501568" gpu_token_slots="618752">
+        <snapshot>/home/advtech/sglang-glm53-fp8-tests/hicache128-allocation.json</snapshot>
+        <host_memory available_bytes_after="852238983168" shmem_bytes="1230797160448" swap_used_bytes="12845056" />
+      </allocation>
+      <gpu_capacity_tradeoff previous_tokens="705024" current_tokens="618752" drop_percent="12.24">HiCache disables DSA indexer-cache elision in this build, increasing per-token GPU index-buffer storage.</gpu_capacity_tradeoff>
+      <transfer_warning>Optional JIT transfer does not support the 656-byte FP8 MLA layout; the generic fallback passed the host-restoration probe.</transfer_warning>
+      <short_benchmark concurrency="1" output_tokens_each="256" median_client_tps="98.18" retractions="0" />
+      <short_benchmark concurrency="6" output_tokens_each="256" median_aggregate_tps="410.57" median_per_request_tps="68.48" retractions="0" />
+      <host_restore prompt_tokens="260000" pressure_conversations="3" passed="true" device_hit_tokens="0" host_hit_tokens="259968" cold_elapsed_seconds="32.18" gpu_warm_elapsed_seconds="1.47" restored_elapsed_seconds="3.38" end_to_end_speedup="9.52" cold_prefill_seconds="30.63" restored_prefill_seconds="1.18" retractions="0" tool_call_passed="true">
+        <evidence>/home/advtech/sglang-glm53-fp8-tests/hicache128-no-mtp-host-restore-260000.json</evidence>
+      </host_restore>
+      <long_concurrency concurrency="6" prompt_tokens_each="90000" output_tokens_each="512" warmed="true" passed="true" peak_running="6" peak_queued="0" peak_active_token_usage="0.88" aggregate_tps="409.98" median_per_request_tps="68.47" elapsed_seconds="7.49" cached_tokens_each="89984" retractions="0" metric_sampling_errors="0">
+        <evidence>/home/advtech/sglang-glm53-fp8-tests/hicache128-no-mtp-long-c6-90000.json</evidence>
+        <qualification>Some warmups reused partial prefixes from earlier probes. The timed interval used six distinct independently cached prefixes; it is not a matched comparison to the prior 100k-per-user test.</qualification>
+      </long_concurrency>
+      <post_test ready="true" oom_killed="false" runtime_oom_errors="0" runtime_cuda_errors="0" runtime_tracebacks="0" runtime_watchdog_warnings="0" running_requests="0" queued_requests="0">
+        <summary>/home/advtech/sglang-glm53-fp8-tests/hicache128-validation-summary.json</summary>
+      </post_test>
+      <limitation>RAM cache retains reusable prefixes, not additional full active GPU contexts. TP-only host buffers are replicated across eight ranks.</limitation>
+      <risks>Pinned-memory allocation, reclaim/NUMA locality, transfer overhead, startup/teardown delays and a potentially changed GPU token budget.</risks>
+    </experiment>
+    <experiment id="dp4-mtp-hicache128" status="installed_ready_small_rank_tool_smoke_passed_long_context_pending">
+      <approval>User requests context handoff, MTP and HiCache retained, and testing DP4 before conversation compaction.</approval>
+      <candidate>/home/advtech/sglang-glm53-fp8-tests/dp4-mtp-hicache128.service</candidate>
+      <rollback>/home/advtech/sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service</rollback>
+      <exact_prechange_backup>/home/advtech/sglang-glm53-fp8-tests/pre-dp4-mtp-hicache128.service</exact_prechange_backup>
+      <requested_profile tp="8" dp="4" enable_dp_attention="true" attention_tp_expected="2" pp="1" ep="1" moe_a2a_backend="none" speculative_algorithm="EAGLE" speculative_steps="1" speculative_topk="1" speculative_draft_tokens="2" hicache_gb_per_tp_rank="128" kv="fp8_e4m3" static_memory_fraction="0.90" context_tokens="262144" max_running_launch="4" max_running_per_dp_expected="1" max_queued_launch="8" />
+      <prefill launch_tokens="8192" constructor_normalized_tokens_per_dp_worker="2048" />
+      <preflight unit_syntax="passed" installed_sglang_argument_constructor="passed" engine_launched="false" model_weights_loaded="false" runtime_capacity_measured="false">
+        <report>/home/advtech/sglang-glm53-fp8-tests/dp4-mtp-hicache128-preflight.json</report>
+      </preflight>
+      <startup started_at_utc="2026-10-13T15:50:15Z" ready_log_at_utc="2026-10-13T15:59:43Z" unit_matches_candidate="true" gpu_tokens_per_dp_worker="472768" unique_gpu_tokens_total="1891072" effective_running_per_worker="1" prefill_chunk_per_worker="2048" host_tokens_per_dp_worker="2469952" host_main_gb_per_tp_rank="128" host_indexer_gb_per_tp_rank="25.76" />
+      <startup_warnings soft_watchdog_timeouts="72" failed_pyspy_diagnostics="144" optional_jit_width656_fallback="true">Startup took about 9.5 minutes; warnings were during startup, not observed after readiness.</startup_warnings>
+      <small_smoke passed="true" rank_pinned_probes="4" prompt_tokens_each="41" peak_actual_running="4" peak_queued="0" retractions="0" exact_retrieval="true" tool_call="passed" separated_reasoning="passed" />
+      <post_smoke ready="true" container_oom_killed="false" runtime_issue_lines_since_ready="0" host_mem_available_bytes="857463816192" host_swap_used_bytes="13631488" />
+      <runtime_summary>/home/advtech/glm53-inference/evidence/dp4-startup-validation-summary.json</runtime_summary>
+      <runtime_limits>Only small requests are qualified. No near-limit DP4 concurrency, sustained coding load, DP4+MTP host restoration or 400k context has been tested. API context remains 262144.</runtime_limits>
+      <target>Profile at 262k first. Four near-400k contexts are aspirational and need sufficient per-worker capacity, a later context-limit increase and fresh correctness/load tests.</target>
+      <validation_requirements>Pin routed_dp_rank 0-3, verify dp_rank metadata, deduplicate/sum per-worker gauges or prove generation-interval overlap, and pin target/pressure requests to the same worker for host restoration.</validation_requirements>
+      <helper_limitations>Existing concurrency_test.py and hicache_test.py are TP-only; adapt rank routing and activity accounting before using them to qualify DP4.</helper_limitations>
+      <limitations>DP4 does not automatically double a DP8 pool. Tuned gatherv supports TP=DP/attention TP1 only. Production session-affinity routing is not installed.</limitations>
+      <handoff>/home/advtech/NEXT_EXPERIMENT.md</handoff>
+    </experiment>
+  </experiments>
+  <next_actions>
+    <action order="1" status="completed">Prepared the HiCache-128 candidate; static unit/constraint/XML/memory-margin validation passed and the current profile is retained for rollback.</action>
+    <action order="2" status="completed">User installed the candidate; live unit and flags match the prepared configuration.</action>
+    <action order="3" status="completed_with_tradeoff">RAM allocation matches estimates, but GPU capacity dropped 12.24%; optional JIT transfer falls back.</action>
+    <action order="4" status="completed_scoped_smoke">Near-limit retrieval, tool-call and short benchmarks passed. Six independent warmed 90k-token sessions were genuinely active with no queueing or retractions. Six 100k sessions were not qualified on this smaller pool.</action>
+    <action order="5" status="completed">Forced GPU eviction followed by a 259,968-token host hit passed correct retrieval; end-to-end response improved from 32.18 to 3.38 seconds.</action>
+    <action order="6" status="completed_scoped_smoke">Results recorded. HiCache remains installed after correct host restoration, tool checks and six-session 90k validation; sustained real-user load and broader accuracy remain unqualified.</action>
+    <action order="7" status="completed">User installed DP4 + MTP + HiCache; unit, pinned image and effective settings verified. Small rank/tool/reasoning smoke passed.</action>
+    <action order="8" status="completed_startup_pool_profiling_input_boundary_pending">Four 472768-token worker pools verified, one active per worker, 2048-token normalized prefill chunks and 9.80-9.85 engine-reported GB headroom. Context remains 262144; near-limit validation is pending.</action>
+    <action order="9" status="pending">Adapt TP-only helpers for routed_dp_rank 0-3 and per-worker activity, then benchmark four independent sessions, checking MTP acceptance, tools, recall and host restoration.</action>
+    <action order="10" status="pending_capacity_results">Consider a larger context toward four near-400k users only after profiling; do not claim that capacity from DP4 alone.</action>
+  </next_actions>
+  <references>
+    <document>/home/advtech/AGENTS.md</document>
+    <document>/home/advtech/INFERENCE_CONTEXT.md</document>
+    <document>/home/advtech/NEXT_EXPERIMENT.md</document>
+    <document>/home/advtech/sglang-glm53-fp8-tests/results.md</document>
+    <url>https://docs.sglang.io/docs/advanced_features/hicache_best_practices</url>
+  </references>
+</inference_optimization>

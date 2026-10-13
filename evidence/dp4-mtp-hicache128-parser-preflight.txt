@@ -1,0 +1,9 @@
+DP4_PREFLIGHT_JSON={"model_path": "zai-org/GLM-5.3", "served_model_name": "pratt-high", "tp_size": 8, "dp_size": 4, "pp_size": 1, "ep_size": 1, "enable_dp_attention": true, "moe_a2a_backend": "none", "speculative_algorithm": "EAGLE", "speculative_num_steps": 1, "speculative_eagle_topk": 1, "speculative_num_draft_tokens": 2, "kv_cache_dtype": "fp8_e4m3", "dsa_prefill_backend": "flashmla_sparse_q8", "dsa_decode_backend": "flashmla_kv", "mem_fraction_static": 0.9, "context_length": 262144, "max_running_requests": 4, "max_queued_requests": 8, "enable_hierarchical_cache": true, "hicache_size": 128, "hicache_write_policy": "write_through", "hicache_io_backend": "kernel", "hicache_mem_layout": "page_first", "enable_cache_report": true}
+
+[1;33m'--cuda-graph-max-bs' is deprecated and will be removed in a future release. Use '--cuda-graph-max-bs-decode' instead.[0m
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Setting page size to 64 for DeepSeek DSA.
+Set dense attention kv len threshold to model index_topk=2048 for DeepSeek with DSA.
+DSA with TP mode is active, dp_size=4, tp_size=8, attn_tp_size=8, attention weights will be sharded across 8 ranks.
+Set DSA backends for fp8_e4m3 KV Cache: prefill=flashmla_sparse_q8, decode=flashmla_kv.
+DP attention is enabled. chunked prefill size is adjusted from 8192 to 2048.
