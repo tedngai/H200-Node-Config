@@ -330,3 +330,32 @@ Primary evidence is under `/home/advtech/glm53-inference/evidence/`:
 - `dp4-mtp-hicache128-host-20261013T174803Z-rank0-260000.json`
 - `dp4-startup-smoke-20261013T175121Z.json` (post-load tools/reasoning)
 - `dp4-post-profile-server-info-20261013T175226Z.json`
+
+## Approved 400k/four-active context-only candidate: prepared, not deployed
+
+The user approved 400,000 tokens including output and four active requests.
+The running DP4 profile already allows four total, one per worker. Candidate
+`glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`
+changes only context 262144 -> 400000 and description; MTP/HiCache/image/model,
+memory 0.90, prefill, alias/port/parsers, admission, queues/timeouts stay fixed.
+Exact current-unit rollback and baseline server snapshot are retained.
+
+Static unit verification and the installed SGLang argument constructor passed,
+including normalized prefill 2048. No candidate engine/weights were launched;
+the live service remains at 262,144. Cached configs allow 1,048,576 position
+indexes but do not qualify 400k accuracy. Estimated pool occupancy is 84.6%
+of the current pool; actual 400k startup allocation/headroom must be measured.
+Preflight evidence: `glm53-inference/evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json`.
+
+Installed-source review clarified queue semantics (not an overload test):
+eight waiting requests **per worker**, up to 32 total, FCFS within each worker,
+round-robin routing with no queue work-stealing, 120-second waiting timeout.
+Full/expired queues abort with 503, or an abort inside an already-open stream;
+client deadlines may be shorter. These are request limits, not fixed-account
+or whole-agent-task reservations. Queued requests do not decode in RAM.
+
+Pending: user install/restart and fresh capacity/smoke, one then four independent
+398k retrievals/warmed generations, same-worker host restore and bounded queue
+tests. Preferred narrow rollback is
+`glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
+No 400k deployment, throughput, sustained-load or accuracy result is claimed.

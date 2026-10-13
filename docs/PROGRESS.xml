@@ -3,9 +3,9 @@
   <role>Optimize the best model and serving configuration for private long-context coding inference using measured quality, capacity, latency and reliability.</role>
   <objective>
     <preferred_engine>SGLang; exhaust reasonable options before migration</preferred_engine>
-    <concurrent_users minimum="6" ideal_maximum="8" />
-    <context tokens="262144" includes_output="true" silent_truncation_allowed="false" />
-    <new_experiment users="4" layout="TP8_DP4_attention" mtp="enabled" hicache="retained_128_gb_per_rank" initial_context_tokens="262144" aspirational_context_tokens_per_user="400000" larger_context_status="unproven_profile_first" />
+    <concurrent_users minimum="4" ideal_maximum="4" interpretation="active_generation_requests_not_fixed_accounts" historical_goal="6_to_8_not_current_admission_authorization" />
+    <context tokens="400000" includes_output="true" silent_truncation_allowed="false" status="approved_candidate_pending_user_install_and_validation" live_tokens="262144" />
+    <new_experiment users="4" layout="TP8_DP4_attention" mtp="enabled" hicache="retained_128_gb_per_rank" initial_context_tokens="262144" approved_next_context_tokens="400000" larger_context_status="prepared_parser_validated_pending_user_install_and_validation" />
     <static_memory_fraction value="0.90" user_constraint="true" />
     <speed_priority>Choose by end-to-end coding-task time, quality, compaction and queueing. The user runs 10-15-minute tasks and is reconsidering MTP speed versus its 7% GPU-capacity cost.</speed_priority>
     <api served_model="pratt-high" port="8012" reasoning_parser="glm45" tool_parser="glm47" />
@@ -149,6 +149,20 @@
       <limitations>DP4 does not automatically double a DP8 pool. Tuned gatherv supports TP=DP/attention TP1 only. Production session-affinity routing is not installed.</limitations>
       <handoff>/home/advtech/NEXT_EXPERIMENT.md</handoff>
     </experiment>
+    <experiment id="dp4-mtp-hicache128-400k" status="prepared_parser_validated_pending_user_install_and_validation">
+      <approval>User approved 400k context including output and four concurrent requests, asking about queued users. Existing admission already allows four total, one per worker.</approval>
+      <candidate>/home/advtech/glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service</candidate>
+      <exact_rollback>/home/advtech/glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service</exact_rollback>
+      <baseline_snapshot>/home/advtech/glm53-inference/evidence/pre-400k-server-info-20261013T181759Z.json</baseline_snapshot>
+      <preflight checked_at_utc="2026-10-13T18:17:59Z" unit_syntax="passed" installed_argument_constructor="passed" protected_diff="passed" only_setting_change="context_length_262144_to_400000" engine_launched="false" weights_loaded="false" live_unchanged="true" candidate_runtime_capacity_measured="false">
+        <report>/home/advtech/glm53-inference/evidence/dp4-mtp-hicache128-400k-preflight-20261013T181759Z.json</report>
+      </preflight>
+      <preserve tp="8" dp="4" active_requests_total="4" active_per_worker_expected="1" mtp="EAGLE_1_1_2" hicache_gb_per_tp_rank="128" static_memory_fraction="0.90" alias="pratt-high" port="8012" pinned_image_unchanged="true" queue_flags_unchanged="true" />
+      <queue_policy evidence="installed_source_and_live_config_not_overload_test" queued_per_worker="8" maximum_aggregate_queued="32" waiting_timeout_seconds="120" scheduler="fcfs_per_worker" routing="round_robin" full_queue_status="503" expired_wait_status="503" automatic_work_stealing="false">Streaming calls can carry an abort within an open stream; client deadlines may be shorter. Limits apply to requests, not fixed user accounts; queued requests do not decode from RAM.</queue_policy>
+      <capacity_estimate based_on_existing_262k_pool="true" gpu_slots_per_worker="472768" context_tokens="400000" occupancy_fraction="0.8461" remaining_slots="72768" model_config_max_position_embeddings="1048576">This is not measured 400k startup capacity or accuracy. Reprofile after restart and retain output/headroom.</capacity_estimate>
+      <next>After user install/restart, verify flags and each pool; rank/tool smoke, one 398k retrieval then four independent 398k prompts with exact lengths and active metrics, warmed rounds, same-worker host restore and bounded queue checks.</next>
+      <rollback_scope>Prefer exact 262k DP4 rollback, not a simultaneous DP/MTP change. Preserve deeper TP-only HiCache fallback.</rollback_scope>
+    </experiment>
   </experiments>
   <next_actions>
     <action order="1" status="completed">Prepared the HiCache-128 candidate; static unit/constraint/XML/memory-margin validation passed and the current profile is retained for rollback.</action>
@@ -160,8 +174,8 @@
     <action order="7" status="completed">User installed DP4 + MTP + HiCache; unit, pinned image and effective settings verified. Small rank/tool/reasoning smoke passed.</action>
     <action order="8" status="completed_scoped_near_limit">Four 472768-token worker pools verified, one active per worker and 2048-token normalized prefill chunks. Four simultaneous 260000-token retrievals passed without truncation, queueing or retraction; configured context remains 262144.</action>
     <action order="9" status="completed_scoped">Added DP-aware profile helper; nine offline tests passed. Short c1/c4, four independent 100k/260k sessions, MTP acceptance, post-load tools/reasoning and same-worker DP0 host restore passed. Evidence and comparison are in the packaged repo.</action>
-    <action order="10" status="pending_explicit_context_change_and_fresh_tests">A larger context toward four near-400k users needs explicit approval, context-limit change and fresh correctness/prefill/load tests. Per-worker allocation alone is not validation.</action>
-    <action order="11" status="pending">Measure sustained real coding task time, six/eight-user admission/queueing and production session affinity. Complete host-restore checks on DP1-3. Any HiCache-on/off experiment requires an approved matched restart comparison.</action>
+    <action order="10" status="approved_prepared_pending_user_install">User approved 400k context/four active requests. Context-only candidate, exact 262k DP4 rollback, baseline/image preservation and static/parser preflight are complete; user must install/restart. Live context is still 262144, with no 400k runtime claim.</action>
+    <action order="11" status="pending">Qualify 400k and measure queue wait/rejection/timeout behavior, sustained real coding task time and production session affinity. Complete host-restore checks on DP1-3. Six/eight active requests are no longer the current target and need separate approval. HiCache-on/off needs an approved matched restart comparison.</action>
   </next_actions>
   <references>
     <document>/home/advtech/AGENTS.md</document>

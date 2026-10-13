@@ -24,8 +24,11 @@ memory utilization at the expense of correctness.
 
 - Prefer SGLang and exhaust its reasonable options before proposing an engine
   migration. The user has had poor experiences with vLLM.
-- Target 6-8 active coding users. Preserve a 262,144-token per-request context
-  window, including output; do not silently truncate prompts or lower context.
+- Current approved target: **four active generation requests**, one per DP4
+  worker, and **400,000 context tokens including output**. The 400k candidate
+  is prepared, not deployed/qualified; live context is still 262,144 until the
+  user installs/restarts it. The earlier 6-8-user goal is historical/future
+  work, not authorization to raise admission. Do not silently truncate prompts.
 - Keep `--mem-fraction-static 0.90` unless the user explicitly changes this
   constraint. Earlier local notes document OOMs at 0.92.
 - Judge speed by end-to-end coding-task time as well as capacity. The user runs
@@ -130,3 +133,16 @@ active users, sustained real coding load and 400k remain unqualified.
 long-context helpers remain TP-only. New primary code/evidence is
 under `/home/advtech/glm53-inference`; originals are retained. Preferred rollback
 is `sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service`.
+
+The user subsequently approved **400k context and four active requests**.
+Candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
+Only context and description change; MTP, HiCache, 0.90 memory, alias/port,
+image and queue settings are retained. Static/parser preflight passed without
+starting an engine; 400k runtime validation is pending user install/restart.
+Exact rollback: `configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`
+inside the repo, retaining the scoped-tested DP4 262k profile.
+Installed-source review: queue cap eight **per worker** (up to 32 total),
+120-second waiting timeout, FCFS per worker, round-robin routing; full/expired
+queues abort with 503 (or an abort within an already-open stream). This is not
+a global work-stealing or per-user fairness queue, and HiCache is not active
+RAM decoding. Longer wait limits/routing changes need separate approval.

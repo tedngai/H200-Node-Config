@@ -1,0 +1,153 @@
+{
+  "checked_at_utc": "2026-10-13T18:18:08.495468+00:00",
+  "status": "400k_candidate_prepared_parser_validated_pending_user_install",
+  "candidate": "configs/systemd/candidates/dp4-mtp-hicache128-400k.service",
+  "candidate_sha256": "2f0908b49e0f84fbfb43198c0689a4ad35f02e9226965d4cbe604daec64b211c",
+  "rollback": "configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service",
+  "rollback_sha256": "b9179ac592c4cd94132482846302c143cd48e0c7aa1442e7527ece7c10dfd61c",
+  "baseline_server_info": "pre-400k-server-info-20261013T181759Z.json",
+  "baseline_live_context_tokens": 262144,
+  "image_id": "sha256:cb940197908678dacb041556b64798cc0493d547816a8e8a6731fa37dddfc4fb",
+  "pinned_image": "lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1",
+  "container_started_at": "2026-10-13T15:50:15.129338775Z",
+  "protected_configuration_diff_passed": true,
+  "changed_settings": [
+    "context_length: 262144 -> 400000",
+    "unit description"
+  ],
+  "systemd_verify": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "netplan-ovs-cleanup.service: Failed to open /run/systemd/system/netplan-ovs-cleanup.service: Permission denied\n/lib/systemd/system/snapd.service:23: Unknown key name 'RestartMode' in section 'Service', ignoring.\n"
+  },
+  "installed_build_resolved_candidate_args": {
+    "model_path": "zai-org/GLM-5.3",
+    "served_model_name": "pratt-high",
+    "tp_size": 8,
+    "dp_size": 4,
+    "pp_size": 1,
+    "ep_size": 1,
+    "enable_dp_attention": true,
+    "moe_a2a_backend": "none",
+    "speculative_algorithm": "EAGLE",
+    "speculative_num_steps": 1,
+    "speculative_eagle_topk": 1,
+    "speculative_num_draft_tokens": 2,
+    "kv_cache_dtype": "fp8_e4m3",
+    "dsa_prefill_backend": "flashmla_sparse_q8",
+    "dsa_decode_backend": "flashmla_kv",
+    "mem_fraction_static": 0.9,
+    "context_length": 400000,
+    "max_running_requests": 4,
+    "max_queued_requests": 8,
+    "chunked_prefill_size": 2048,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "hicache_write_policy": "write_through",
+    "hicache_io_backend": "kernel",
+    "hicache_mem_layout": "page_first",
+    "enable_cache_report": true,
+    "reasoning_parser": "glm45",
+    "tool_call_parser": "glm47",
+    "allow_auto_truncate": false,
+    "load_balance_method": "round_robin",
+    "schedule_policy": "fcfs",
+    "port": 8012
+  },
+  "installed_build_constructor_stderr": "\u001b[1;33m'--cuda-graph-max-bs' is deprecated and will be removed in a future release. Use '--cuda-graph-max-bs-decode' instead.\u001b[0m\n[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.\n[2026-10-13 18:18:07] Use dsa attention backend for DeepSeek with DSA.\n[2026-10-13 18:18:07] Setting page size to 64 for DeepSeek DSA.\n[2026-10-13 18:18:07] Set dense attention kv len threshold to model index_topk=2048 for DeepSeek with DSA.\n[2026-10-13 18:18:07] DSA with TP mode is active, dp_size=4, tp_size=8, attn_tp_size=8, attention weights will be sharded across 8 ranks.\n[2026-10-13 18:18:07] Set DSA backends for fp8_e4m3 KV Cache: prefill=flashmla_sparse_q8, decode=flashmla_kv.\n[2026-10-13 18:18:07] DP attention is enabled. chunked prefill size is adjusted from 8192 to 2048.\n",
+  "candidate_weights_loaded": false,
+  "candidate_engine_launched": false,
+  "live_service_unchanged": true,
+  "current_idle_metrics": [
+    "sglang:num_running_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0"
+  ],
+  "current_per_worker_gpu_pool_slots": 472768,
+  "estimated_400k_pool_fraction_if_capacity_unchanged": 0.8460809530255855,
+  "estimated_remaining_pool_slots_if_capacity_unchanged": 72768,
+  "capacity_caveat": "400k startup pool/headroom, long correctness, performance and host restoration require fresh measurement after user restart.",
+  "cached_model_configs": [
+    {
+      "path": "/root/.cache/huggingface/hub/models--zai-org--GLM-5.3/snapshots/e0b07fd2751b42d5efa199cc02c2b271deadc516/config.json",
+      "sha256": "3ac72612095574542f7fff847ada8e59d9199dd8af44bdf625d7e02615572e69",
+      "max_position_embeddings": 1048576
+    },
+    {
+      "path": "/root/.cache/huggingface/hub/models--zai-org--GLM-5.3/snapshots/c5087a76d148760811ffbdedfe6ff9f194e46e38/config.json",
+      "sha256": "3ac72612095574542f7fff847ada8e59d9199dd8af44bdf625d7e02615572e69",
+      "max_position_embeddings": 1048576
+    },
+    {
+      "path": "/root/.cache/huggingface/hub/models--zai-org--GLM-5.3/snapshots/aca966e4e02791568aa6a4ced368624b3d897f42/config.json",
+      "sha256": "3ac72612095574542f7fff847ada8e59d9199dd8af44bdf625d7e02615572e69",
+      "max_position_embeddings": 1048576
+    }
+  ],
+  "queue_policy_source_review": [
+    {
+      "path": "/sgl-workspace/sglang/python/sglang/srt/managers/scheduler.py",
+      "sha256": "968a507c1919cb5293cc72a7dc033f2415cb27430c79cb00f0a3893a3b8e011c",
+      "excerpts": [
+        {
+          "start_line": 2767,
+          "end_line": 2814,
+          "text": "    def _abort_on_queued_limit(self, recv_req: Req) -> bool:\n        \"\"\"Abort an incoming or existing request if the waiting queue is full. Returns True if the incoming request is aborted.\"\"\"\n        if (\n            self.max_queued_requests is None\n            or len(self.waiting_queue) + 1 <= self.max_queued_requests\n        ):\n            return False\n\n        # Reject the incoming request by default.\n        req_to_abort = recv_req\n        message = \"The request queue is full.\"\n        if self.enable_priority_scheduling:\n            # With priority scheduling, consider aboritng an existing request based on the priority.\n            # direction = 1  => smaller number = higher priority; -1 => larger number = higher priority.\n            # max(...) + (direction * priority, queue_time_start) picks the least-preferred request.\n            # Tie: later queue_time_start (newer) is evicted first. Preempt only if strictly better.\n            direction = 1 if self.schedule_low_priority_values_first else -1\n            key_fn = lambda item: (\n                direction * item[1].priority,\n                item[1].time_stats.wait_queue_entry_time,\n            )\n            idx, candidate_req = max(enumerate(self.waiting_queue), key=key_fn)\n            abort_existing_req = (\n                direction * recv_req.priority < direction * candidate_req.priority\n            )\n            if abort_existing_req:\n                if self.enable_hicache_storage:\n                    # Release prefetch events associated with the request\n                    self.tree_cache.release_aborted_request(candidate_req.rid)\n                elif self.enable_hierarchical_cache:\n                    self.tree_cache.terminate_prefetch(candidate_req.rid)\n                self.waiting_queue.pop(idx)\n                req_to_abort = candidate_req\n                message = \"The request is aborted by a higher priority request.\"\n\n        self.ipc_channels.send_to_tokenizer.send_output(\n            AbortReq(\n                finished_reason={\n                    \"type\": \"abort\",\n                    \"status_code\": HTTPStatus.SERVICE_UNAVAILABLE,\n                    \"message\": message,\n                },\n                rid=req_to_abort.rid,\n            ),\n            req_to_abort,\n        )\n        req_to_abort.time_stats.trace_ctx.abort(abort_info={\"reason\": message})\n        return req_to_abort.rid == recv_req.rid"
+        },
+        {
+          "start_line": 2816,
+          "end_line": 2844,
+          "text": "    def _abort_on_waiting_timeout(self):\n        if (timeout_s := envs.SGLANG_REQ_WAITING_TIMEOUT.get()) <= 0:\n            return\n\n        deleted_reqs = set()\n        deadline = time.perf_counter() - timeout_s\n        for req in self.waiting_queue:\n            entry_time = req.time_stats.wait_queue_entry_time\n            if 0 < entry_time < deadline:\n                if self.enable_hicache_storage:\n                    # Release prefetch events associated with the request\n                    self.tree_cache.release_aborted_request(req.rid)\n                self.ipc_channels.send_to_tokenizer.send_output(\n                    AbortReq(\n                        finished_reason={\n                            \"type\": \"abort\",\n                            \"status_code\": HTTPStatus.SERVICE_UNAVAILABLE,\n                            \"message\": \"Request waiting timeout reached.\",\n                        },\n                        rid=req.rid,\n                    ),\n                    req,\n                )\n                deleted_reqs.add(req)\n\n        if deleted_reqs:\n            self.waiting_queue = [\n                req for req in self.waiting_queue if req not in deleted_reqs\n            ]"
+        }
+      ]
+    },
+    {
+      "path": "/sgl-workspace/sglang/python/sglang/srt/managers/data_parallel_controller.py",
+      "sha256": "9d10fb8f90cf9ab73527c4d7095702b9939210313d8af7234f93a06417025d2a",
+      "excerpts": [
+        {
+          "start_line": 753,
+          "end_line": 772,
+          "text": "    def round_robin_scheduler(self, req: Req):\n        if self.maybe_external_dp_rank_routing(req):\n            return\n\n        active = self._active_workers\n        if not active:\n            raise RuntimeError(\"No active DP workers are available for routing.\")\n        attempts = 0\n        while attempts < len(active):\n            slot = active[self.round_robin_counter % len(active)]\n            self.round_robin_counter = (self.round_robin_counter + 1) % len(active)\n            if self.status[slot]:\n                logger.debug(f\"Choose worker {slot}\")\n                sock_send(self.workers[slot], req)\n                return\n            attempts += 1\n        raise RuntimeError(\n            f\"Cannot route request: all {len(active)} active DP workers \"\n            \"are unavailable.\"\n        )"
+        }
+      ]
+    },
+    {
+      "path": "/sgl-workspace/sglang/python/sglang/srt/managers/tp_worker.py",
+      "sha256": "c39b0b3363a57612caf73c600c07f9e67e56ae3ad939048eba7e856002047e59",
+      "excerpts": [
+        {
+          "start_line": 525,
+          "end_line": 543,
+          "text": "    def get_worker_info(self):\n        max_req_len = min(\n            self.model_config.context_len - 1,\n            self.model_runner.effective_max_total_num_tokens * self.ps.attn_dcp_size\n            - 1,\n        )\n        return (\n            self.model_runner.max_total_num_tokens,\n            get_schedule().max_prefill_tokens,\n            self.model_runner.max_running_requests,\n            get_schedule().max_queued_requests,\n            max_req_len,\n            max_req_len - 5,\n            self.random_seed,\n            self.device,\n            self.model_runner.forward_stream,\n            self.model_runner.req_to_token_pool.size,\n            self.model_runner.req_to_token_pool.max_context_len,\n            self.model_runner.token_to_kv_pool.size,"
+        }
+      ]
+    }
+  ],
+  "queue_policy": {
+    "scope": "source_review_and_current_live_config_not_overload_runtime_test",
+    "active_requests_total": 4,
+    "active_requests_per_worker": 1,
+    "queued_requests_per_worker": 8,
+    "aggregate_queue_slots_up_to": 32,
+    "waiting_timeout_seconds": 120,
+    "scheduler_policy": "fcfs",
+    "routing_policy": "round_robin",
+    "full_queue_status_code": 503,
+    "waiting_timeout_status_code": 503,
+    "no_automatic_queue_work_stealing": true,
+    "streaming_caveat": "An already-open stream may report abort/error in the stream instead of changing its HTTP status.",
+    "active_request_vs_user_caveat": "These are generation-request limits, not four dedicated user accounts or whole-agent-task reservations."
+  },
+  "next_validation": [
+    "User drains/checks requests and installs/restarts with sudo; previous load took about 9.5 min.",
+    "Verify 400000 context, four private pools, one active per worker, same MTP/HiCache/FP8/memory settings.",
+    "Run small rank/tool/reasoning smoke, then one 398000-token chat retrieval and four independent 398000-token sessions.",
+    "Run same-worker near-limit host restore, then bounded queueing/timeout tests; do not infer behavior from HTTP submission alone."
+  ]
+}
