@@ -1,0 +1,144 @@
+{
+  "checked_at_utc": "2026-10-13T19:42:48.997744+00:00",
+  "status": "installed_ready_runtime_398k_validation_pending",
+  "config": {
+    "status": "ready",
+    "version": "0.5.18",
+    "model_path": "zai-org/GLM-5.3",
+    "served_model_name": "pratt-high",
+    "context_length": 400000,
+    "tp_size": 8,
+    "dp_size": 4,
+    "ep_size": 1,
+    "enable_dp_attention": true,
+    "kv_cache_dtype": "fp8_e4m3",
+    "mem_fraction_static": 0.9,
+    "max_running_requests": 4,
+    "max_queued_requests": 8,
+    "max_total_num_tokens": 472768,
+    "chunked_prefill_size": 2048,
+    "speculative_algorithm": "EAGLE",
+    "speculative_num_steps": 1,
+    "speculative_eagle_topk": 1,
+    "speculative_num_draft_tokens": 2,
+    "enable_hierarchical_cache": true,
+    "hicache_size": 128,
+    "hicache_write_policy": "write_through",
+    "hicache_io_backend": "kernel",
+    "hicache_mem_layout": "page_first",
+    "enable_cache_report": true,
+    "allow_auto_truncate": false,
+    "reasoning_parser": "glm45",
+    "tool_call_parser": "glm47",
+    "load_balance_method": "round_robin"
+  },
+  "workers": [
+    {
+      "index": 0,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.846,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.107
+        }
+      },
+      "active_cap": 1
+    },
+    {
+      "index": 1,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "active_cap": 1
+    },
+    {
+      "index": 2,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "active_cap": 1
+    },
+    {
+      "index": 3,
+      "memory_usage": {
+        "weight": 94.242,
+        "kvcache": 27.066,
+        "startup_available": 9.801,
+        "token_capacity": 472768,
+        "token_capacity_swa": null,
+        "graph": {
+          "prefill": 4.68,
+          "decode": 0.0,
+          "target_verify": 0.174,
+          "draft_prefill": 0.0,
+          "draft_decode": 0.0,
+          "draft_extend": 0.105
+        }
+      },
+      "active_cap": 1
+    }
+  ],
+  "unit_sha256": "2f0908b49e0f84fbfb43198c0689a4ad35f02e9226965d4cbe604daec64b211c",
+  "unit_matches_candidate": true,
+  "image_id": "sha256:cb940197908678dacb041556b64798cc0493d547816a8e8a6731fa37dddfc4fb",
+  "pinned_image": "lmsysorg/sglang@sha256:9e148f5ac788e856a06166bd6347a831831eb9fcfab4d1770874823a7c29a1a1",
+  "container_started_at": "2026-10-13T19:09:50.347099946Z",
+  "ready_log_lines": [
+    "2026-10-13T19:17:48.703393633Z [2026-10-13 19:17:48] INFO:     Uvicorn running on http://0.0.0.0:8012 (Press CTRL+C to quit)",
+    "2026-10-13T19:18:02.354484401Z [2026-10-13 19:18:02] The server is fired up and ready to roll!"
+  ],
+  "container_oom_killed": false,
+  "startup_soft_watchdog_warnings": 56,
+  "startup_failed_pyspy_diagnostics": 112,
+  "optional_jit_width656_fallback_warnings": 8,
+  "host_memory_bytes": {
+    "MemAvailable": 854984257536,
+    "Shmem": 1231095717888,
+    "SwapTotal": 8589930496,
+    "SwapFree": 8576299008
+  },
+  "idle_metric_lines": [
+    "sglang:num_running_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_running_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"3\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"6\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"1\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"2\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"2\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"4\"} 0.0",
+    "sglang:num_queue_reqs{dp_rank=\"0\",engine_type=\"unified\",model_name=\"pratt-high\",moe_ep_rank=\"0\",pp_rank=\"0\",tp_rank=\"0\"} 0.0"
+  ],
+  "server_info_report": "dp4-400k-server-info-20261013T194248Z.json",
+  "queue_settings_unchanged": true
+}

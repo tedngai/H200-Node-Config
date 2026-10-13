@@ -359,3 +359,76 @@ Pending: user install/restart and fresh capacity/smoke, one then four independen
 tests. Preferred narrow rollback is
 `glm53-inference/configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`.
 No 400k deployment, throughput, sustained-load or accuracy result is claimed.
+
+## 400k installed: scoped 398k single/four concurrency and host restore passed
+
+User installed the context-only unit: container start 2026-10-13 19:09:50 UTC,
+ready log 19:18:02 UTC (~8.2 min). API/unit confirm 400,000 context including
+output, DP4/TP8, EAGLE 1/1/2, HiCache 128/rank, memory 0.90 and the same
+image/model/alias/port/parsers. Pools remain 472,768 slots per worker, one
+active per worker. Queues remain eight per worker, timeout 120, round-robin.
+Startup had 56 soft-watchdog warnings, 112 failed py-spy diagnostics and eight
+known JIT fallback warnings. Tests ran 19:43-19:52 on the idle engine:
+
+| Prompt workload | Cold retrieval response/batch | Warmed aggregate tok/s | Warmed median per-request tok/s |
+| --- | ---: | ---: | ---: |
+| One 398,000-token request | 93.80 s | **88.24** | **88.24** |
+| Four independent 398,000-token requests | 92.89 s | **325.33** | **85.46** |
+
+All initial natural-record chat prompts recalled beginning/middle/end codes,
+with exact input length and zero cache hits. Three warmed rounds each forced
+512 output tokens per worker; every output count matched, with 397,952 device
+hits each and zero host hits. Metrics proved four active, zero queued/retracted
+and ~84% pool usage each: 1.592M independent active prompt tokens. Four-user
+MTP acceptance ~91.7%. Older four-user 260k speed was 352 / 89.6 tok/s;
+actual length differs, so this is not context-flag overhead or a coding-task
+comparison. Rates use client time/actual output, not native throughput fields.
+
+DP0 fresh 398k target and two distinct same-rank pressure conversations proved
+restoration with **397,952 host hits, zero device hits**, correct recall in all
+stages and no retractions:
+
+| Target | Client response | Server prefill/restore | Output tokens |
+| --- | ---: | ---: | ---: |
+| Cold | **90.84 s** | **88.18 s** | 191 |
+| GPU-warm | **1.99 s** | **0.108 s** | 153 |
+| Host-restored | **4.13 s** | **1.90 s** | 191 |
+
+Cold/restored output lengths match here; response improved ~22x. This is not
+streaming-TTFT or a latency distribution. Rank probes/tools/separated reasoning
+passed before and after load. No post-ready runtime error/watchdog/warning/OOM;
+retraction/queue gauges zero. RAM available ~855 GB decimal, swap ~13.6 MB;
+minimum physical GPU free memory 4192 MiB (~4.1 GiB), below the 260k post-load
+reading but without OOM. Exact prior 262k DP4 rollback remains archived.
+
+Evidence under `glm53-inference/evidence/`: startup
+`dp4-400k-startup-20261013T194248Z.json`, all test links in
+`dp4-400k-qualification-20261013T194322Z.json`, consolidated
+`dp4-400k-validation-summary-20261013T204840Z.json`.
+This is a scoped near-limit pass, not exact-full-400k, sustained real coding
+performance or broad quality. DP1-3 host restoration remains untested.
+Do not repeat this completed stage just for routing checks.
+
+### Approved follow-ups: OpenCode affinity, then queue two per worker
+
+User approved the sequence, retaining timeout 120. OpenCode services run on
+workstations via `https://llm.pratt.edu/v1`, a separately hosted reverse proxy.
+Provider `Zai` selects `pratt-high`; configured display name remains GLM-5.3-Flash.
+Local CLI v2.0.27. SGLang accepts X-Data-Parallel-Rank and V2 hooks expose
+sessionID; that alone does not prove public forwarding or protected load access.
+Provider/endpoint metadata above came from the GPU-server local OpenCode config,
+not inspected workstation configs. Confirm actual client endpoints/versions
+before assuming they use the probed public URL.
+
+Authenticated gateway `/metrics` and `/server_info` return HTML. One tiny neutral
+public probe with rank header 3 returned HTTP 200 but changed no local decode
+counters or chat HTTP counter (two, matching the qualification tool calls).
+Additional probes stopped; no private user code/history sent or credentials
+logged. Public upstream mapping to this engine cannot be confirmed. Evidence:
+`opencode-gateway-dp-header-probe-20261013T204440Z.json`.
+
+Gateway config is on another host and not supplied. User asked why checking
+again: 400k is complete; this is only for affinity. No gateway/client/queue
+changes made. Affinity needs upstream/header/protected-load verification;
+queue=2/worker remains an approved later trial after bounded 503 retry/backoff
+verification, not prepared or installed. No end-to-end workstation claim.

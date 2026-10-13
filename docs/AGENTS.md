@@ -25,9 +25,9 @@ memory utilization at the expense of correctness.
 - Prefer SGLang and exhaust its reasonable options before proposing an engine
   migration. The user has had poor experiences with vLLM.
 - Current approved target: **four active generation requests**, one per DP4
-  worker, and **400,000 context tokens including output**. The 400k candidate
-  is prepared, not deployed/qualified; live context is still 262,144 until the
-  user installs/restarts it. The earlier 6-8-user goal is historical/future
+  worker, and **400,000 context tokens including output**. The 400k unit is
+  installed and ready; scoped single/four independent 398k retrieval/generation
+  and DP0 host-restoration tests passed. The earlier 6-8-user goal is historical/future
   work, not authorization to raise admission. Do not silently truncate prompts.
 - Keep `--mem-fraction-static 0.90` unless the user explicitly changes this
   constraint. Earlier local notes document OOMs at 0.92.
@@ -113,10 +113,10 @@ Six independently cached warmed 90k-token sessions also ran together at about
 is not a matched comparison to the earlier 100k/session test or proof of
 sustained real-user load. That historical TP-only profile had MTP off.
 
-DP4+MTP+HiCache is now live (verified 2026-10-13): four private GPU pools of
+The earlier 262k DP4+MTP+HiCache profile was verified 2026-10-13: four private GPU pools of
 472,768 tokens each, 1,891,072 total unique slots, attention TP2, one active
-request per worker and normalized 2,048-token prefill chunks. Context remains
-262,144 and static memory stays 0.90. Four tiny rank-pinned probes and OpenAI
+request per worker and normalized 2,048-token prefill chunks. Its context was
+262,144 and static memory 0.90. Four tiny rank-pinned probes and OpenAI
 tools/separated reasoning passed; metrics showed four active with no queueing
 or retractions. Startup had soft-watchdog/py-spy/JIT fallback warnings, but no
 post-ready runtime issue was found. Scoped runtime tests now passed: four
@@ -136,13 +136,36 @@ is `sglang-glm53-fp8-tests/fp8-no-mtp-6-hicache128.service`.
 
 The user subsequently approved **400k context and four active requests**.
 Candidate: `glm53-inference/configs/systemd/candidates/dp4-mtp-hicache128-400k.service`.
-Only context and description change; MTP, HiCache, 0.90 memory, alias/port,
-image and queue settings are retained. Static/parser preflight passed without
-starting an engine; 400k runtime validation is pending user install/restart.
+Only context and description changed; MTP, HiCache, 0.90 memory, alias/port,
+image and queue settings were retained. The user installed/restarted it:
+container start 19:09:50 UTC, ready log 19:18:02 UTC. Pools remain 472,768
+slots per worker, with one active request each. Four independent 398k prompts
+passed recall; three warmed 512-output rounds ran at 325.33 aggregate / 85.46
+per-request tok/s. Single-request warmed rate was 88.24 tok/s. DP0 restored
+397,952 host tokens with zero device hits: 90.84 s cold versus 4.13 s restored
+(server prefill 88.18 versus restore 1.90 s). Tools/reasoning passed before
+and after load; no queueing, retractions, runtime errors or OOM. This is scoped
+synthetic near-limit validation, not exact-full-400k or broad production quality.
 Exact rollback: `configs/systemd/candidates/pre-400k-dp4-mtp-hicache128.service`
 inside the repo, retaining the scoped-tested DP4 262k profile.
 Installed-source review: queue cap eight **per worker** (up to 32 total),
 120-second waiting timeout, FCFS per worker, round-robin routing; full/expired
 queues abort with 503 (or an abort within an already-open stream). This is not
 a global work-stealing or per-user fairness queue, and HiCache is not active
-RAM decoding. Longer wait limits/routing changes need separate approval.
+RAM decoding. The user approved staged follow-ups: session affinity first,
+then queue=2 per worker after harness-retry verification, keeping timeout 120.
+Neither is installed; do not combine them with the already completed context test.
+
+OpenCode services run on **user workstations**. The sampled local configuration
+on this GPU server uses provider `Zai`, alias `pratt-high`, through
+`https://llm.pratt.edu/v1`; workstation configs/versions were not inspected.
+Local OpenCode is v2.0.27. Native SGLang accepts `X-Data-Parallel-Rank`,
+and V2 HTTP hooks expose session IDs, but the public path is not qualified:
+authenticated `/metrics`/`/server_info` return HTML; a neutral public inference
+probe did not change this engine's token/request counters. Do not claim the
+public alias targets this server or assume workstations use that sampled URL.
+Confirm actual client endpoints first; if they use this gateway, inspect its
+upstream/header forwarding and protected worker-load access. No private user
+code/history or keys were sent/logged in the probe. Gateway/client configs
+are unchanged; affinity and smaller queues are pending that dependency.
+400k validation is complete and must not be repeated just to investigate routing.

@@ -1,0 +1,39 @@
+{
+  "checked_on": "2026-10-13",
+  "kind": "client_scope_and_gateway_assessment_not_affinity_implementation",
+  "user_confirmed_client": "OpenCode",
+  "user_confirmed_service_location": "user_workstations",
+  "sampled_configuration_location": "GPU_server_local_OpenCode_config",
+  "sampled_local_cli_version": "2.0.27",
+  "sampled_provider_id": "Zai",
+  "sampled_model_alias": "pratt-high",
+  "sampled_display_name": "GLM-5.3-Flash",
+  "sampled_endpoint": "https://llm.pratt.edu/v1",
+  "actual_workstation_configs_inspected": false,
+  "actual_workstation_endpoint_verified": false,
+  "user_reported_gateway_type": "reverse_proxy",
+  "native_sglang_dp_header": "X-Data-Parallel-Rank",
+  "opencode_v2_hook": "http.request exposes sessionID and native request headers",
+  "documentation": [
+    "https://opencode.ai/v2/docs/build/plugins",
+    "https://opencode.ai/v2/docs/providers"
+  ],
+  "authenticated_gateway_metadata_checks": {
+    "/v1/models": "200 JSON; pratt-high listed",
+    "/metrics": "200 HTML; no SGLang DP gauges",
+    "/server_info": "200 HTML; no SGLang server-info fields"
+  },
+  "public_header_probe_report": "opencode-gateway-dp-header-probe-20261013T204440Z.json",
+  "public_probe_scope": "One neutral routing-test prompt only; no private user code/history",
+  "public_probe_local_decode_counter_changes": 0,
+  "local_chat_http_request_counter_after_public_probe": 2,
+  "local_chat_http_request_counter_expected_from_qualification": 2,
+  "conclusion": "Sampled public request did not register on the qualified local engine. This is not proof of the endpoint used by actual workstations, nor proof of any particular alternate upstream.",
+  "next_dependency": "Confirm actual workstation provider/endpoint/version; if this gateway is used, inspect pratt-high upstream mapping, DP-header forwarding and protected worker-load access.",
+  "affinity_plugin_implemented": false,
+  "gateway_config_changed": false,
+  "client_config_changed": false,
+  "queue_reduction_deployed": false,
+  "repeat_400k_qualification_required_for_gateway_investigation": false,
+  "credentials_logged_or_packaged": false
+}
