@@ -20,6 +20,15 @@ scripts, captured evidence, and documentation copies from the H200 node.
 - Never commit model weights, Hugging Face caches, Docker images, live logs,
   or shell history. `.gitignore` is a guardrail, not permission.
 
+## Publishing
+
+- The public GitHub remote is `https://github.com/tedngai/H200-Node-Config.git`
+  (remote name `origin`). The local GitHub PAT is stored in the repository-root
+  `.env` file under `GITHUB_PAT`; `.env` is ignored by Git.
+- For pushes, read the PAT through a credential prompt or askpass helper. Never
+  print it, put it in a remote URL or command history, copy it into tracked
+  files, or stage `.env`. Verify `.env` remains untracked before committing.
+
 ## Live service
 
 - The authoritative live unit is `/etc/systemd/system/sglang-glm53.service`,
