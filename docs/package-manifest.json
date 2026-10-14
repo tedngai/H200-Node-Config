@@ -15,8 +15,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 5709,
-      "sha256": "95dfa69b546bbcae21983d0df8e14fab6042adcf1abdbeebd117c55172679520"
+      "bytes": 6433,
+      "sha256": "1b473ff63e3e9e6b3febb0046ab9579c7ba386c17038fbd727a508c5b6b88057"
     },
     {
       "path": "configs/systemd/README.md",
