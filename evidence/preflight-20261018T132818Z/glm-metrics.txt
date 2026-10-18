@@ -1,0 +1,18 @@
+# HELP sglang:num_retracted_reqs The number of retracted requests.
+# TYPE sglang:num_retracted_reqs gauge
+sglang:num_retracted_reqs{dp_rank="0",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pid="442",pp_rank="0",tp_rank="0"} 0.0
+sglang:num_retracted_reqs{dp_rank="2",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pid="446",pp_rank="0",tp_rank="4"} 0.0
+sglang:num_retracted_reqs{dp_rank="3",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pid="448",pp_rank="0",tp_rank="6"} 0.0
+sglang:num_retracted_reqs{dp_rank="1",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pid="444",pp_rank="0",tp_rank="2"} 0.0
+# HELP sglang:num_queue_reqs The number of requests in the waiting queue.
+# TYPE sglang:num_queue_reqs gauge
+sglang:num_queue_reqs{dp_rank="3",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="6"} 0.0
+sglang:num_queue_reqs{dp_rank="1",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="2"} 0.0
+sglang:num_queue_reqs{dp_rank="2",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="4"} 0.0
+sglang:num_queue_reqs{dp_rank="0",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="0"} 0.0
+# HELP sglang:token_usage The token usage.
+# TYPE sglang:token_usage gauge
+sglang:token_usage{dp_rank="3",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="6"} 0.0
+sglang:token_usage{dp_rank="1",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="2"} 0.0
+sglang:token_usage{dp_rank="2",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="4"} 0.0
+sglang:token_usage{dp_rank="0",engine_type="unified",model_name="pratt-high",moe_ep_rank="0",pp_rank="0",tp_rank="0"} 0.0
