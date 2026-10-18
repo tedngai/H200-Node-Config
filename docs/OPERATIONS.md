@@ -2,9 +2,9 @@
 
 **Current state (2026-10-18):** installed and running as
 `sglang-dsv41.service` on port 8013 with the phase 2a
-`mr16-nodelay-ctx409600` unit. The phase 2a restart took 574 s; the cap is
-409,600 tokens. The install commands below use that unit; the rollback commands
-remain current.
+`mr16-nodelay-ctx409600` unit. The next step is phase 2b on **8012 /
+pratt-high**; the install command below uses that unit. The 8012 phase 2a
+candidate is the rollback that preserves the endpoint.
 
 ## Install / start (privileged, user-run)
 
@@ -15,9 +15,9 @@ personally:
 # Stop the validated GLM-5.3 service first; it owns all eight GPUs.
 sudo systemctl stop sglang-glm53.service
 
-# Install the isolated DSV4.1 phase 2a test unit (port 8013).
+# Install the isolated DSV4.1 phase 2b test unit (port 8012, pratt-high).
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl start sglang-dsv41.service
@@ -113,6 +113,18 @@ Run one load test at a time. The script writes a timestamped report under
 `evidence/`. Do not run concurrent benchmarks from multiple shells.
 
 ## Stop / rollback
+
+Return from phase 2b to the 8012 / pratt-high phase 2a unit:
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600.service \
+  /etc/systemd/system/sglang-dsv41.service
+sudo systemctl daemon-reload
+sudo systemctl restart sglang-dsv41.service
+```
+
+Full GLM rollback:
 
 ```bash
 sudo systemctl stop sglang-dsv41.service

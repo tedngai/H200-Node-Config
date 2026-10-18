@@ -15,7 +15,8 @@ This is not a production cutover; the validated GLM-5.3 service remains installe
 and can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
 **Prepared, not installed:** phase-2b scheduler-overlap and phase-2c SWA-tails
-candidates; both retain the 409,600 context cap. Phase 2a is installed. See
+candidates; both retain the 409,600 context cap and will serve
+**8012 / pratt-high**. Phase 2a is installed. See
 `docs/SCHEDULER_OVERLAP_TEST.md` for the sequence, commands and success
 criteria.
 
@@ -66,10 +67,11 @@ User-requested additions on top of the cookbook cell:
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
   (`--max-running-requests 16 --min-free-slots-delay 0`).
 - Prepared phase 2b scheduler-overlap candidate (not installed; later step,
-  retains `--context-length 409600`, default tails):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service`.
-- Prepared phase 2c SWA-tails candidate (not installed; separate test):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service`.
+  serves **8012 / pratt-high**, retains `--context-length 409600`, default tails):
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`.
+- Prepared phase 2c SWA-tails candidate (not installed; separate test,
+  serves **8012 / pratt-high**):
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service`.
 - Previous mr16 candidate:
   `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
 - Validated 4-request candidate:
@@ -110,9 +112,9 @@ The user runs the stop/install/start commands personally:
 # 1. Stop the validated GLM-5.3 service and free the eight GPUs.
 sudo systemctl stop sglang-glm53.service
 
-# 2. Install and start the isolated DSV4.1 phase 2a test unit.
+# 2. Install and start the isolated DSV4.1 phase 2b test unit on 8012/pratt-high.
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl start sglang-dsv41.service

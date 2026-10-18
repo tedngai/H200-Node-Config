@@ -24,9 +24,10 @@ sequence per batch, so 16 simultaneous cold prefills are still unproven. The
 mixed 4-warm/4-cold result is **31.342 tok/s** and ratio **0.072**; absolute
 mixed decode improved only ~6%. Post-load HBM free is **7.0–7.5 GiB/GPU (minimum 7.0)**.
 The phase 2b overlap candidate is prepared but not installed and retains the
-context cap; phase 2c tails is a separate candidate. Do not claim production
-readiness or sustained load. See `docs/RESULTS.md`, `docs/DECODE_PROFILE.md`
-and `docs/CONTEXT_409600_TEST.md`.
+context cap; it will serve **8012 / pratt-high**. Phase 2c tails is a separate
+candidate. Do not claim production readiness or sustained load. See
+`docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
+`docs/CONTEXT_409600_TEST.md`.
 
 **When resuming after a restart, read `HANDOFF.md` first.** It records the
 live unit state, phase 2a evidence, the overlap runbook, rollback, and

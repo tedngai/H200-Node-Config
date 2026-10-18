@@ -14,7 +14,8 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
 - Previous phase 1 candidate (rollback):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
-- API: `http://127.0.0.1:8013`, served name `dsv41-flash-1017`
+- API: `http://127.0.0.1:8013`, served name `dsv41-flash-1017`.
+- Next 2b install moves the API to **8012 / pratt-high**, per user request.
 - Image:
   `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860`
 - Service is **active and idle** at handoff: 0 running, 0 queued, 0 retracted.
@@ -125,7 +126,7 @@ Two separate candidates are prepared, **not installed**. Both retain the phase
 ### Phase 2b — scheduler overlap (interval + chunk)
 
 ```text
-configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service
+configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service
 ```
 
 It adds two flags to phase 2a:
@@ -145,12 +146,22 @@ It adds two flags to phase 2a:
 
 This candidate keeps `--swa-prefix-tails` at the default 64, so the SWA and
 full-KV pools should stay at 59,904 / 44,957,952. The interval may increase
-cold time-to-first-token; agree a ceiling before installing.
+cold time-to-first-token.
+
+### Cold TTFT gate
+
+Phase 2a baseline (`tests/cold_ttft.py`, streaming, distinct 400k prompts):
+single **61.841 s**; four cold TTFT **62.316 / 123.088 / 183.866 / 243.633 s**,
+median **153.477 s**, max **243.633 s**, batch wall **243.983 s**.
+
+Phase 2b gate: **single ≤ 90 s**, **worst-of-four ≤ 300 s**, **four-cold batch
+wall ≤ 360 s**, all codes recalled. The user delegated this ceiling; it is a
+proposed gate, not a production SLA.
 
 ### Phase 2c — SWA prefix tails only
 
 ```text
-configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service
+configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service
 ```
 
 It adds only:
@@ -175,7 +186,7 @@ Check the engine is idle first, then install phase 2b:
 
 ```bash
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl restart sglang-dsv41.service
@@ -188,15 +199,17 @@ The agent must not run privileged install/restart commands. Startup takes about
 
 ```bash
 systemctl status sglang-dsv41.service --no-pager | head -5
-curl -s http://127.0.0.1:8013/server_info | python3 -c \
+curl -s http://127.0.0.1:8012/v1/models | python3 -c \
+  'import json,sys; d=json.load(sys.stdin); print([(m["id"],m.get("max_model_len")) for m in d["data"]])'
+curl -s http://127.0.0.1:8012/server_info | python3 -c \
   'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails","enable_hierarchical_cache")})'
 ```
 
-Expected for phase 2b: `context_length=409600`,
-`max_running_requests=16`, `min_free_slots_delay=0`,
-`prefill_decode_interval=16`, `chunked_prefill_size=4096`,
-`swa_prefix_tails=None` (default 64), `swa_tokens=59904`, full pool
-44,957,952, HiCache enabled. Also check:
+Expected for phase 2b: model id **pratt-high**, `max_model_len=409600`,
+`context_length=409600`, `max_running_requests=16`,
+`min_free_slots_delay=0`, `prefill_decode_interval=16`,
+`chunked_prefill_size=4096`, `swa_prefix_tails=None` (default 64),
+`swa_tokens=59904`, full pool 44,957,952, HiCache enabled. Also check:
 
 ```bash
 journalctl -u sglang-dsv41.service --since '20 min ago' --no-pager | \
@@ -212,26 +225,36 @@ Run these sequentially on an idle engine, not concurrently:
 ```bash
 cd /home/advtech/dsv41-flash-inference
 
-python3 tests/decode_throughput.py \
-  --concurrency 16 --output-tokens 1024 --rounds 1 \
-  --label decode-throughput-overlap
+python3 tests/cold_ttft.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 1 --target-tokens 400000 \
+  --output-tokens 512 --label cold-ttft-overlap2b-c1
+python3 tests/cold_ttft.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 4 --target-tokens 400000 \
+  --output-tokens 512 --label cold-ttft-overlap2b-c4
 
-python3 tests/long_c4_warm.py \
-  --concurrency 16 --target-tokens 400000 --output-tokens 512
+python3 tests/decode_throughput.py --base http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 16 --output-tokens 1024 --rounds 1 \
+  --label decode-throughput-overlap2b
 
-python3 tests/replay_c16_warm.py --output-tokens 2048
+python3 tests/long_c4_warm.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 16 --target-tokens 400000 \
+  --output-tokens 512
 
-python3 tests/mixed_prefill_decode.py \
-  --warm-concurrency 4 --cold-concurrency 4 \
+python3 tests/replay_c16_warm.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --output-tokens 2048
+
+python3 tests/mixed_prefill_decode.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --warm-concurrency 4 --cold-concurrency 4 \
   --target-tokens 400000 --output-tokens 2048
 ```
 
 ### Success criteria
 
 Primary: absolute mixed warmed decode exceeds the phase 2a **31.342 tok/s**
-without loss of cold recall, retractions or OOM, and cold wall/time-to-first-token
-stays within the ceiling agreed before install. Report the ratio against
-phase 2a's **0.072**; do not use the old 0.11 comparison.
+without loss of cold recall, retractions or OOM. The cold TTFT gate is
+**90 s single / 300 s worst-of-four / 360 s four-cold batch wall**, all codes
+recalled. Report the ratio against phase 2a's **0.072**; do not use the old
+0.11 comparison.
 
 Secondary:
 
@@ -243,7 +266,7 @@ Secondary:
 - no post-ready runtime errors.
 
 Phase 2c is separate: install
-`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service`,
+`configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service`,
 verify `swa_prefix_tails=1024` and the reduced pool, then measure multi-session
 prefix reuse with long gaps. Do not treat it as a 16-active decode test.
 
@@ -254,17 +277,17 @@ branch. Do not push this project's history to `main`.
 
 ## Rollback
 
-From phase 2b or 2c back to the installed phase 2a unit:
+From phase 2b or 2c back to the 8012 / pratt-high phase 2a unit:
 
 ```bash
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl restart sglang-dsv41.service
 ```
 
-Exact phase 1 rollback (from phase 2a):
+Historical phase 1 unit (moves the API to 8013):
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -329,18 +352,20 @@ sudo systemctl start sglang-glm53.service
    check whether a rollback occurred.
 2. Confirm 0 running / 0 queued before any restart.
 3. The next experiment is phase 2b, the overlap candidate
-   (`...-nodelay-overlap.service`), prepared but not installed. It adds
-   `--prefill-decode-interval 16` and `--chunked-prefill-size 4096`, retains
-   `--context-length 409600`, and keeps default tails; do not install it
-   without a cold-TTFT ceiling.
-4. After phase 2b install, verify `context_length=409600`,
-   `prefill_decode_interval=16`, `chunked_prefill_size=4096`,
-   `swa_prefix_tails=None` (default 64), `swa_tokens=59904` and unchanged pool
-   and HBM headroom.
-5. Run decode c16 first, then 16×400k cold, 2048 replay and mixed test.
+   (`configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`),
+   prepared but not installed. It adds `--prefill-decode-interval 16` and
+   `--chunked-prefill-size 4096`, retains `--context-length 409600`, keeps
+   default tails, and serves **8012 / pratt-high**. The cold-TTFT gate is
+   90 s single / 300 s worst-of-four / 360 s four-cold batch wall.
+4. After phase 2b install, verify model id `pratt-high`, `max_model_len=409600`,
+   `context_length=409600`, `prefill_decode_interval=16`,
+   `chunked_prefill_size=4096`, `swa_prefix_tails=None` (default 64),
+   `swa_tokens=59904` and unchanged pool and HBM headroom.
+5. Run cold TTFT, decode c16, 16×400k cold, 2048 replay and mixed test.
    Compare c16 to **660.5 tok/s**, mixed absolute to **31.342 tok/s**, mixed
-   ratio to **0.072**, and cold wall to **978.7 s**.
+   ratio to **0.072**, cold wall to **978.7 s**, and TTFT to the gate.
 6. Check recall, queue/retractions, OOM, cold TTFT and post-load HBM.
 7. Update docs/evidence, commit and push `dsv41-flash-1017`.
 8. Test `--swa-prefix-tails 1024` separately via the
-   `...-nodelay-tails1024.service` candidate.
+   `sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service`
+   candidate.

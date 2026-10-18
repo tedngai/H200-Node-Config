@@ -157,7 +157,7 @@ This is the comparison point for phase 2.
 Candidate:
 
 ```text
-configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service
+configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service
 ```
 
 Changes on top of the installed phase 2a unit (which retains
@@ -173,11 +173,35 @@ should remain 59,904 / 44,957,952. These are the published scheduler settings,
 intended to keep decode progressing while long prefixes are queued. The tail
 reservation is deliberately moved to phase 2c so it can be attributed.
 
+### Cold TTFT gate
+
+Phase 2a streaming baseline (`tests/cold_ttft.py`, distinct 400k prompts):
+
+| Load | TTFT values | Median | Max | Batch wall |
+| --- | --- | ---: | ---: | ---: |
+| c1 | 61.841 s | 61.841 s | 61.841 s | 62.020 s |
+| c4 | 62.316 / 123.088 / 183.866 / 243.633 s | 153.477 s | 243.633 s | 243.983 s |
+
+Phase 2b gate: **single cold 400k TTFT ≤ 90 s**, **worst-of-four TTFT ≤ 300 s**,
+and **four-cold batch wall ≤ 360 s**, with all codes recalled. Measure with:
+
+```bash
+python3 tests/cold_ttft.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 1 --target-tokens 400000 \
+  --output-tokens 512 --label cold-ttft-overlap2b-c1
+python3 tests/cold_ttft.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 4 --target-tokens 400000 \
+  --output-tokens 512 --label cold-ttft-overlap2b-c4
+```
+
+The 8013/dsv41 names are the historical phase 2a test endpoint; 2b is installed
+as **8012 / pratt-high**.
+
 Install/restart:
 
 ```bash
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl restart sglang-dsv41.service
@@ -186,7 +210,7 @@ sudo systemctl restart sglang-dsv41.service
 Verify the resolved args:
 
 ```bash
-curl -s http://127.0.0.1:8013/server_info | python3 -c \
+curl -s http://127.0.0.1:8012/server_info | python3 -c \
   'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails")})'
 ```
 
@@ -196,17 +220,19 @@ Run c16 decode, then the 16 × 400k capacity test, 2048-token replay and mixed
 test:
 
 ```bash
-python3 tests/decode_throughput.py \
-  --concurrency 16 --output-tokens 1024 --rounds 1 \
+python3 tests/decode_throughput.py --base http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 16 --output-tokens 1024 --rounds 1 \
   --label decode-throughput-overlap
 
-python3 tests/long_c4_warm.py \
-  --concurrency 16 --target-tokens 400000 --output-tokens 512
+python3 tests/long_c4_warm.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --concurrency 16 --target-tokens 400000 \
+  --output-tokens 512
 
-python3 tests/replay_c16_warm.py --output-tokens 2048
+python3 tests/replay_c16_warm.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --output-tokens 2048
 
-python3 tests/mixed_prefill_decode.py \
-  --warm-concurrency 4 --cold-concurrency 4 \
+python3 tests/mixed_prefill_decode.py --base-url http://127.0.0.1:8012 \
+  --model pratt-high --warm-concurrency 4 --cold-concurrency 4 \
   --target-tokens 400000 --output-tokens 2048
 ```
 
@@ -229,7 +255,7 @@ Secondary criteria:
 Candidate:
 
 ```text
-configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service
+configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service
 ```
 
 It adds only `--swa-prefix-tails 1024` to the installed phase 2a unit. Each tail
@@ -245,36 +271,18 @@ both pass independently and the combination is explicitly tested.
 
 ## Rollback
 
-Phase 2a is installed; the overlap unit is not. Rollback from overlap to phase
-2a is below.
+Once phase 2b is installed, rollback to the 8012 / pratt-high phase 2a unit:
 
 ```bash
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl restart sglang-dsv41.service
 ```
 
-Return to the earlier phase 1 unit:
-
-```bash
-sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service \
-  /etc/systemd/system/sglang-dsv41.service
-sudo systemctl daemon-reload
-sudo systemctl restart sglang-dsv41.service
-```
-
-Return to the earlier mr16 unit:
-
-```bash
-sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16.service \
-  /etc/systemd/system/sglang-dsv41.service
-sudo systemctl daemon-reload
-sudo systemctl restart sglang-dsv41.service
-```
+The 8013 phase 1 and mr16 units are historical test endpoints and would move
+the API off 8012; use them only if that endpoint change is intended.
 
 The full GLM-5.3 rollback remains:
 
