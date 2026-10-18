@@ -117,24 +117,23 @@ about 138 GB to **121.4 GB/GPU** and raised post-load free HBM to
 Do not bundle the overlap flags into a phase 2a restart; phase 2a isolated the
 cap. The overlap candidate is a separate next step.
 
-## Phase 2 plan — prefill/decode overlap candidate
+## Phase 2b/2c — overlap and tails candidates
 
-Candidate (prepared, **not installed**):
+Two separate candidates are prepared, **not installed**. Both retain the phase
+2a `--context-length 409600`.
+
+### Phase 2b — scheduler overlap (interval + chunk)
 
 ```text
 configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service
 ```
 
-It adds three flags to the installed phase 2a unit (and retains
-`--context-length 409600`):
+It adds two flags to phase 2a:
 
 ```text
 --prefill-decode-interval 16
 --chunked-prefill-size 4096
---swa-prefix-tails 1024
 ```
-
-### What each flag does
 
 - `--prefill-decode-interval 16`: after each prefill batch, the scheduler
   defers new prefill for 16 scheduler/decode rounds. This protects warmed
@@ -143,24 +142,36 @@ It adds three flags to the installed phase 2a unit (and retains
   instead of 8192. A 400k prompt becomes roughly 98 chunks instead of 49,
   allowing finer prefill/decode interleaving at the cost of more scheduler
   iterations and potentially slower cold prefill.
-- `--swa-prefix-tails 1024`: reserves SWA-pool room for 1024 cached prefix
-  tails. Each tail is one 128-token sliding window plus one 256-token page
-  (384 slots). The default is 64 tails at 16 requests. This helps many cached
-  long prefixes stay reusable, but it is far more than 16 active requests need.
 
-Expected but **unverified** phase 2 startup effect: `swa_tokens` around
-420,000 instead of 59,904, roughly +8 GB/GPU of SWA/state allocation, and a
-full-KV pool around 40M tokens instead of 44.96M. Confirm the actual values in
-the `DSV4 SWA sizing` and `DSV4 memory calculation` startup lines. If the full
-pool or HBM headroom is unacceptable, roll back.
+This candidate keeps `--swa-prefix-tails` at the default 64, so the SWA and
+full-KV pools should stay at 59,904 / 44,957,952. The interval may increase
+cold time-to-first-token; agree a ceiling before installing.
 
-Because phase 2 bundles three changes, a positive result will not attribute
-which flag helped. A negative or ambiguous result should be followed by an
-isolated test of interval + chunk size first, then the 1024-tail reservation.
+### Phase 2c — SWA prefix tails only
+
+```text
+configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service
+```
+
+It adds only:
+
+```text
+--swa-prefix-tails 1024
+```
+
+Each tail is one 128-token sliding window plus one 256-token page (384 slots).
+The default is 64 tails at 16 requests. Expected but **unverified** effect:
+`swa_tokens` around 420,000 instead of 59,904, roughly +8 GB/GPU, and a
+full-KV pool around 40M instead of 44.96M. Confirm the startup lines. This is a
+multi-session prefix-reuse experiment, not a decode-speed change for 16 active
+requests; test it separately.
+
+Do not bundle the tails into the interval test. If both help, combine them in a
+later candidate.
 
 ### Install (privileged; the user runs this)
 
-Check the engine is idle first, then:
+Check the engine is idle first, then install phase 2b:
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -181,9 +192,11 @@ curl -s http://127.0.0.1:8013/server_info | python3 -c \
   'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails","enable_hierarchical_cache")})'
 ```
 
-Expected: `max_running_requests=16`, `min_free_slots_delay=0`,
+Expected for phase 2b: `context_length=409600`,
+`max_running_requests=16`, `min_free_slots_delay=0`,
 `prefill_decode_interval=16`, `chunked_prefill_size=4096`,
-`swa_prefix_tails=1024`, HiCache enabled. Also check:
+`swa_prefix_tails=None` (default 64), `swa_tokens=59904`, full pool
+44,957,952, HiCache enabled. Also check:
 
 ```bash
 journalctl -u sglang-dsv41.service --since '20 min ago' --no-pager | \
@@ -192,7 +205,7 @@ journalctl -u sglang-dsv41.service --since '20 min ago' --no-pager | \
 
 Check 0 running / 0 queued before accepting the restart.
 
-### Phase 2 tests
+### Phase 2b tests
 
 Run these sequentially on an idle engine, not concurrently:
 
@@ -229,6 +242,11 @@ Secondary:
 - `swa_tokens`, full-KV pool and HBM headroom remain safe;
 - no post-ready runtime errors.
 
+Phase 2c is separate: install
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service`,
+verify `swa_prefix_tails=1024` and the reduced pool, then measure multi-session
+prefix reuse with long gaps. Do not treat it as a 16-active decode test.
+
 After the runs, capture a post-load evidence directory, update
 `docs/RESULTS.md`, `docs/SCHEDULER_OVERLAP_TEST.md`, `PROGRESS.xml`,
 `INFERENCE_CONTEXT.md`, commit the project, and push the `dsv41-flash-1017`
@@ -236,7 +254,17 @@ branch. Do not push this project's history to `main`.
 
 ## Rollback
 
-Exact phase 1 rollback (from the installed phase 2a unit):
+From phase 2b or 2c back to the installed phase 2a unit:
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /etc/systemd/system/sglang-dsv41.service
+sudo systemctl daemon-reload
+sudo systemctl restart sglang-dsv41.service
+```
+
+Exact phase 1 rollback (from phase 2a):
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -300,15 +328,19 @@ sudo systemctl start sglang-glm53.service
    `context_length=409600` and `/v1/models.max_model_len=409600`. If not,
    check whether a rollback occurred.
 2. Confirm 0 running / 0 queued before any restart.
-3. The next experiment is the overlap candidate
-   (`...-nodelay-overlap.service`), prepared but not installed. It retains
-   `--context-length 409600`; do not install it without a cold-TTFT ceiling.
-4. After overlap install, verify `context_length=409600`,
+3. The next experiment is phase 2b, the overlap candidate
+   (`...-nodelay-overlap.service`), prepared but not installed. It adds
+   `--prefill-decode-interval 16` and `--chunked-prefill-size 4096`, retains
+   `--context-length 409600`, and keeps default tails; do not install it
+   without a cold-TTFT ceiling.
+4. After phase 2b install, verify `context_length=409600`,
    `prefill_decode_interval=16`, `chunked_prefill_size=4096`,
-   `swa_prefix_tails=1024`, `swa_tokens`/pool changes and HBM headroom.
+   `swa_prefix_tails=None` (default 64), `swa_tokens=59904` and unchanged pool
+   and HBM headroom.
 5. Run decode c16 first, then 16×400k cold, 2048 replay and mixed test.
    Compare c16 to **660.5 tok/s**, mixed absolute to **31.342 tok/s**, mixed
    ratio to **0.072**, and cold wall to **978.7 s**.
 6. Check recall, queue/retractions, OOM, cold TTFT and post-load HBM.
 7. Update docs/evidence, commit and push `dsv41-flash-1017`.
-8. Test `--swa-prefix-tails 1024` separately from the interval pair.
+8. Test `--swa-prefix-tails 1024` separately via the
+   `...-nodelay-tails1024.service` candidate.

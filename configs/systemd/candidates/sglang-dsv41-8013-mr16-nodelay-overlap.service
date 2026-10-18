@@ -1,5 +1,5 @@
 [Unit]
-Description=SGLang DeepSeek-V4.1-Flash-1017 TP8 EP8 DSpark HiCache test (port 8013, max running 16, min-free-slots 0, context 409600, overlap)
+Description=SGLang DeepSeek-V4.1-Flash-1017 TP8 EP8 DSpark HiCache test (port 8013, max running 16, min-free-slots 0, context 409600, overlap interval+chunk)
 Wants=network-online.target
 After=network-online.target docker.service nvidia-fabricmanager.service
 Requires=docker.service nvidia-fabricmanager.service
@@ -33,7 +33,6 @@ ExecStart=/usr/bin/docker run --rm \
   --context-length 409600 \
   --prefill-decode-interval 16 \
   --chunked-prefill-size 4096 \
-  --swa-prefix-tails 1024 \
   --mem-fraction-static 0.8 \
   --attention-backend dsv4 \
   --moe-runner-backend flashinfer_mxfp4 \
