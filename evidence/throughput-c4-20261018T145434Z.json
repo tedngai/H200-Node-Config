@@ -1,0 +1,118 @@
+{
+  "utc": "2026-10-18T14:54:34Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "throughput",
+  "result": {
+    "concurrency": 4,
+    "output_tokens": 256,
+    "rounds": [
+      {
+        "round": 1,
+        "results": [
+          {
+            "elapsed_s": 7.189,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 35.608,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through replication, which ensures data and s"
+          },
+          {
+            "elapsed_s": 7.574,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 33.8,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through replication, which ensures data and s"
+          },
+          {
+            "elapsed_s": 7.901,
+            "prompt_tokens": 35,
+            "completion_tokens": 256,
+            "tok_s": 32.4,
+            "content": "A reliable distributed system is one that continues to deliver correct results despite node failures, network partitions, and message loss. It achieves this through redundancy (replicating data and se"
+          },
+          {
+            "elapsed_s": 8.236,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 31.085,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, network partitions, or other faults. They achieve this through techniques such as replic"
+          }
+        ],
+        "aggregate_tok_s": 132.893,
+        "median_tok_s": 33.1
+      },
+      {
+        "round": 2,
+        "results": [
+          {
+            "elapsed_s": 7.234,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 35.386,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through replication, which ensures data and s"
+          },
+          {
+            "elapsed_s": 7.47,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 34.27,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through replication, which maintains multiple"
+          },
+          {
+            "elapsed_s": 6.852,
+            "prompt_tokens": 35,
+            "completion_tokens": 256,
+            "tok_s": 37.362,
+            "content": "A reliable distributed system is one that continues to deliver correct results despite node failures, network partitions, and message loss. It achieves this through redundancy (replicating data and se"
+          },
+          {
+            "elapsed_s": 7.369,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 34.738,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through techniques such as replication (maint"
+          }
+        ],
+        "aggregate_tok_s": 141.756,
+        "median_tok_s": 35.062
+      },
+      {
+        "round": 3,
+        "results": [
+          {
+            "elapsed_s": 7.408,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 34.559,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, network partitions, or other faults. They achieve this through techniques such as replic"
+          },
+          {
+            "elapsed_s": 7.064,
+            "prompt_tokens": 36,
+            "completion_tokens": 256,
+            "tok_s": 36.238,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, networks, or components. They achieve this through replication, which maintains multiple"
+          },
+          {
+            "elapsed_s": 7.366,
+            "prompt_tokens": 35,
+            "completion_tokens": 256,
+            "tok_s": 34.755,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, network partitions, or other faults. They achieve this through techniques such as replic"
+          },
+          {
+            "elapsed_s": 6.357,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 40.271,
+            "content": "Reliable distributed systems are designed to continue operating correctly despite failures of individual nodes, network partitions, or other faults. They achieve this through techniques such as replic"
+          }
+        ],
+        "aggregate_tok_s": 145.823,
+        "median_tok_s": 35.496
+      }
+    ]
+  },
+  "ok": true
+}

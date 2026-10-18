@@ -243,10 +243,16 @@ def tool_second_turn(base: str, model: str) -> dict:
     }
 
 
-def build_long_prompt(target_tokens: int) -> tuple[str, dict]:
-    start_code = "ALPHA-7F3K-91QZ"
-    middle_code = "BRAVO-2M8C-44VX"
-    end_code = "CHARLIE-6R1P-73NW"
+def count_tokens(base: str, text: str) -> int:
+    resp, _ = post_json(f"{base}/tokenize", {"prompt": text}, timeout=120.0)
+    return int(resp["count"])
+
+
+def _build_long_prompt(target_tokens: int) -> tuple[str, dict]:
+    salt = uuid.uuid4().hex[:6].upper()
+    start_code = f"ALPHA-{salt}-91QZ"
+    middle_code = f"BRAVO-{salt}-44VX"
+    end_code = f"CHARLIE-{salt}-73NW"
     paragraphs: list[str] = []
     i = 0
     # Natural synthetic ops text, roughly 30-45 tokens per record.
@@ -276,8 +282,21 @@ def build_long_prompt(target_tokens: int) -> tuple[str, dict]:
     }
 
 
-def long_context(base: str, model: str, target_tokens: int) -> dict:
-    prompt, codes = build_long_prompt(target_tokens)
+def build_long_prompt(base: str, target_tokens: int) -> tuple[str, dict]:
+    """Build a prompt and calibrate its length with the server tokenizer."""
+    prompt, codes = _build_long_prompt(target_tokens)
+    actual = count_tokens(base, prompt)
+    for _ in range(2):
+        if 0.97 * target_tokens <= actual <= 1.03 * target_tokens:
+            break
+        prompt, codes = _build_long_prompt(max(1, int(target_tokens * target_tokens / actual)))
+        actual = count_tokens(base, prompt)
+    codes["calibrated_tokens"] = actual
+    codes["approx_chars"] = len(prompt)
+    return prompt, codes
+
+
+def long_request(base: str, model: str, prompt: str, codes: dict) -> dict:
     resp, elapsed = chat(
         base,
         model,
@@ -290,8 +309,6 @@ def long_context(base: str, model: str, target_tokens: int) -> dict:
     content, reasoning, calls = message_text(resp)
     u = usage(resp)
     return {
-        "target_tokens": target_tokens,
-        "approx_chars": codes["approx_chars"],
         "elapsed_s": round(elapsed, 3),
         "prompt_tokens": u.get("prompt_tokens"),
         "completion_tokens": u.get("completion_tokens"),
@@ -300,7 +317,37 @@ def long_context(base: str, model: str, target_tokens: int) -> dict:
         "tool_calls": calls,
         "usage": u,
         "codes": codes,
-        "recalled": all(c in content for c in codes.values()),
+        "recalled": all(
+            c in content
+            for c in (codes["start_code"], codes["middle_code"], codes["end_code"])
+        ),
+    }
+
+
+def long_context(base: str, model: str, target_tokens: int) -> dict:
+    prompt, codes = build_long_prompt(base, target_tokens)
+    result = long_request(base, model, prompt, codes)
+    result["target_tokens"] = target_tokens
+    result["approx_chars"] = codes["approx_chars"]
+    return result
+
+
+def long_context_batch(base: str, model: str, target_tokens: int, concurrency: int) -> dict:
+    prepared = [build_long_prompt(base, target_tokens) for _ in range(concurrency)]
+    start = time.monotonic()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
+        futures = [
+            pool.submit(long_request, base, model, prompt, codes)
+            for prompt, codes in prepared
+        ]
+        results = [f.result() for f in futures]
+    wall = time.monotonic() - start
+    return {
+        "target_tokens": target_tokens,
+        "concurrency": concurrency,
+        "batch_wall_s": round(wall, 3),
+        "results": results,
+        "all_recalled": all(r["recalled"] for r in results),
     }
 
 
@@ -379,7 +426,12 @@ def main() -> int:
         elif args.mode == "tools":
             report["result"] = tool_second_turn(args.base_url, args.model)
         elif args.mode == "long":
-            report["result"] = long_context(args.base_url, args.model, args.prompt_tokens)
+            if args.concurrency > 1:
+                report["result"] = long_context_batch(
+                    args.base_url, args.model, args.prompt_tokens, args.concurrency
+                )
+            else:
+                report["result"] = long_context(args.base_url, args.model, args.prompt_tokens)
         elif args.mode == "throughput":
             report["result"] = throughput(
                 args.base_url, args.model, args.concurrency, args.output_tokens, args.rounds

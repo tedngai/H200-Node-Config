@@ -1,0 +1,106 @@
+{
+  "utc": "2026-10-18T15:10:00Z",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "image": "lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860",
+  "startup_s": 585,
+  "effective": {
+    "context_length": 1048576,
+    "tp_size": 8,
+    "ep_size": 8,
+    "dp_size": 1,
+    "max_running_requests": 4,
+    "max_total_tokens": 45420032,
+    "attention_backend": "dsv4",
+    "moe_runner_backend": "flashinfer_mxfp4",
+    "speculative_algorithm": "DSPARK",
+    "speculative_num_draft_tokens": 6,
+    "hicache_ratio": 2,
+    "hicache_host_total_tokens": 90840064,
+    "engram_layout": "private",
+    "engram_host_total_gib": 386.7,
+    "engram_huge_page_percent": 100
+  },
+  "interfaces": {
+    "plain_ok": true,
+    "reasoning_ok": true,
+    "tool_call_ok": true,
+    "tool_second_turn_ok": true,
+    "postload_smoke_ok": true
+  },
+  "short_throughput": {
+    "c1_tok_s": [
+      77.027,
+      77.192,
+      77.265
+    ],
+    "c4_aggregate_tok_s": [
+      132.893,
+      141.756,
+      145.823
+    ],
+    "c4_median_tok_s": [
+      33.1,
+      35.062,
+      35.496
+    ]
+  },
+  "long_context": {
+    "100k": {
+      "prompt_tokens": 100001,
+      "elapsed_s": 8.502,
+      "recalled": true
+    },
+    "400k": {
+      "prompt_tokens": 399979,
+      "elapsed_s": 66.667,
+      "recalled": true
+    },
+    "c4_cold": {
+      "batch_wall_s": 246.513,
+      "prompt_tokens": 399973,
+      "all_recalled": true
+    },
+    "c4_warm": {
+      "batch_wall_s": 11.629,
+      "aggregate_tok_s": 190.986,
+      "median_tok_s": 47.63,
+      "peak_running": 4.0,
+      "peak_queue": 0.0,
+      "peak_retracted": 0.0,
+      "cached_tokens": [
+        399872,
+        399872,
+        399872,
+        399872
+      ]
+    }
+  },
+  "hicache": {
+    "host_total_tokens": 90840064,
+    "backup_tokens": 45056,
+    "evicted_tokens": 45056,
+    "dropped_tokens": 0,
+    "host_used_tokens": 5632,
+    "scoped_host_hit": {
+      "device": 0,
+      "host": 256,
+      "context": "post-load tool second turn"
+    },
+    "large_restore_tested": false
+  },
+  "stability": {
+    "oom": false,
+    "traceback": false,
+    "runtime_error": false,
+    "watchdog": false,
+    "retractions": 0,
+    "gpu_free_mib_after_load": 7299,
+    "host_available_gb_after_load": 665
+  },
+  "evidence": {
+    "preflight": "evidence/preflight-20261018T132818Z/",
+    "checkpoint": "evidence/checkpoint-verify-20261018T133054Z.json",
+    "startup": "evidence/startup-20261018T145302Z/",
+    "results_doc": "docs/RESULTS.md"
+  }
+}

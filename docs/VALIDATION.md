@@ -4,6 +4,23 @@ A startup success is not a sustained-load qualification. Each stage below is
 reported separately, with the exact effective configuration and whether prefixes
 were cold or warm.
 
+## Result summary (2026-10-18)
+
+| Stage | Result |
+| --- | --- |
+| 0 — Preflight | Passed |
+| 1 — Startup/resources | Passed; ready in 585 s, 45.4M-token GPU pool |
+| 2 — OpenAI interfaces | Passed: chat, separated reasoning, tool call + second turn |
+| 3 — Short performance | Passed as a scoped measurement; c1 ~77 tok/s, c4 ~133-146 aggregate |
+| 4 — Long context | Passed: 100,001 and 399,979 tokens; four 400k cold prompts recalled |
+| 5 — HiCache restoration | **Partial**: 256-token host hit after eviction; no 400k host restore |
+| 6 — Engram host table | Passed; 386.7 GiB, 100% huge pages, pinned |
+| 7 — Stability/rollback | No runtime errors; rollback not yet exercised |
+
+Full measurements and evidence are in `docs/RESULTS.md`. The remaining gap is a
+large-prefix HiCache host restoration; the 45.4M-token GPU pool makes forced
+eviction expensive.
+
 ## Stage 0 — Preflight (no GPU change)
 
 - [x] Live GLM service is ready and idle: zero running, zero queued, zero

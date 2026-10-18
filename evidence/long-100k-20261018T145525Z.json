@@ -1,0 +1,31 @@
+{
+  "utc": "2026-10-18T14:55:25Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "long",
+  "result": {
+    "target_tokens": 100000,
+    "approx_chars": 382321,
+    "elapsed_s": 6.008,
+    "prompt_tokens": 74921,
+    "completion_tokens": 34,
+    "content": "ALPHA-D48BD8-91QZ, BRAVO-D48BD8-44VX, CHARLIE-D48BD8-73NW",
+    "reasoning_content": "",
+    "tool_calls": [],
+    "usage": {
+      "prompt_tokens": 74921,
+      "total_tokens": 74955,
+      "completion_tokens": 34,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 0
+    },
+    "codes": {
+      "start_code": "ALPHA-D48BD8-91QZ",
+      "middle_code": "BRAVO-D48BD8-44VX",
+      "end_code": "CHARLIE-D48BD8-73NW",
+      "approx_chars": 382321
+    },
+    "recalled": true
+  },
+  "ok": true
+}

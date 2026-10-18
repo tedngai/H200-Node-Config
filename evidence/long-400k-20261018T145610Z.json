@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-18T14:56:10Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "long",
+  "result": {
+    "target_tokens": 400000,
+    "approx_chars": 2041797,
+    "elapsed_s": 66.667,
+    "prompt_tokens": 399979,
+    "completion_tokens": 40,
+    "content": "ALPHA-7F62E2-91QZ,BRAVO-7F62E2-44VX,CHARLIE-7F62E2-73NW",
+    "reasoning_content": "",
+    "tool_calls": [],
+    "usage": {
+      "prompt_tokens": 399979,
+      "total_tokens": 400019,
+      "completion_tokens": 40,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 0
+    },
+    "codes": {
+      "start_code": "ALPHA-7F62E2-91QZ",
+      "middle_code": "BRAVO-7F62E2-44VX",
+      "end_code": "CHARLIE-7F62E2-73NW",
+      "approx_chars": 2041797,
+      "calibrated_tokens": 399975
+    },
+    "recalled": true
+  },
+  "ok": true
+}

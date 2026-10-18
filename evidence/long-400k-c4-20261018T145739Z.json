@@ -1,0 +1,107 @@
+{
+  "utc": "2026-10-18T14:57:39Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "long",
+  "result": {
+    "target_tokens": 400000,
+    "concurrency": 4,
+    "batch_wall_s": 246.513,
+    "results": [
+      {
+        "elapsed_s": 246.472,
+        "prompt_tokens": 399973,
+        "completion_tokens": 34,
+        "content": "ALPHA-16ECDC-91QZ,BRAVO-16ECDC-44VX,CHARLIE-16ECDC-73NW",
+        "reasoning_content": "",
+        "tool_calls": [],
+        "usage": {
+          "prompt_tokens": 399973,
+          "total_tokens": 400007,
+          "completion_tokens": 34,
+          "prompt_tokens_details": null,
+          "reasoning_tokens": 0
+        },
+        "codes": {
+          "start_code": "ALPHA-16ECDC-91QZ",
+          "middle_code": "BRAVO-16ECDC-44VX",
+          "end_code": "CHARLIE-16ECDC-73NW",
+          "approx_chars": 2041797,
+          "calibrated_tokens": 399969
+        },
+        "recalled": true
+      },
+      {
+        "elapsed_s": 246.5,
+        "prompt_tokens": 399973,
+        "completion_tokens": 34,
+        "content": "ALPHA-E443D9-91QZ,BRAVO-E443D9-44VX,CHARLIE-E443D9-73NW",
+        "reasoning_content": "",
+        "tool_calls": [],
+        "usage": {
+          "prompt_tokens": 399973,
+          "total_tokens": 400007,
+          "completion_tokens": 34,
+          "prompt_tokens_details": null,
+          "reasoning_tokens": 0
+        },
+        "codes": {
+          "start_code": "ALPHA-E443D9-91QZ",
+          "middle_code": "BRAVO-E443D9-44VX",
+          "end_code": "CHARLIE-E443D9-73NW",
+          "approx_chars": 2041797,
+          "calibrated_tokens": 399969
+        },
+        "recalled": true
+      },
+      {
+        "elapsed_s": 246.46,
+        "prompt_tokens": 399976,
+        "completion_tokens": 37,
+        "content": "ALPHA-E7E5DF-91QZ, BRAVO-E7E5DF-44VX, CHARLIE-E7E5DF-73NW",
+        "reasoning_content": "",
+        "tool_calls": [],
+        "usage": {
+          "prompt_tokens": 399976,
+          "total_tokens": 400013,
+          "completion_tokens": 37,
+          "prompt_tokens_details": null,
+          "reasoning_tokens": 0
+        },
+        "codes": {
+          "start_code": "ALPHA-E7E5DF-91QZ",
+          "middle_code": "BRAVO-E7E5DF-44VX",
+          "end_code": "CHARLIE-E7E5DF-73NW",
+          "approx_chars": 2041797,
+          "calibrated_tokens": 399972
+        },
+        "recalled": true
+      },
+      {
+        "elapsed_s": 246.454,
+        "prompt_tokens": 399973,
+        "completion_tokens": 34,
+        "content": "ALPHA-DBC77B-91QZ, BRAVO-DBC77B-44VX, CHARLIE-DBC77B-73NW",
+        "reasoning_content": "",
+        "tool_calls": [],
+        "usage": {
+          "prompt_tokens": 399973,
+          "total_tokens": 400007,
+          "completion_tokens": 34,
+          "prompt_tokens_details": null,
+          "reasoning_tokens": 0
+        },
+        "codes": {
+          "start_code": "ALPHA-DBC77B-91QZ",
+          "middle_code": "BRAVO-DBC77B-44VX",
+          "end_code": "CHARLIE-DBC77B-73NW",
+          "approx_chars": 2041797,
+          "calibrated_tokens": 399969
+        },
+        "recalled": true
+      }
+    ],
+    "all_recalled": true
+  },
+  "ok": true
+}

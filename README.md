@@ -4,10 +4,12 @@ Isolated SGLang experiment for the DeepSeek-V4.1-Flash-1017 preview checkpoint.
 This project is deliberately separate from the live `glm53-inference` project so
 the validated GLM-5.3 service and its exact rollback path stay intact.
 
-**Status:** preparing (2026-10-18). The preview image and 510.3 GB checkpoint are
-being acquired. The engine has **not** been started, and the live GLM-5.3
-service is still the authoritative deployment until the hand-off commands below
-are run by the user.
+**Status:** **validated scoped test, running on port 8013** (2026-10-18). The
+engine started in 585 s and passed chat, reasoning, tool-call, 100k/400k
+retrieval, four independent 400k cold prompts and four-active warmed 400k
+decode. A scoped 256-token HiCache host hit was observed. This is not a
+production cutover; the validated GLM-5.3 service remains installed and can be
+restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
 ## What is being tested
 
@@ -31,11 +33,11 @@ User-requested additions on top of the cookbook cell:
 2. **Engram table offload to host RAM**:
    `SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=1` and
    `SGLANG_DSV41_ENGRAM_HOST_TABLE_LAYOUT=private`. This moves the two
-   ~101.5 GB FP8 tables out of HBM (~203 GB total, ~25.4 GB per TP rank) and
-   gives the freed HBM to the KV pool. The cookbook calls this layout
-   `per_rank`; the pinned image's code calls the same private-shard layout
-   `private` and rejects the newer `per_rank` spelling. This is documented in
-   `docs/RECIPE.md`.
+   ~101.5 GB FP8 tables out of HBM and gives the freed HBM to the KV pool. The
+   cookbook calls this layout `per_rank`; the pinned image's code calls the same
+   private-shard layout `private` and rejects the newer `per_rank` spelling.
+   **Measured host cost: 386.7 GiB**, not the naive 203 GB checkpoint-byte
+   estimate. See `docs/RESULTS.md` for the per-rank measurements.
 3. **KV offload with HiCache**, using the cookbook H200 donor settings:
    `--enable-hierarchical-cache --hicache-io-backend direct
    --hicache-mem-layout page_first_direct --hicache-ratio 2
@@ -57,21 +59,24 @@ User-requested additions on top of the cookbook cell:
 - The live GLM unit and its 400k DP4+MTP+HiCache configuration are preserved
   unchanged for rollback.
 
-## Resource budget
+## Resource budget (measured unless marked estimate)
 
-| Item | Estimate |
+| Item | Value |
 | --- | ---: |
 | Checkpoint on disk | 510.3 GB |
-| Engram tables on host | ~203 GB total, ~25.4 GB/rank |
-| Non-engram weights in HBM | ~307 GB total, ~38.4 GB/GPU |
+| Engram tables on host | **386.7 GiB** measured (16 × 24,171 MiB) |
+| Non-engram weights in HBM | ~37.8 GB/GPU measured (plus 1.11 GB DSpark) |
 | H200 HBM per GPU | 141 GB |
-| Static memory fraction | 0.80 (~113 GB/GPU budget) |
-| Host RAM | ~2.0 TB total |
-| HiCache host tier | ratio 2 of the GPU KV pool, measured at startup |
+| Static memory fraction | 0.80 |
+| GPU KV pool | **45,420,032 tokens** |
+| HiCache host pool | **90,840,064 tokens** (ratio 2) |
+| Host RAM | ~2.0 TB total; ~665 GB available after load |
+| Container RSS | **1.42 TiB** after load |
+| Startup | **585 s** |
 
-The actual GPU KV pool, host HiCache pool, pinned-RAM footprint, startup time
-and free memory are recorded in `evidence/`; none of the numbers above are
-claimed as measured until the engine is running.
+The engine is running; the actual GPU KV pool, host HiCache pool, pinned-RAM
+footprint, startup time and free memory are recorded in `evidence/` and
+`docs/RESULTS.md`.
 
 ## Hand-off commands (privileged)
 
@@ -102,6 +107,8 @@ API identity remain exactly as installed before this experiment.
 
 ## Documentation
 
+- `docs/RESULTS.md` — measured startup, memory, interface, throughput,
+  400k, four-active and HiCache results.
 - `docs/RECIPE.md` — cookbook provenance, exact flags, additions and omissions.
 - `docs/VALIDATION.md` — staged checks and evidence requirements.
 - `docs/OPERATIONS.md` — startup, monitoring, shutdown and rollback.

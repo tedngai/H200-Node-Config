@@ -1,0 +1,55 @@
+{
+  "utc": "2026-10-18T14:54:20Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "throughput",
+  "result": {
+    "concurrency": 1,
+    "output_tokens": 256,
+    "rounds": [
+      {
+        "round": 1,
+        "results": [
+          {
+            "elapsed_s": 3.324,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 77.027,
+            "content": "A reliable distributed system is one that continues to deliver correct results despite node failures, network partitions, and concurrent faults. Achieving this requires redundancy through replication,"
+          }
+        ],
+        "aggregate_tok_s": 77.027,
+        "median_tok_s": 77.027
+      },
+      {
+        "round": 2,
+        "results": [
+          {
+            "elapsed_s": 3.316,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 77.192,
+            "content": "A reliable distributed system is one that continues to deliver correct results despite node failures, network partitions, and concurrent faults. Achieving this requires redundancy through replication,"
+          }
+        ],
+        "aggregate_tok_s": 77.192,
+        "median_tok_s": 77.192
+      },
+      {
+        "round": 3,
+        "results": [
+          {
+            "elapsed_s": 3.313,
+            "prompt_tokens": 37,
+            "completion_tokens": 256,
+            "tok_s": 77.265,
+            "content": "A reliable distributed system is one that continues to deliver correct results despite node failures, network partitions, and concurrent faults. Achieving this requires redundancy through replication,"
+          }
+        ],
+        "aggregate_tok_s": 77.265,
+        "median_tok_s": 77.265
+      }
+    ]
+  },
+  "ok": true
+}
