@@ -1,13 +1,13 @@
 # Scheduler and prefill/decode overlap tests
 
-Status: **phase 2a installed and measured; overlap prepared, not installed.**
+Status: **phase 2a installed and measured; phase 2b/2c prepared, not installed.**
 The installed unit is
 `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
 (`--max-running-requests 16 --min-free-slots-delay 0 --context-length 409600`).
 Phase 1 proved 16 simultaneous active warmed 400k decodes in a 2048-token
 replay and produced the first mixed baseline. Phase 2a then raised c16 decode
-1.96× and changed the mixed baseline. The overlap candidate remains a later
-step and still needs a privileged restart.
+1.96× and changed the mixed baseline. Phase 2b (interval + chunk) and phase 2c
+(tails) are prepared but not installed; both still need a privileged restart.
 
 ## Phase 1 measured result (2026-10-18)
 
