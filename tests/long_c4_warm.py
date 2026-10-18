@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Four independent 400k prefixes: cold prefill, then a warmed concurrent decode.
+"""N independent long prefixes: cold prefill, then a warmed concurrent decode.
 
-This separates prefill admission/queueing from four-active decode. It writes a
+This separates prefill admission/queueing from N-active decode. It writes a
 timestamped JSON report under evidence/.
 """
 
 from __future__ import annotations
 
+import argparse
 import concurrent.futures
 import json
 import statistics
@@ -26,12 +27,12 @@ from openai_probe import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "http://127.0.0.1:8013"
-MODEL = "dsv41-flash-1017"
+DEFAULT_BASE = "http://127.0.0.1:8013"
+DEFAULT_MODEL = "dsv41-flash-1017"
 
 
-def metric_values() -> dict:
-    with urllib.request.urlopen(f"{BASE}/metrics", timeout=5) as resp:
+def metric_values(base: str) -> dict:
+    with urllib.request.urlopen(f"{base}/metrics", timeout=5) as resp:
         text = resp.read().decode("utf-8", "replace")
     out: dict[str, float] = {}
     for line in text.splitlines():
@@ -46,10 +47,10 @@ def metric_values() -> dict:
     return out
 
 
-def cold_request(prompt: str) -> dict:
+def cold_request(base: str, model: str, prompt: str) -> dict:
     resp, elapsed = chat(
-        BASE,
-        MODEL,
+        base,
+        model,
         [{"role": "user", "content": prompt}],
         max_tokens=64,
         temperature=0.0,
@@ -64,12 +65,12 @@ def cold_request(prompt: str) -> dict:
     }
 
 
-def warm_request(prompt: str) -> dict:
+def warm_request(base: str, model: str, prompt: str, output_tokens: int) -> dict:
     resp, elapsed = chat(
-        BASE,
-        MODEL,
+        base,
+        model,
         [{"role": "user", "content": prompt}],
-        max_tokens=512,
+        max_tokens=output_tokens,
         temperature=0.0,
         reasoning_effort="none",
         extra={"ignore_eos": True},
@@ -89,34 +90,60 @@ def warm_request(prompt: str) -> dict:
 
 
 def main() -> int:
-    prepared = [build_long_prompt(BASE, 400000) for _ in range(4)]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--base-url", default=DEFAULT_BASE)
+    ap.add_argument("--model", default=DEFAULT_MODEL)
+    ap.add_argument("--concurrency", type=int, default=4)
+    ap.add_argument("--target-tokens", type=int, default=400000)
+    ap.add_argument("--output-tokens", type=int, default=512)
+    args = ap.parse_args()
+
+    prepared = [
+        build_long_prompt(args.base_url, args.target_tokens)
+        for _ in range(args.concurrency)
+    ]
     report: dict = {
         "utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "target_tokens": 400000,
-        "concurrency": 4,
+        "target_tokens": args.target_tokens,
+        "concurrency": args.concurrency,
+        "output_tokens": args.output_tokens,
         "prompts": [
             {"codes": codes, "chars": len(prompt)} for prompt, codes in prepared
         ],
     }
 
-    # Cold pass: establish four independent 400k prefixes.
+    # Cold pass: establish N independent prefixes.
     start = time.monotonic()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        cold = list(pool.map(cold_request, [p for p, _ in prepared]))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as pool:
+        cold = list(
+            pool.map(
+                lambda p: cold_request(args.base_url, args.model, p),
+                [p for p, _ in prepared],
+            )
+        )
     report["cold"] = {
         "batch_wall_s": round(time.monotonic() - start, 3),
         "results": cold,
         "all_prompt_tokens": [r["prompt_tokens"] for r in cold],
+        "all_recalled": all(
+            all(
+                c in r["content"]
+                for c in (codes["start_code"], codes["middle_code"], codes["end_code"])
+            )
+            for r, (_, codes) in zip(cold, prepared)
+        ),
     }
 
-    # Warm pass: same prompts, forced 512-token outputs, sample live gauges.
+    # Warm pass: same prompts, forced output, sample live gauges.
     samples: list[dict] = []
     stop = threading.Event()
 
     def sampler() -> None:
         while not stop.is_set():
             try:
-                samples.append({"t": time.monotonic(), **metric_values()})
+                samples.append(
+                    {"t": time.monotonic(), **metric_values(args.base_url)}
+                )
             except Exception as exc:  # keep the load result even if metrics fail
                 samples.append({"t": time.monotonic(), "error": str(exc)})
             time.sleep(0.5)
@@ -125,8 +152,15 @@ def main() -> int:
     thread.start()
     start = time.monotonic()
     try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            warm = list(pool.map(warm_request, [p for p, _ in prepared]))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as pool:
+            warm = list(
+                pool.map(
+                    lambda p: warm_request(
+                        args.base_url, args.model, p, args.output_tokens
+                    ),
+                    [p for p, _ in prepared],
+                )
+            )
     finally:
         stop.set()
         thread.join(timeout=5)
@@ -155,7 +189,8 @@ def main() -> int:
     }
 
     out = ROOT / "evidence" / (
-        f"long-400k-c4-warm-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+        f"long-{args.target_tokens}-c{args.concurrency}-warm-"
+        f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
     )
     out.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
