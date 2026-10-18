@@ -248,8 +248,8 @@ def count_tokens(base: str, text: str) -> int:
     return int(resp["count"])
 
 
-def _build_long_prompt(target_tokens: int) -> tuple[str, dict]:
-    salt = uuid.uuid4().hex[:6].upper()
+def _build_long_prompt(target_tokens: int, salt: str | None = None) -> tuple[str, dict]:
+    salt = (salt or uuid.uuid4().hex[:6]).upper()
     start_code = f"ALPHA-{salt}-91QZ"
     middle_code = f"BRAVO-{salt}-44VX"
     end_code = f"CHARLIE-{salt}-73NW"

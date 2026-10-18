@@ -6,8 +6,10 @@ with the user-requested DSPARK, engram host-table and HiCache additions.
 **Verdict:** the recipe starts and serves correctly on this 8xH200 host. Chat,
 separated reasoning, OpenAI tool calls, 100k/400k retrieval, four independent
 400k prefixes and four-active warmed decode all passed. A scoped HiCache host
-hit was observed. A full 400k host-restoration test was **not** run; see the
-HiCache section for why.
+hit was observed. Sixteen 400k requests were also accepted and completed, but
+the peak observed was **14 running + 1–2 queued**, not 16 simultaneous active;
+see the 16-request section below. A full 400k host-restoration test was **not**
+run; see the HiCache section for why.
 
 ## Identity
 
@@ -29,8 +31,8 @@ From `/server_info`, the startup log and `/v1/models`:
 | --- | --- |
 | Context length | **1,048,576** (checkpoint default; `/v1/models.max_model_len`) |
 | TP / EP | 8 / 8, DP1 |
-| Max running requests | **4** (explicit; DSpark would otherwise default to 48) |
-| Max total tokens | **45,420,032** |
+| Max running requests | **4** in the baseline; **16** in the mr16 candidate |
+| Max total tokens | **45,420,032** (4-request start); **44,957,952** (mr16 start) |
 | Max prefill tokens / chunked prefill | 16,384 / 8,192 |
 | Page size | 256 |
 | Static memory fraction | 0.80 |
@@ -143,6 +145,52 @@ but is not the 100k gate. The calibrated 100k and 400k probes passed.
 - Peak token usage: 0.11 of the pool.
 - This is the four-active decode result; it used the same four 400k prefixes.
 
+## 16-request test at 400k
+
+The service was restarted with only `--max-running-requests` changed from 4 to
+**16**. All other settings were identical.
+
+### Cold pass
+
+- 16 distinct prompts, 399,970–399,979 prompt tokens each.
+- All 16 returned their three marker codes.
+- Batch wall: **995.5 s** (16.6 min).
+- Prefill admission was heavily staggered; server queue durations reached
+  **918 s**. This was **not** 16 simultaneous cold prefills.
+
+### Warm pass
+
+The same 16 prefixes were replayed. All had **399,872 cached device tokens**
+each.
+
+| Measurement | First warm pass | Replay warm pass |
+| --- | ---: | ---: |
+| Batch wall | 35.003 s | 34.268 s |
+| Aggregate tok/s | 290.762 | 317.527 |
+| Median per-request tok/s | 17.05 | 16.95 |
+| Peak running | **14** | **14** |
+| Peak queued | **2** | **1** |
+| Peak retracted | 0 | 0 |
+| Peak `token_usage` | 0.18 | 0.16 |
+| Peak `full_token_usage` | — | 0.125 |
+| Peak `swa_token_usage` | 0.18 | 0.158 |
+
+**Important:** 16 requests were submitted and all completed, but the engine did
+**not** demonstrate 16 simultaneous active decode. The peak observed was
+**14 running + 1–2 queued**. The likely cause is the DSpark/DFlash
+min-free-slots admission policy, which delays fresh admissions until several
+slots free; it is not the `max_running_requests=16` cap itself. A guaranteed
+16-active test would require disabling that delayer
+(`--min-free-slots-delay 0`) and another restart.
+
+Scaling is also clear: going from 4 active to 14 active raised aggregate
+throughput from ~191 to ~291–318 tok/s, but per-request throughput fell from
+~47.6 to ~17 tok/s. Sixteen concurrent 400k sessions are not a low-latency
+coding profile.
+
+After the 16-request warm pass, HBM free was **~5.0 GB/GPU** and host available
+was **~613 GB**. There were no OOMs or retractions.
+
 ## HiCache
 
 HiCache initialized with a **90,840,064-token** host pool (ratio 2). During the
@@ -193,6 +241,9 @@ experiment, not implied by this pass.
 - `evidence/long-400k-20261018T145610Z.json`
 - `evidence/long-400k-c4-20261018T145739Z.json`
 - `evidence/long-400k-c4-warm-20261018T150723Z.json`
+- `evidence/long-400000-c16-warm-20261018T160533Z.json` — 16-request cold+warm.
+- `evidence/replay-c16-warm-20261018T161736Z.json` — 16-request warm replay.
+- `evidence/postload-mr16-20261018T161850Z/` — post-16 metrics, GPU/RAM, errors.
 - `evidence/postload-smoke-20261018T150748Z.json`
 - `evidence/postload-20261018T150754Z/` — post-load metrics, GPU/RAM, logs.
 
@@ -200,6 +251,8 @@ experiment, not implied by this pass.
 
 - Sustained real coding/agent load or broad model-quality equivalence.
 - Four simultaneous cold 400k prefills (the cold test was staggered).
+- **16 simultaneous active 400k decodes** (peak observed was 14 running + 1–2
+  queued).
 - A 400k HiCache host restoration (only a 256-token host hit was observed).
 - Exact 1,048,576-token occupancy.
 - Production readiness behind the `pratt-high` gateway or on port 8012.
