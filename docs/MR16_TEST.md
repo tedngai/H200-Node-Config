@@ -1,5 +1,10 @@
 # 16-active 400k test
 
+> **Superseded by phase 1 (2026-10-18):** with `--min-free-slots-delay 0`, a
+> 2048-token replay reached 16 running, 0 queued, 0 retracted. The mr16 result
+> below remains the historical baseline. See `docs/RESULTS.md` and
+> `docs/SCHEDULER_OVERLAP_TEST.md`.
+
 ## Result (2026-10-18)
 
 **16 requests were accepted and all completed, but 16 simultaneous active

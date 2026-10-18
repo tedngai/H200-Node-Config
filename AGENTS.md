@@ -15,9 +15,13 @@ The validated GLM-5.3 service and its rollback path must be preserved. Do not
 change `/etc/systemd/system/sglang-glm53.service` or the public alias as a side
 effect of work in this repository.
 
-Current measured state: 16 concurrent 400k requests complete, but peak observed
-was **14 running + 1–2 queued**, not 16 simultaneous active. Do not claim
-16-active or production readiness without a new test. See `docs/RESULTS.md`.
+Current measured state (phase 1, 2026-10-18): with
+`--min-free-slots-delay 0`, a 2048-token warm replay proved **16 simultaneous
+active 400k decodes** (peak 16 running, 0 queued, 0 retracted); the 512-token
+pass peaked at 15 because server-side tokenization staggered admission. Sixteen
+simultaneous **cold** 400k prefills are still unproven. Phase 2 overlap is
+prepared, not installed. Do not claim production readiness or sustained load.
+See `docs/RESULTS.md`.
 
 ## Git repository
 
@@ -28,8 +32,9 @@ was **14 running + 1–2 queued**, not 16 simultaneous active. Do not claim
 - Commit all project changes before pushing. Keep the working tree clean.
 - The installed unit is `/etc/systemd/system/sglang-dsv41.service`; the
   committed source of truth is
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`. They currently
-  match. Record any intentional divergence.
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`. They
+  currently match. The earlier `sglang-dsv41-8013-mr16.service` is the exact
+  rollback from phase 1. Record any intentional divergence.
 
 ## GitHub credentials
 

@@ -1,0 +1,4 @@
+# Known non-fatal startup/shutdown messages excluded from the post-ready scan
+# 2026-10-18 20:04:50Z previous container shutdown: sigterm watchdog SystemExit 0 traceback
+# 2026-10-18 20:13:18Z all TP ranks: FABRIC handle export failed; POSIX fd transport fallback
+# 2026-10-18 20:14:30Z server ready

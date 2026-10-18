@@ -1,0 +1,133 @@
+{
+  "utc": "2026-10-18T21:09:15Z",
+  "service": {
+    "unit": "/etc/systemd/system/sglang-dsv41.service",
+    "candidate": "configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service",
+    "port": 8013,
+    "served_model_name": "dsv41-flash-1017",
+    "max_running_requests": 16,
+    "min_free_slots_delay": 0,
+    "context_length": 1048576,
+    "max_total_num_tokens": 44957952,
+    "hicache_host_total_tokens": 89915904,
+    "service_start_utc": "2026-10-18T20:04:52Z",
+    "ready_utc": "2026-10-18T20:14:30Z",
+    "startup_wall_seconds": 578,
+    "engine_startup_metric_seconds": 544.005
+  },
+  "c16_400k": {
+    "source_report": "evidence/long-400000-c16-warm-20261018T204521Z.json",
+    "start_utc": "2026-10-18T20:28:14Z",
+    "cold_batch_wall_s": 991.414,
+    "cold_all_recalled": true,
+    "cold_prompt_tokens": [
+      399973,
+      399973,
+      399979,
+      399973,
+      399970,
+      399976,
+      399976,
+      399970,
+      399976,
+      399973,
+      399979,
+      399973,
+      399973,
+      399976,
+      399976,
+      399976
+    ],
+    "cold_queue_s_min": 0.01,
+    "cold_queue_s_max": 913.1,
+    "cold_forward_s_min": 63.18,
+    "cold_forward_s_max": 990.06,
+    "cold_simultaneous_prefill_proven": false,
+    "warm_output_tokens": 512,
+    "warm_batch_wall_s": 35.173,
+    "warm_aggregate_tok_s": 290.367,
+    "warm_median_tok_s": 16.377,
+    "warm_peak_running": 15.0,
+    "warm_peak_queue": 0.0,
+    "warm_peak_retracted": 0.0,
+    "warm_cached_tokens_each": [
+      399872
+    ],
+    "note": "512-token warm pass peaked at 15 because server-side tokenization/ingress staggered the 16 requests; scheduler queue was 0 and the first finished before the last was admitted."
+  },
+  "replay_2048": {
+    "source_report": "evidence/replay-c16-warm-20261018T205717Z.json",
+    "start_utc": "2026-10-18T20:57:17Z",
+    "batch_wall_s": 96.254,
+    "aggregate_tok_s": 372.979,
+    "median_tok_s": 22.878,
+    "peak_running": 16.0,
+    "peak_queue": 0.0,
+    "peak_retracted": 0.0,
+    "peak_token_usage": 0.22,
+    "running16_first_s": 20.3,
+    "running16_last_s": 76.61,
+    "cached_tokens_each": [
+      399872
+    ],
+    "completion_tokens_each": [
+      2048
+    ],
+    "note": "All 16 warmed 400k prompts; 16 simultaneous active decode proven for about 56.6 s."
+  },
+  "mixed_prefill_decode": {
+    "source_report": "evidence/mixed-prefill-decode-w4-c4-20261018T210728Z.json",
+    "start_utc": "2026-10-18T20:58:06Z",
+    "baseline": {
+      "batch_wall_s": 31.483,
+      "aggregate_tok_s": 268.669,
+      "median_tok_s": 67.203,
+      "peak_running": 4.0,
+      "peak_queue": 0.0,
+      "peak_retracted": 0.0
+    },
+    "mixed": {
+      "batch_wall_s": 279.123,
+      "aggregate_tok_s": 29.556,
+      "median_tok_s": 7.388,
+      "peak_running": 7.0,
+      "peak_queue": 3.0,
+      "peak_retracted": 0.0,
+      "cold_batch_wall_s": 247.601,
+      "cold_all_recalled": true
+    },
+    "comparison": {
+      "baseline_aggregate_tok_s": 268.669,
+      "mixed_aggregate_tok_s": 29.556,
+      "aggregate_ratio": 0.11,
+      "baseline_median_tok_s": 67.203,
+      "mixed_median_tok_s": 7.388,
+      "median_ratio": 0.11
+    },
+    "note": "Four fresh 400k prefills cut warmed 2048-token decode to 11% of the no-prefill baseline. This is the phase 1 comparison point for phase 2 overlap."
+  },
+  "postload": {
+    "gpu_memory_free_mib": [
+      5161,
+      5065,
+      5065,
+      5065,
+      5065,
+      5065,
+      5065,
+      5545
+    ],
+    "host_available_gib": 617,
+    "container_rss_tib": 1.341,
+    "post_ready_error_match_count": 0,
+    "smoke": "pass",
+    "tools": "pass"
+  },
+  "limits": [
+    "Synthetic 400k retrieval/decode, not sustained real coding load.",
+    "16 simultaneous cold 400k prefills are not proven; cold admission remained staggered.",
+    "Phase 2 overlap candidate is prepared but not installed.",
+    "Not a production cutover; API remains on 8013/dsv41-flash-1017."
+  ],
+  "postload_dir": "evidence/postload-phase1-20261018T210803Z"
+}

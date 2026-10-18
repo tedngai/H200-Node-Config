@@ -1,0 +1,4 @@
+# Precise post-ready runtime error scan (retraction counters and watchdog_timeout config excluded)
+# window: 2026-10-18 20:14:30Z onward
+# utc: 2026-10-18T21:09:15Z
+# match_count=0

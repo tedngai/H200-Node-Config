@@ -8,6 +8,7 @@ still cached before sending all 16 warm requests.
 
 from __future__ import annotations
 
+import argparse
 import concurrent.futures
 import glob
 import json
@@ -31,7 +32,6 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = "http://127.0.0.1:8013"
 MODEL = "dsv41-flash-1017"
 TARGET = 400000
-OUTPUT = 512
 
 
 def metrics() -> dict:
@@ -50,12 +50,13 @@ def metrics() -> dict:
     return out
 
 
-def warm(prompt: str) -> dict:
+def warm(prompt: str, output_tokens: int, batch_start: float) -> dict:
+    started = time.monotonic()
     resp, elapsed = chat(
         BASE,
         MODEL,
         [{"role": "user", "content": prompt}],
-        max_tokens=OUTPUT,
+        max_tokens=output_tokens,
         temperature=0.0,
         reasoning_effort="none",
         extra={"ignore_eos": True},
@@ -64,7 +65,9 @@ def warm(prompt: str) -> dict:
     u = usage(resp)
     c = u.get("completion_tokens") or 0
     return {
+        "start_offset_s": round(started - batch_start, 3),
         "elapsed_s": round(elapsed, 3),
+        "finish_offset_s": round(time.monotonic() - batch_start, 3),
         "prompt_tokens": u.get("prompt_tokens"),
         "completion_tokens": c,
         "tok_s": round(c / elapsed, 3) if elapsed else None,
@@ -73,8 +76,19 @@ def warm(prompt: str) -> dict:
 
 
 def main() -> int:
-    report_path = sorted(glob.glob(str(ROOT / "evidence" / "long-400000-c16-warm-*.json")))[-1]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--output-tokens", type=int, default=512)
+    ap.add_argument("--source-report", default=None)
+    args = ap.parse_args()
+
+    report_path = args.source_report
+    if report_path is None:
+        candidates = sorted(
+            glob.glob(str(ROOT / "evidence" / "long-400000-c16-warm-*.json"))
+        )
+        report_path = candidates[-1]
     source = json.loads(Path(report_path).read_text())
+
     def build_for_chars(target_chars: int, salt: str):
         lo, hi = 100000, 1000000
         for _ in range(30):
@@ -130,7 +144,7 @@ def main() -> int:
     def sampler() -> None:
         while not stop.is_set():
             try:
-                samples.append(metrics())
+                samples.append({"t": time.monotonic(), **metrics()})
             except Exception:
                 pass
             time.sleep(0.25)
@@ -140,7 +154,12 @@ def main() -> int:
     start = time.monotonic()
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(prepared)) as pool:
-            results = list(pool.map(lambda p: warm(p[0]), prepared))
+            results = list(
+                pool.map(
+                    lambda p: warm(p[0], args.output_tokens, start),
+                    prepared,
+                )
+            )
     finally:
         stop.set()
         thread.join(timeout=5)
@@ -160,7 +179,7 @@ def main() -> int:
             "elapsed_s": round(pre_elapsed, 3),
         },
         "concurrency": len(prepared),
-        "output_tokens": OUTPUT,
+        "output_tokens": args.output_tokens,
         "batch_wall_s": round(wall, 3),
         "aggregate_tok_s": round(sum(rates), 3),
         "median_tok_s": round(statistics.median(rates), 3) if rates else None,
@@ -175,6 +194,16 @@ def main() -> int:
             "peak_swa_token_usage": peak("sglang:swa_token_usage"),
             "peak_hicache_host_used_tokens": peak("sglang:hicache_host_used_tokens"),
         },
+        "gauge_series": [
+            {
+                "t": round(s["t"] - start, 2),
+                "running": s.get("sglang:num_running_reqs"),
+                "queue": s.get("sglang:num_queue_reqs"),
+                "token_usage": s.get("sglang:token_usage"),
+            }
+            for s in samples
+            if "t" in s
+        ],
     }
     path = ROOT / "evidence" / (
         f"replay-c16-warm-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
