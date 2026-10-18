@@ -65,7 +65,10 @@ User-requested additions on top of the cookbook cell:
   (`--max-running-requests 16 --min-free-slots-delay 0`).
 - Previous mr16 candidate (rollback):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
-- Prepared phase 2 overlap candidate (not installed):
+- Prepared phase 2a context-cap candidate (not installed):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
+  (`--context-length 409600`; apply/verify via `docs/CONTEXT_409600_TEST.md`).
+- Prepared phase 2 overlap candidate (not installed; later step):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service`.
 - Validated 4-request candidate:
   `configs/systemd/candidates/sglang-dsv41-8013.service`.
@@ -125,10 +128,12 @@ API identity remain exactly as installed before this experiment.
 
 ## Documentation
 
-- `HANDOFF.md` — restart-safe current state, phase 1 results, phase 2 runbook,
+- `HANDOFF.md` — restart-safe current state, phase 1 results, phase 2a runbook,
   rollback and non-claims.
 - `docs/DECODE_PROFILE.md` — decode kernel profile, root cause of batch-scaled
   step time, ranked optimization options.
+- `docs/CONTEXT_409600_TEST.md` — phase 2a context-cap candidate, apply/verify
+  commands, validation sequence, success criteria and rollback.
 - `docs/RESULTS.md` — measured startup, memory, interface, throughput,
   400k, four-active and HiCache results.
 - `docs/RECIPE.md` — cookbook provenance, exact flags, additions and omissions.

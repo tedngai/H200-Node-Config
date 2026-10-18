@@ -19,12 +19,16 @@ Current measured state (phase 1, 2026-10-18): with
 `--min-free-slots-delay 0`, a 2048-token warm replay proved **16 simultaneous
 active 400k decodes** (peak 16 running, 0 queued, 0 retracted); the 512-token
 pass peaked at 15 because server-side tokenization staggered admission. Sixteen
-simultaneous **cold** 400k prefills are still unproven. Phase 2 overlap is
-prepared, not installed. Do not claim production readiness or sustained load.
-See `docs/RESULTS.md`.
+simultaneous **cold** 400k prefills are still unproven. A decode profile found
+that step time is batch-scaled and that the SM90 indexer scoring the configured
+1,048,576-token width is 64% of the c16 step. Phase 2a, a single
+`--context-length 409600` change, is prepared but not installed. The overlap
+flags remain a later step. Do not claim production readiness or sustained load.
+See `docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
+`docs/CONTEXT_409600_TEST.md`.
 
 **When resuming after a restart, read `HANDOFF.md` first.** It records the
-live unit state, phase 1 evidence, the phase 2 runbook, rollback, and
+live unit state, phase 1 evidence, the phase 2a runbook, rollback, and
 the exact constraints for the next session.
 
 ## Git repository

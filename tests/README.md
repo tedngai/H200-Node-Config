@@ -9,6 +9,7 @@ python3 tests/openai_probe.py --mode tools
 python3 tests/openai_probe.py --mode throughput --concurrency 1 --output-tokens 256 --rounds 3
 python3 tests/openai_probe.py --mode throughput --concurrency 4 --output-tokens 256 --rounds 3
 python3 tests/openai_probe.py --mode long --prompt-tokens 100000
+python3 tests/decode_throughput.py --concurrency 1,4,16 --output-tokens 1024 --rounds 2
 ```
 
 Modes:
@@ -19,6 +20,8 @@ Modes:
   client wall time and actual `completion_tokens`.
 - `long` — one natural synthetic retrieval prompt with unique beginning,
   middle and end codes; reports the server's own `prompt_tokens`.
+- `decode_throughput.py` — fixed coding prompts at c1/c4/c16 with natural
+  sampling and live gauges, for A/B comparison of decode settings.
 
 Do not run two modes concurrently on the same engine. The long-context probe is
 intentionally single-request; a c4 long test needs a separate admission and

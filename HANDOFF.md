@@ -12,6 +12,9 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 - Live unit: `/etc/systemd/system/sglang-dsv41.service`
 - Installed candidate:
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
+- Phase 2a candidate (prepared, **not installed**), phase 1 plus
+  `--context-length 409600`:
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
 - API: `http://127.0.0.1:8013`, served name `dsv41-flash-1017`
 - Image:
   `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860`
@@ -70,10 +73,18 @@ A 2026-10-18 21:29–21:36 UTC diagnostic (`docs/DECODE_PROFILE.md`,
 `evidence/decode-profile-20261018T213400Z/`) found that decode step time is set
 by batch size, not context: ~33 ms at c1 and ~202 ms at c16 for both short and
 400k prompts. 64% of the c16 step is the SM90 Triton DSA indexer scoring the
-full **configured** 1,048,576-token width for every verify row. The
-recommended next step is phase 2a: phase 1 plus `--context-length 409600` only
-(projected ~1.8× at c16, unmeasured), then the overlap flags. This is a
-recommendation pending user decision; no unit has been prepared or installed.
+full **configured** 1,048,576-token width for every verify row.
+
+Phase 2a is now **prepared, not installed**:
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`.
+It adds only `--context-length 409600` to the installed phase 1 unit. The
+scripted phase 1 decode baseline is
+`evidence/decode-throughput-baseline-20261018T215614Z.json` (c1 132.9/146.1,
+c4 259.0/254.0, c16 335.8/337.0 aggregate tok/s, peak 16 running). The exact
+apply, verify, test, acceptance and rollback steps are in
+`docs/CONTEXT_409600_TEST.md`. The projected c16 gain is ~1.8×, unmeasured.
+
+Do not add the overlap flags in the same restart: phase 2a isolates the cap.
 
 ## Phase 2 plan — prefill/decode overlap candidate
 
@@ -245,10 +256,17 @@ sudo systemctl start sglang-glm53.service
 
 ## Quick resume checklist
 
-1. Confirm the live unit and `/server_info`; do not assume phase 2 is installed.
+1. Confirm the live unit and `/server_info`; the installed unit may still be
+   phase 1, so check `/v1/models.max_model_len` before assuming 409600.
 2. Confirm 0 running / 0 queued before any restart.
-3. Ask the user to install and restart the phase 2 candidate.
-4. Verify all three flags and startup memory lines.
-5. Run the 16×400k capacity test, 2048 replay, then mixed test.
-6. Compare the mixed ratio to 0.11, check recall/retractions/OOM/headroom.
+3. If phase 2a is not installed, ask the user to install the ctx409600
+   candidate. Do not add the overlap flags in the same restart.
+4. Verify `max_model_len=409600`, unchanged phase 1 flags, `swa_tokens=59904`,
+   full-pool value and HBM headroom.
+5. Run `tests/decode_throughput.py` first and compare with the scripted
+   baseline; then 16×400k cold, 2048 replay, mixed test and near-limit/tools.
+6. Compare c16 decode to 335.8/337.0 aggregate and the mixed ratio to 0.11;
+   check recall, queue/retractions, OOM and headroom.
 7. Update docs/evidence, commit and push `dsv41-flash-1017`.
+8. Only after a phase 2a decision, isolate the overlap pair; test
+   `--swa-prefix-tails 1024` separately afterward.
