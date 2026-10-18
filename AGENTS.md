@@ -23,6 +23,10 @@ simultaneous **cold** 400k prefills are still unproven. Phase 2 overlap is
 prepared, not installed. Do not claim production readiness or sustained load.
 See `docs/RESULTS.md`.
 
+**When resuming after a restart, read `HANDOFF.md` first.** It records the
+live unit state, phase 1 evidence, the phase 2 runbook, rollback, and
+the exact constraints for the next session.
+
 ## Git repository
 
 - Remote: `https://github.com/tedngai/H200-Node-Config.git`
