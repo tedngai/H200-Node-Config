@@ -1,0 +1,65 @@
+[Unit]
+Description=SGLang DeepSeek-V4.1-Flash-1017 TP8 EP8 DSpark HiCache test (port 8013, max running 16, min-free-slots 0, context 409600, tails 1024)
+Wants=network-online.target
+After=network-online.target docker.service nvidia-fabricmanager.service
+Requires=docker.service nvidia-fabricmanager.service
+Conflicts=sglang-glm53.service sglang-glm53-flash.service
+
+[Service]
+Type=simple
+# Test unit: do not loop a 510 GB model load on failure.
+Restart=no
+ExecStartPre=-/usr/bin/docker rm -f sglang-dsv41
+ExecStart=/usr/bin/docker run --rm \
+  --name sglang-dsv41 \
+  --gpus all \
+  --shm-size 32g \
+  --ulimit memlock=-1:-1 \
+  --network host \
+  --ipc host \
+  --volume /raid/advtech/cache/huggingface:/root/.cache/huggingface \
+  --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+  --env SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=1 \
+  --env SGLANG_DSV41_ENGRAM_HOST_TABLE_LAYOUT=private \
+  lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860 \
+  sglang serve \
+  --model-path deepseek-ai/DeepSeek-V4.1-Flash-1017 \
+  --served-model-name dsv41-flash-1017 \
+  --trust-remote-code \
+  --tp 8 \
+  --ep-size 8 \
+  --max-running-requests 16 \
+  --min-free-slots-delay 0 \
+  --context-length 409600 \
+  --swa-prefix-tails 1024 \
+  --mem-fraction-static 0.8 \
+  --attention-backend dsv4 \
+  --moe-runner-backend flashinfer_mxfp4 \
+  --enable-decoder-swa-bounded-replay \
+  --cuda-graph-max-bs-decode 64 \
+  --speculative-algorithm DSPARK \
+  --speculative-dspark-block-size 5 \
+  --enable-hierarchical-cache \
+  --hicache-io-backend direct \
+  --hicache-mem-layout page_first_direct \
+  --hicache-ratio 2 \
+  --hicache-write-policy write_back \
+  --reasoning-parser auto \
+  --tool-call-parser auto \
+  --watchdog-timeout 3600 \
+  --enable-metrics \
+  --enable-request-time-stats-logging \
+  --enable-cache-report \
+  --log-requests \
+  --log-requests-level 1 \
+  --host 0.0.0.0 \
+  --port 8013
+ExecStop=/usr/bin/docker stop -t 120 sglang-dsv41
+TimeoutStartSec=infinity
+TimeoutStopSec=180
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

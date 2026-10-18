@@ -14,9 +14,9 @@ prefills are still unproven. A scoped 256-token HiCache host hit was observed.
 This is not a production cutover; the validated GLM-5.3 service remains installed
 and can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
-**Prepared, not installed:** phase-2 prefill/decode-overlap candidate, which
-retains the 409,600 context cap. Phase 2a is installed. See
-`docs/SCHEDULER_OVERLAP_TEST.md` for the overlap sequence, commands and success
+**Prepared, not installed:** phase-2b scheduler-overlap and phase-2c SWA-tails
+candidates; both retain the 409,600 context cap. Phase 2a is installed. See
+`docs/SCHEDULER_OVERLAP_TEST.md` for the sequence, commands and success
 criteria.
 
 ## What is being tested
@@ -65,9 +65,11 @@ User-requested additions on top of the cookbook cell:
 - Previous phase 1 candidate (rollback):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
   (`--max-running-requests 16 --min-free-slots-delay 0`).
-- Prepared phase 2 overlap candidate (not installed; later step, retains
-  `--context-length 409600`):
+- Prepared phase 2b scheduler-overlap candidate (not installed; later step,
+  retains `--context-length 409600`, default tails):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service`.
+- Prepared phase 2c SWA-tails candidate (not installed; separate test):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service`.
 - Previous mr16 candidate:
   `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
 - Validated 4-request candidate:

@@ -112,9 +112,9 @@ running, 0 queue and 0 retracted. A post-load c16 run measured 673.243 tok/s.
 
 From the measured rate and the observed accept length (~4.4), the c16 step is
 now roughly **105–110 ms**, versus 212 ms profiled in phase 1. This is derived
-from throughput, not a fresh kernel profile. The remaining c16 cost is spread
-across dense FP8 GEMM, MoE, top-k/index gather and all-reduce; the indexer is
-no longer the single dominant term.
+from throughput, not a fresh kernel profile. The remaining c16 cost is expected
+to be spread across dense FP8 GEMM, MoE, top-k/index gather and all-reduce;
+a post-cap profile was not taken.
 
 Cold 16 × 400k completed in 978.719 s with all codes recalled, but prefill logs
 still show one new sequence per batch, so it was interleaved rather than a

@@ -152,7 +152,7 @@ Record:
 
 This is the comparison point for phase 2.
 
-## Phase 2 — official H200 agentic overlap package
+## Phase 2b — scheduler overlap (interval + chunk, no tails)
 
 Candidate:
 
@@ -166,12 +166,12 @@ Changes on top of the installed phase 2a unit (which retains
 ```text
 --prefill-decode-interval 16
 --chunked-prefill-size 4096
---swa-prefix-tails 1024
 ```
 
-These are the published H200 Flash-1017 agentic settings, not arbitrary
-values. They are intended to keep decode progressing while long prefixes are
-queued and to avoid SWA prefix-tail exhaustion at higher concurrency.
+`--swa-prefix-tails` stays at the default 64, so the SWA and full-KV pools
+should remain 59,904 / 44,957,952. These are the published scheduler settings,
+intended to keep decode progressing while long prefixes are queued. The tail
+reservation is deliberately moved to phase 2c so it can be attributed.
 
 Install/restart:
 
@@ -190,11 +190,16 @@ curl -s http://127.0.0.1:8013/server_info | python3 -c \
   'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails")})'
 ```
 
-### Phase 2 tests
+### Phase 2b tests
 
-Run the same 16 × 400k capacity test, 2048-token replay and mixed test:
+Run c16 decode, then the 16 × 400k capacity test, 2048-token replay and mixed
+test:
 
 ```bash
+python3 tests/decode_throughput.py \
+  --concurrency 16 --output-tokens 1024 --rounds 1 \
+  --label decode-throughput-overlap
+
 python3 tests/long_c4_warm.py \
   --concurrency 16 --target-tokens 400000 --output-tokens 512
 
@@ -218,6 +223,25 @@ Secondary criteria:
 - the 2048-token replay still reaches 16 running;
 - token usage and HBM headroom remain safe;
 - no watchdog or runtime errors.
+
+## Phase 2c — SWA prefix tails only
+
+Candidate:
+
+```text
+configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-tails1024.service
+```
+
+It adds only `--swa-prefix-tails 1024` to the installed phase 2a unit. Each tail
+is one 128-token sliding window plus one 256-token page (384 slots). Expected
+but **unverified**: `swa_tokens` around 420,000 instead of 59,904, roughly
++8 GB/GPU, and a full-KV pool around 40M instead of 44.96M. Confirm the actual
+startup lines.
+
+This is a multi-session prefix-reuse experiment, not a 16-active decode test.
+Install it separately, verify `swa_prefix_tails=1024` and `swa_tokens`, then
+measure cache reuse across long gaps. Do not combine it with phase 2b unless
+both pass independently and the combination is explicitly tested.
 
 ## Rollback
 
