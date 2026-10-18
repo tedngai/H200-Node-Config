@@ -13,6 +13,10 @@ simultaneous active. A scoped 256-token HiCache host hit was observed. This is
 not a production cutover; the validated GLM-5.3 service remains installed and
 can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
+**Prepared, not installed:** phase-1 `--min-free-slots-delay 0` and phase-2
+prefill/decode-overlap candidates. See `docs/SCHEDULER_OVERLAP_TEST.md` for the
+sequence, commands and success criteria.
+
 ## What is being tested
 
 Canonical cookbook selection:
