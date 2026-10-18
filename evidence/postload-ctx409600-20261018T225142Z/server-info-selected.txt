@@ -1,0 +1,13 @@
+max_running_requests=16
+min_free_slots_delay=0
+context_length=409600
+chunked_prefill_size=8192
+prefill_decode_interval=0
+swa_prefix_tails=None
+enable_hierarchical_cache=True
+hicache_ratio=2.0
+speculative_algorithm='DSPARK'
+speculative_dspark_block_size=5
+mem_fraction_static=0.8
+max_total_num_tokens=44957952
+status='ready'

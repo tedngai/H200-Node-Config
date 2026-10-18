@@ -41,7 +41,8 @@ eviction expensive.
 Record from the startup log and `/server_info`:
 
 - [ ] SGLang version/build and pinned image digest.
-- [ ] Model path, served name, context length, TP8, EP8, static fraction 0.80.
+- [ ] Model path, served name, **context cap 409600**, TP8, EP8, static
+      fraction 0.80; `/v1/models.max_model_len=409600`.
 - [ ] Resolved attention backend (`dsv4`), MoE runner (`flashinfer_mxfp4`),
       FP8 GEMM backend, DSpark enabled and block size 5.
 - [ ] HiCache enabled, ratio 2, direct I/O, `page_first_direct`, `write_back`.
@@ -85,9 +86,10 @@ and actual usage tokens, not only native `decode_throughput`.
 - [ ] Report cold response time, server prefill time and output tokens.
 - [ ] No queueing, retraction or hidden truncation.
 
-Do not claim 1M-context support from a 100k test. The checkpoint advertises
-1,048,576 positions; the actual pool and memory headroom determine what is
-servable.
+Do not claim full 409,600-token occupancy from a 100k test. The engine caps
+the model at 409,600 positions in phase 2a; the actual pool and memory headroom
+still determine what is servable. A 409,025-token total passed; an over-cap
+request must be rejected, not truncated.
 
 ## Stage 5 — HiCache restoration
 

@@ -1,0 +1,11 @@
+{
+  "utc": "20261018T225343Z",
+  "request": {
+    "max_tokens": 409700,
+    "max_model_len": 409600
+  },
+  "expected": "HTTP 400 rejection, no truncation",
+  "status": 400,
+  "body": "{\"object\":\"error\",\"message\":\"max_completion_tokens is too large: 409700.This model supports at most 409600 completion tokens.\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}",
+  "ok": true
+}

@@ -4,21 +4,20 @@ Isolated SGLang experiment for the DeepSeek-V4.1-Flash-1017 preview checkpoint.
 This project is deliberately separate from the live `glm53-inference` project so
 the validated GLM-5.3 service and its exact rollback path stay intact.
 
-**Status:** **phase 1 installed and measured; 16-active warmed decode proven on
-port 8013** (2026-10-18). The engine started in 578 s on the phase 1 restart and
-passed chat, reasoning, tool-call, 100k/400k retrieval, four independent 400k
-cold prompts and four-active warmed 400k decode. Sixteen 400k requests completed
-with the original mr16 unit, but peaked at **14 running + 1–2 queued**. With
-`--min-free-slots-delay 0`, a 2048-token warm replay reached **16 running, 0
-queued, 0 retracted**; the 512-token pass still peaked at 15 because
-server-side tokenization staggered admission. Sixteen simultaneous *cold* 400k
-prefills remain unproven. A scoped 256-token HiCache host hit was observed. This
-is not a production cutover; the validated GLM-5.3 service remains installed and
-can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
+**Status:** **phase 2a installed and measured; 16-active warmed decode proven on
+port 8013** (2026-10-18). The engine started in 574 s on the phase 2a restart
+with `--context-length 409600`. Scripted c16 decode is **660.5 tok/s** (1.96×
+phase 1); the 2048-token warm replay reached **704.5 tok/s** with 16 running,
+0 queued, 0 retracted. Sixteen cold 400k prompts all recalled in 978.7 s, but
+prefill remained one new sequence per batch, so 16 simultaneous *cold* 400k
+prefills are still unproven. A scoped 256-token HiCache host hit was observed.
+This is not a production cutover; the validated GLM-5.3 service remains installed
+and can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
-**Prepared, not installed:** phase-2 prefill/decode-overlap candidate. Phase 1
-is installed. See `docs/SCHEDULER_OVERLAP_TEST.md` for the phase 2 sequence,
-commands and success criteria.
+**Prepared, not installed:** phase-2 prefill/decode-overlap candidate, which
+retains the 409,600 context cap. Phase 2a is installed. See
+`docs/SCHEDULER_OVERLAP_TEST.md` for the overlap sequence, commands and success
+criteria.
 
 ## What is being tested
 
@@ -60,16 +59,17 @@ User-requested additions on top of the cookbook cell:
 
 - Test port: **8013** (the live GLM service remains on 8012).
 - Test served name: **`dsv41-flash-1017`**.
-- Current installed candidate:
+- Current installed candidate (phase 2a):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
+  (`--max-running-requests 16 --min-free-slots-delay 0 --context-length 409600`).
+- Previous phase 1 candidate (rollback):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
   (`--max-running-requests 16 --min-free-slots-delay 0`).
-- Previous mr16 candidate (rollback):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
-- Prepared phase 2a context-cap candidate (not installed):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
-  (`--context-length 409600`; apply/verify via `docs/CONTEXT_409600_TEST.md`).
-- Prepared phase 2 overlap candidate (not installed; later step):
+- Prepared phase 2 overlap candidate (not installed; later step, retains
+  `--context-length 409600`):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service`.
+- Previous mr16 candidate:
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
 - Validated 4-request candidate:
   `configs/systemd/candidates/sglang-dsv41-8013.service`.
 - The test unit is **not enabled** and uses `Restart=no`, so a failed 510 GB
@@ -88,12 +88,12 @@ User-requested additions on top of the cookbook cell:
 | Non-engram weights in HBM | ~37.8 GB/GPU measured (plus 1.11 GB DSpark) |
 | H200 HBM per GPU | 141 GB |
 | Static memory fraction | 0.80 |
-| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16/phase 1) |
-| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16/phase 1) |
-| HBM free per GPU | ~7.3 GB after 4-request load; **~5.0–5.4 GB after 16-request load** |
-| Host RAM | ~2.0 TB total; **~613–617 GB available after 16-request load** |
-| Container RSS | **1.34–1.42 TiB** after load |
-| Startup | **585 s** first start; **578 s** phase 1 restart |
+| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16 through phase 2a) |
+| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16 through phase 2a) |
+| HBM free per GPU | ~7.3 GB after 4-request load; **~7.0–7.5 GiB after phase 2a load** |
+| Host RAM | ~2.0 TB total; **~616 GB available after phase 2a load** |
+| Container RSS | **1.337 TiB** after phase 2a load |
+| Startup | **585 s** first start; **578 s** phase 1; **574 s** phase 2a |
 
 The engine is running; the actual GPU KV pool, host HiCache pool, pinned-RAM
 footprint, startup time and free memory are recorded in `evidence/` and
@@ -108,9 +108,9 @@ The user runs the stop/install/start commands personally:
 # 1. Stop the validated GLM-5.3 service and free the eight GPUs.
 sudo systemctl stop sglang-glm53.service
 
-# 2. Install and start the isolated DSV4.1 phase 1 test unit.
+# 2. Install and start the isolated DSV4.1 phase 2a test unit.
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl start sglang-dsv41.service
@@ -128,12 +128,12 @@ API identity remain exactly as installed before this experiment.
 
 ## Documentation
 
-- `HANDOFF.md` — restart-safe current state, phase 1 results, phase 2a runbook,
+- `HANDOFF.md` — restart-safe current state, phase 2a results, overlap runbook,
   rollback and non-claims.
 - `docs/DECODE_PROFILE.md` — decode kernel profile, root cause of batch-scaled
   step time, ranked optimization options.
-- `docs/CONTEXT_409600_TEST.md` — phase 2a context-cap candidate, apply/verify
-  commands, validation sequence, success criteria and rollback.
+- `docs/CONTEXT_409600_TEST.md` — installed phase 2a context-cap results,
+  apply/verify commands, validation sequence, criteria and rollback.
 - `docs/RESULTS.md` — measured startup, memory, interface, throughput,
   400k, four-active and HiCache results.
 - `docs/RECIPE.md` — cookbook provenance, exact flags, additions and omissions.

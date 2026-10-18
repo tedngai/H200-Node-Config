@@ -1,4 +1,4 @@
-# Handoff — DeepSeek-V4.1-Flash-1017 phase 1 complete, phase 2 pending
+# Handoff — DeepSeek-V4.1-Flash-1017 phase 2a installed and measured
 
 Updated: 2026-10-18. This is the restart-safe handoff for the isolated DSV4.1
 experiment. Read `/home/advtech/AGENTS.md`, then this file, then
@@ -10,11 +10,10 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 - Branch: `dsv41-flash-1017`
 - Remote: `https://github.com/tedngai/H200-Node-Config.git`
 - Live unit: `/etc/systemd/system/sglang-dsv41.service`
-- Installed candidate:
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
-- Phase 2a candidate (prepared, **not installed**), phase 1 plus
-  `--context-length 409600`:
+- Installed candidate (phase 2a):
   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
+- Previous phase 1 candidate (rollback):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
 - API: `http://127.0.0.1:8013`, served name `dsv41-flash-1017`
 - Image:
   `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860`
@@ -22,7 +21,7 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 - The GLM-5.3 unit is unchanged and stopped. The public `pratt-high` alias and
   port 8012 were not touched.
 
-### Effective phase 1 settings
+### Effective phase 2a settings
 
 From `/server_info` and startup logs:
 
@@ -33,15 +32,16 @@ From `/server_info` and startup logs:
 | `prefill_decode_interval` | **0** (disabled) |
 | `chunked_prefill_size` | **8192** |
 | `swa_prefix_tails` | default **64** tails |
-| Context length | **1,048,576** |
-| GPU full-KV pool | **44,957,952 tokens** |
-| SWA pool | **59,904 tokens** (`prefix_tails=64`) |
+| Context length / max model len | **409,600** |
+| GPU full-KV pool | **44,957,952 tokens** (unchanged) |
+| SWA pool | **59,904 tokens** (`prefix_tails=64`, unchanged) |
 | HiCache host pool | **89,915,904 tokens** |
 | Static memory fraction | **0.80** |
-| HBM free after 16-request load | **5.0–5.4 GiB/GPU** |
-| Host available after load | **617 GiB** |
-| Container RSS | **1.341 TiB** |
-| Phase 1 restart | 20:04:52 → 20:14:30 UTC, **578 s** |
+| HBM used at idle | **~121.4 GB/GPU** |
+| HBM free after all load | **7.0–7.5 GiB/GPU (minimum 7.0)** |
+| Host available after load | **616 GB** |
+| Container RSS | **1.337 TiB** |
+| Phase 2a restart | 22:02:18 → 22:11:52 UTC, **574 s** |
 
 ## Phase 1 result — capacity gate passed
 
@@ -67,7 +67,37 @@ staggered scheduler entry and the first request finished before the last was
 admitted. The 2048-token replay is the valid 16-active proof. Do **not** claim
 16 simultaneous cold 400k prefills; the cold pass remained staggered.
 
-## Decode profile finding — read before phase 2
+## Phase 2a result — context cap 409600 (installed)
+
+Only `--context-length 409600` changed. Startup was 574 s;
+`max_model_len=409600`, `swa_tokens=59904` and the 44,957,952-token pool were
+unchanged. Measured on the same scripted coding prompts:
+
+| Load | Phase 1 | Phase 2a | Ratio |
+| --- | ---: | ---: | ---: |
+| c1 aggregate | 139.495 | **174.176** | 1.249× |
+| c4 aggregate | 256.492 | **394.381** | 1.538× |
+| c16 aggregate | 336.409 | **660.484** | **1.963×** |
+
+- 2048-token 16-active replay: **55.576 s / 704.503 tok/s / 41.426 median**,
+  peak **16 running**, 0 queue, 0 retracted. Phase 1 was 96.254 s / 372.979 /
+  22.878.
+- 16 × 400k cold: **978.719 s**, all codes recalled. Prefill logs show one new
+  sequence per batch, so it was interleaved, **not** a 16-sequence batch.
+- 512-token warm: 474.665 tok/s aggregate but peak 10 running; faster decode
+  plus ingress stagger, so the replay is the 16-active proof.
+- Mixed 4 warmed + 4 cold 400k: warmed baseline **434.154**, mixed **31.342**,
+  ratio **0.072** (phase 1: 0.11). Absolute mixed improved ~6%; the ratio fell
+  because the warmed baseline improved more. All four cold prompts recalled.
+- 409,025-token total near-limit prompt recalled; over-cap request rejected
+  HTTP 400, not truncated.
+- Post-load HBM free **7.0–7.5 GiB/GPU (minimum 7.0)**, 0 runtime errors, idle 0/0/0.
+  One-time non-fatal `_hc_mix_stats_reduce_kernel` compile warnings remain.
+
+Full evidence: `evidence/phase2a-summary-20261018T225300Z.json` and
+`docs/RESULTS.md`.
+
+## Decode profile finding — phase 2a applied
 
 A 2026-10-18 21:29–21:36 UTC diagnostic (`docs/DECODE_PROFILE.md`,
 `evidence/decode-profile-20261018T213400Z/`) found that decode step time is set
@@ -75,16 +105,17 @@ by batch size, not context: ~33 ms at c1 and ~202 ms at c16 for both short and
 400k prompts. 64% of the c16 step is the SM90 Triton DSA indexer scoring the
 full **configured** 1,048,576-token width for every verify row.
 
-Phase 2a is now **prepared, not installed**:
+Phase 2a is **installed and measured**:
 `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`.
-It adds only `--context-length 409600` to the installed phase 1 unit. The
-scripted phase 1 decode baseline is
-`evidence/decode-throughput-baseline-20261018T215614Z.json` (c1 132.9/146.1,
-c4 259.0/254.0, c16 335.8/337.0 aggregate tok/s, peak 16 running). The exact
-apply, verify, test, acceptance and rollback steps are in
-`docs/CONTEXT_409600_TEST.md`. The projected c16 gain is ~1.8×, unmeasured.
+The cap raised c16 aggregate decode from 336.4 to **660.5 tok/s (1.963×)**,
+c4 to 394.4 (1.538×), and c1 to 174.2 (1.249×). It also reduced idle HBM from
+about 138 GB to **121.4 GB/GPU** and raised post-load free HBM to
+**7.0–7.5 GiB/GPU (minimum 7.0)** without changing the KV or SWA pools. Full results are in
+`docs/RESULTS.md`; apply/verify/rollback steps remain in
+`docs/CONTEXT_409600_TEST.md`.
 
-Do not add the overlap flags in the same restart: phase 2a isolates the cap.
+Do not bundle the overlap flags into a phase 2a restart; phase 2a isolated the
+cap. The overlap candidate is a separate next step.
 
 ## Phase 2 plan — prefill/decode overlap candidate
 
@@ -94,7 +125,8 @@ Candidate (prepared, **not installed**):
 configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service
 ```
 
-It adds three flags to the current phase 1 unit:
+It adds three flags to the installed phase 2a unit (and retains
+`--context-length 409600`):
 
 ```text
 --prefill-decode-interval 16
@@ -146,7 +178,7 @@ The agent must not run privileged install/restart commands. Startup takes about
 ```bash
 systemctl status sglang-dsv41.service --no-pager | head -5
 curl -s http://127.0.0.1:8013/server_info | python3 -c \
-  'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails","enable_hierarchical_cache")})'
+  'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails","enable_hierarchical_cache")})'
 ```
 
 Expected: `max_running_requests=16`, `min_free_slots_delay=0`,
@@ -167,6 +199,10 @@ Run these sequentially on an idle engine, not concurrently:
 ```bash
 cd /home/advtech/dsv41-flash-inference
 
+python3 tests/decode_throughput.py \
+  --concurrency 16 --output-tokens 1024 --rounds 1 \
+  --label decode-throughput-overlap
+
 python3 tests/long_c4_warm.py \
   --concurrency 16 --target-tokens 400000 --output-tokens 512
 
@@ -179,17 +215,19 @@ python3 tests/mixed_prefill_decode.py \
 
 ### Success criteria
 
-Primary: the mixed/baseline warmed-decode ratio improves versus phase 1's
-**0.11**, with no loss of cold recall and no increase in retractions or OOM.
+Primary: absolute mixed warmed decode exceeds the phase 2a **31.342 tok/s**
+without loss of cold recall, retractions or OOM, and cold wall/time-to-first-token
+stays within the ceiling agreed before install. Report the ratio against
+phase 2a's **0.072**; do not use the old 0.11 comparison.
 
 Secondary:
 
+- c16 decode remains near the phase 2a 660 tok/s baseline (measure it, because
+  the interval can add scheduling overhead);
 - 16 × 400k cold still completes and all marker codes are recalled;
 - the 2048-token replay still reaches **16 running**, 0 queue, 0 retracted;
 - `swa_tokens`, full-KV pool and HBM headroom remain safe;
-- no post-ready runtime errors;
-- cold batch wall and cold forward duration are recorded, because the overlap
-  settings may trade cold-prefill latency for warmed decode progress.
+- no post-ready runtime errors.
 
 After the runs, capture a post-load evidence directory, update
 `docs/RESULTS.md`, `docs/SCHEDULER_OVERLAP_TEST.md`, `PROGRESS.xml`,
@@ -198,7 +236,7 @@ branch. Do not push this project's history to `main`.
 
 ## Rollback
 
-Exact phase 1 rollback (after phase 2 is installed):
+Exact phase 1 rollback (from the installed phase 2a unit):
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -230,10 +268,12 @@ sudo systemctl start sglang-glm53.service
 - Local `dsv41-flash-1017` is the project source of truth and is pushed to
   `origin/dsv41-flash-1017`.
 - Phase 1 commit: `88538bb` — "Record phase 1 16-active and mixed
-  prefill/decode baseline". This handoff is committed on top of it.
+  prefill/decode baseline". Phase 2a preparation commit: `37a683f`; the phase
+  2a results/overlap update is the current branch head (see `git log`).
 - `README.md`, `AGENTS.md`, `docs/RESULTS.md`,
+  `docs/DECODE_PROFILE.md`, `docs/CONTEXT_409600_TEST.md`,
   `docs/SCHEDULER_OVERLAP_TEST.md`, `docs/OPERATIONS.md`, and
-  `docs/VALIDATION.md` reflect phase 1.
+  `docs/VALIDATION.md` reflect phase 2a.
 - The global `PROGRESS.xml`, `INFERENCE_CONTEXT.md`, and
   `NEXT_EXPERIMENT.md` were updated and synced to `glm53-inference/docs`.
   Those sync commits are **local only**; `main` was intentionally not pushed.
@@ -245,8 +285,8 @@ sudo systemctl start sglang-glm53.service
 - The service is not enabled and uses `Restart=no`; do not enable it.
 - Do not claim production readiness, sustained real coding load, 16
   simultaneous cold prefills, or a 400k HiCache restoration.
-- Phase 1's 16-active result is a synthetic warmed replay, not a real
-  multi-user coding qualification.
+- Phase 2a's 16-active result is a synthetic warmed replay with a ~16 s
+  plateau, not a real multi-user coding qualification.
 - The mixed test used synthetic 400k records and forced output; it is not a
   broad quality evaluation.
 - Keep the pinned image digest; do not pull mutable images or replacement
@@ -256,17 +296,19 @@ sudo systemctl start sglang-glm53.service
 
 ## Quick resume checklist
 
-1. Confirm the live unit and `/server_info`; the installed unit may still be
-   phase 1, so check `/v1/models.max_model_len` before assuming 409600.
+1. Confirm the live unit and `/server_info`; phase 2a should report
+   `context_length=409600` and `/v1/models.max_model_len=409600`. If not,
+   check whether a rollback occurred.
 2. Confirm 0 running / 0 queued before any restart.
-3. If phase 2a is not installed, ask the user to install the ctx409600
-   candidate. Do not add the overlap flags in the same restart.
-4. Verify `max_model_len=409600`, unchanged phase 1 flags, `swa_tokens=59904`,
-   full-pool value and HBM headroom.
-5. Run `tests/decode_throughput.py` first and compare with the scripted
-   baseline; then 16×400k cold, 2048 replay, mixed test and near-limit/tools.
-6. Compare c16 decode to 335.8/337.0 aggregate and the mixed ratio to 0.11;
-   check recall, queue/retractions, OOM and headroom.
+3. The next experiment is the overlap candidate
+   (`...-nodelay-overlap.service`), prepared but not installed. It retains
+   `--context-length 409600`; do not install it without a cold-TTFT ceiling.
+4. After overlap install, verify `context_length=409600`,
+   `prefill_decode_interval=16`, `chunked_prefill_size=4096`,
+   `swa_prefix_tails=1024`, `swa_tokens`/pool changes and HBM headroom.
+5. Run decode c16 first, then 16×400k cold, 2048 replay and mixed test.
+   Compare c16 to **660.5 tok/s**, mixed absolute to **31.342 tok/s**, mixed
+   ratio to **0.072**, and cold wall to **978.7 s**.
+6. Check recall, queue/retractions, OOM, cold TTFT and post-load HBM.
 7. Update docs/evidence, commit and push `dsv41-flash-1017`.
-8. Only after a phase 2a decision, isolate the overlap pair; test
-   `--swa-prefix-tails 1024` separately afterward.
+8. Test `--swa-prefix-tails 1024` separately from the interval pair.

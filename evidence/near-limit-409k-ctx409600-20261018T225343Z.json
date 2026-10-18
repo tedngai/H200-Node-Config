@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-18T22:53:43Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "long",
+  "result": {
+    "elapsed_s": 63.977,
+    "prompt_tokens": 408985,
+    "completion_tokens": 40,
+    "content": "ALPHA-3DDC6F-91QZ, BRAVO-3DDC6F-44VX, CHARLIE-3DDC6F-73NW",
+    "reasoning_content": "",
+    "tool_calls": [],
+    "usage": {
+      "prompt_tokens": 408985,
+      "total_tokens": 409025,
+      "completion_tokens": 40,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 0
+    },
+    "codes": {
+      "start_code": "ALPHA-3DDC6F-91QZ",
+      "middle_code": "BRAVO-3DDC6F-44VX",
+      "end_code": "CHARLIE-3DDC6F-73NW",
+      "approx_chars": 2087775,
+      "calibrated_tokens": 408981
+    },
+    "recalled": true,
+    "target_tokens": 409000,
+    "approx_chars": 2087775
+  },
+  "ok": true
+}

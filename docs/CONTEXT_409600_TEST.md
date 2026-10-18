@@ -1,6 +1,6 @@
-# Phase 2a — context cap 409600
+# Phase 2a — context cap 409600 (installed and measured)
 
-Status: **prepared, not installed.** Candidate:
+Status: **installed 2026-10-18 22:02 UTC; scoped validation passed.** Candidate:
 
 ```text
 configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service
@@ -8,6 +8,21 @@ configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service
 
 Preparation summary: `evidence/phase2a-prepared-20261018T215639Z.json`.
 Preflight idle snapshot: `evidence/preflight-ctx409600-20261018T215639Z/`.
+Measured summary: `evidence/phase2a-summary-20261018T225300Z.json`.
+This runbook is retained for reinstall, verification and rollback.
+
+Measured highlights:
+
+- `max_model_len=409600`; `swa_tokens=59904` and the 44,957,952-token full pool
+  were unchanged.
+- C16 decode **660.5 tok/s** (1.963× phase 1); c4 1.538×; c1 1.249×.
+- 16-active 2048-token replay **704.5 tok/s**, peak 16 running, 0 queue,
+  0 retracted.
+- 16 × 400k cold all recalled in **978.7 s**; prefill remained one sequence
+  per batch, not a 16-sequence cold batch.
+- Mixed/baseline ratio **0.072** (phase 1: 0.11); absolute mixed decode
+  improved about 6%.
+- Post-load HBM free **7.0–7.5 GiB/GPU (minimum 7.0)**; 0 runtime errors.
 
 It is byte-identical to the installed phase 1 unit except for one engine flag
 and the unit description:
@@ -27,26 +42,22 @@ cap so the decode gain is attributable.
 
 The H200 DSA indexer falls back to a Triton kernel that scores every position
 up to the **configured** context width for every DSpark verify row. At c16 that
-kernel is 64% of the decode step (136 of 212 ms), while the real 400k prompts
-use only ~39% of the configured width. Capping the context at **409,600**
-shrinks the indexer width from 1,048,896 to about 409,920 and should cut the c16
-step to about **120 ms** (projected ~1.8× throughput). The single-user
-projection is smaller, about 1.2×. These are projections from the measured
-profile, not results.
+kernel was 64% of the phase 1 decode step (136 of 212 ms), while the real 400k
+prompts use only ~39% of the configured width. Capping the context at
+**409,600** shrank the indexer width from 1,048,896 to about 409,920. Measured
+c16 throughput rose **1.96×**, close to the projected ~1.8×; c1 rose 1.25×.
 
 The cap **rejects** prompts that exceed it; it does not truncate them.
-`/v1/models.max_model_len` will report 409600. The approved 400k target still
-fits with about 9.6k tokens of headroom including output.
+`/v1/models.max_model_len` reports 409600. The approved 400k target fits with
+about 9.6k tokens of headroom including output; a 409,025-token total passed.
 
-## Expected startup changes
+## Measured startup
 
-- `/v1/models.max_model_len`: **409600** (currently 1048576).
-- `DSV4 SWA sizing`: **unchanged** at `swa_tokens=59904, prefix_tails=64`,
-  because SWA sizing depends on request count and prefix tails, not context.
-- `DSV4 memory calculation`: full pool may move slightly upward because
-  `req_to_token` and indexer scratch shrink; record the actual value.
-- Startup time remains roughly 10 minutes (weights plus engram tables).
-- HBM headroom should be no worse; verify before accepting.
+- `/v1/models.max_model_len`: **409600**.
+- `DSV4 SWA sizing`: **unchanged** at `swa_tokens=59904, prefix_tails=64`.
+- `DSV4 memory calculation`: full pool **unchanged** at 44,957,952 tokens.
+- Startup: 22:02:18→22:11:52 UTC, **574 s**.
+- Idle HBM used ~121.4 GB/GPU; post-load free HBM **7.0–7.5 GiB/GPU (minimum 7.0)**.
 
 ## Client impact
 
@@ -56,10 +67,10 @@ configuration is modified by this step. If this engine later becomes the
 production endpoint, client context/compaction limits must be at or below
 409,600; otherwise large prompts will be rejected.
 
-## Apply (privileged; the user runs this)
+## Apply or reinstall (privileged; the user runs this)
 
-The engine is idle at preparation time (0 running / 0 queued). Confirm again,
-then:
+This candidate is already installed. To reinstall it after a rollback, confirm
+the engine is idle (0 running / 0 queued), then:
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -162,15 +173,21 @@ Capture metrics, GPU/RAM, recent log and an error scan excluding request logs,
 as in `evidence/postload-phase1-20261018T210803Z/`. Confirm HBM headroom and
 0 retractions/OOM.
 
-## Success criteria
+## Result against the criteria
 
-- `max_model_len=409600` and `swa_tokens=59904`; no unexpected pool loss.
-- c16 decode at least 1.5× the scripted baseline; c1/c4 recorded.
-- 16 × 400k cold all recalled; 512 warm and 2048 replay complete.
-- Replay still reaches 16 running with 0 queue and 0 retracted.
-- Mixed test cold prompts all recalled; ratio recorded against 0.11.
-- 409k near-limit retrieval passes; tools and separated reasoning still pass.
-- No OOM, runtime error, retraction or HBM regression.
+- **Met:** `max_model_len=409600`; `swa_tokens=59904`; full pool unchanged.
+- **Met:** c16 decode **1.963×** baseline (c4 1.538×, c1 1.249×).
+- **Met:** 16 × 400k cold all recalled in **978.7 s**; 512 warm and 2048
+  replay completed.
+- **Met:** replay reached **16 running**, 0 queue, 0 retracted, at 704.5 tok/s.
+- **Met:** 409,025-token near-limit retrieval; tools and separated reasoning
+  passed.
+- **Met:** no OOM, runtime error, retraction or HBM regression; post-load free
+  HBM 7.0–7.5 GiB/GPU (minimum 7.0).
+- **Not met:** the mixed/baseline ratio did **not** improve against 0.11; it
+  fell to **0.072** because the warmed baseline improved more. Absolute mixed
+  decode improved about 6% (29.556 → 31.342 tok/s). Prefill interference still
+  requires the overlap experiment.
 
 These are scoped synthetic tests. They do not qualify sustained coding load,
 16 simultaneous cold prefills, production readiness or the public gateway.

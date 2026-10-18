@@ -1,14 +1,13 @@
 # Scheduler and prefill/decode overlap tests
 
-Status: **phase 1 installed and measured; phase 2a prepared, not installed.**
+Status: **phase 2a installed and measured; overlap prepared, not installed.**
 The installed unit is
-`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
-(`--max-running-requests 16 --min-free-slots-delay 0`). Phase 1 proved 16
-simultaneous active warmed 400k decodes in a 2048-token replay, and produced the
-mixed prefill/decode baseline. Before this overlap test, phase 2a adds only
-`--context-length 409600` to address the decode-side indexer cost; see
-`docs/CONTEXT_409600_TEST.md`. This overlap candidate remains a later step and
-still needs a privileged restart.
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
+(`--max-running-requests 16 --min-free-slots-delay 0 --context-length 409600`).
+Phase 1 proved 16 simultaneous active warmed 400k decodes in a 2048-token
+replay and produced the first mixed baseline. Phase 2a then raised c16 decode
+1.96× and changed the mixed baseline. The overlap candidate remains a later
+step and still needs a privileged restart.
 
 ## Phase 1 measured result (2026-10-18)
 
@@ -31,8 +30,31 @@ still needs a privileged restart.
   `evidence/mixed-prefill-decode-w4-c4-20261018T210728Z.json`,
   `evidence/phase1-nodelay-summary-20261018T210803Z.json`.
 
-Phase 2 must improve the **0.11** mixed/baseline ratio without losing cold
-recall, 16-active capacity, or memory safety.
+## Phase 2a measured result (2026-10-18)
+
+Phase 2a installed only `--context-length 409600`. It raised c16 aggregate
+decode from 336.4 to **660.5 tok/s (1.963×)**, c4 to 394.4 (1.538×), and c1 to
+174.2 (1.249×). The 16-active replay reached **704.5 tok/s** (phase 1: 373.0)
+with peak 16 running, 0 queue, 0 retracted. Cold 16 × 400k recalled all codes
+in 978.7 s; prefill remained one sequence per batch, not a 16-sequence batch.
+
+The mixed comparison changed materially: warmed baseline **434.154**, mixed
+**31.342**, ratio **0.072** (phase 1: ratio 0.11, mixed 29.556). Absolute mixed
+decode improved ~6%, but the warmed baseline improved more, so the ratio fell.
+Post-load free HBM was 7.0–7.5 GiB/GPU (minimum 7.0); runtime errors were 0.
+
+Evidence: `evidence/phase2a-summary-20261018T225300Z.json`,
+`evidence/decode-throughput-ctx409600-20261018T221334Z.json`,
+`evidence/replay-c16-warm-20261018T224045Z.json`,
+`evidence/mixed-prefill-decode-w4-c4-20261018T225014Z.json`.
+
+The overlap test must be compared against the **phase 2a** mixed baseline, not
+the old phase 1 numbers.
+
+Overlap acceptance: absolute mixed aggregate should exceed the phase 2a
+**31.342 tok/s**, all cold prompts must recall, and cold wall/time-to-first-token
+must stay within a ceiling agreed before install. Report the ratio against
+**0.072** as well; the ratio alone can fall if the warmed baseline gets faster.
 
 ## Why these tests
 
@@ -138,7 +160,8 @@ Candidate:
 configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service
 ```
 
-Changes on top of phase 1:
+Changes on top of the installed phase 2a unit (which retains
+`--context-length 409600`):
 
 ```text
 --prefill-decode-interval 16
@@ -164,7 +187,7 @@ Verify the resolved args:
 
 ```bash
 curl -s http://127.0.0.1:8013/server_info | python3 -c \
-  'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails")})'
+  'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("max_running_requests","min_free_slots_delay","context_length","prefill_decode_interval","chunked_prefill_size","swa_prefix_tails")})'
 ```
 
 ### Phase 2 tests
@@ -182,10 +205,12 @@ python3 tests/mixed_prefill_decode.py \
   --target-tokens 400000 --output-tokens 2048
 ```
 
-Primary overlap success criterion: the mixed/baseline warmed decode ratio
-improves versus phase 1's **0.11**, with no increase in OOM, retractions or
-cold-recall failures. A small improvement is still useful; do not expect
-PD-style isolation from a scheduler interval alone.
+Primary overlap success criterion: absolute mixed warmed decode exceeds the
+phase 2a **31.342 tok/s** without an increase in OOM, retractions or cold-recall
+failures, and cold wall/time-to-first-token stays within the pre-agreed
+ceiling. Report the mixed/baseline ratio against phase 2a's **0.072**; do not
+use the old 0.11 comparison. A small absolute improvement is still useful; do
+not expect PD-style isolation from a scheduler interval alone.
 
 Secondary criteria:
 
@@ -196,8 +221,18 @@ Secondary criteria:
 
 ## Rollback
 
-Before phase 2 is installed, the exact phase 1 rollback is already on disk.
-After phase 2, return to phase 1:
+Phase 2a is installed; the overlap unit is not. Rollback from overlap to phase
+2a is below.
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service \
+  /etc/systemd/system/sglang-dsv41.service
+sudo systemctl daemon-reload
+sudo systemctl restart sglang-dsv41.service
+```
+
+Return to the earlier phase 1 unit:
 
 ```bash
 sudo install -o root -g root -m 0644 \
