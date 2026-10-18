@@ -1,0 +1,15 @@
+{
+  "utc": "20261018T132818Z",
+  "glm": {
+    "model_path": "zai-org/GLM-5.3",
+    "served_model_name": "pratt-high",
+    "context_length": 400000,
+    "tp_size": 8,
+    "dp_size": 4,
+    "max_running_requests": 4,
+    "enable_hierarchical_cache": true
+  },
+  "test_image": "sha256:00b8215c42c516f8f4737ed2d38bd2794ef065484407ff8a637b6e251699d172 lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860 35935169007 2026-09-11T18:28:41.460185504Z",
+  "checkpoint_cache_bytes": "80031364606\t/raid/advtech/cache/huggingface/hub/models--deepseek-ai--DeepSeek-V4.1-Flash-1017",
+  "port_8013": "PORT 8013 FREE"
+}

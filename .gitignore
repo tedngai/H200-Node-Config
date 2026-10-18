@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+*.log
+evidence/*.tmp
+evidence/*.partial

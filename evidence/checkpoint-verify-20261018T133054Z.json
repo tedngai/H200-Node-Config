@@ -1,0 +1,298 @@
+{
+  "snapshot": "/raid/advtech/cache/huggingface/hub/models--deepseek-ai--DeepSeek-V4.1-Flash-1017/snapshots/1bae0e1088993b9b82de08f59de5be5a34e42170",
+  "file_count": 48,
+  "index_total_size": 510286023000,
+  "files": [
+    {
+      "file": "model-00001-of-00048.safetensors",
+      "bytes": 970533624,
+      "tensors": 263,
+      "data_bytes": 970506240
+    },
+    {
+      "file": "model-00002-of-00048.safetensors",
+      "bytes": 1323858272,
+      "tensors": 4,
+      "data_bytes": 1323857920
+    },
+    {
+      "file": "model-00003-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00004-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00005-of-00048.safetensors",
+      "bytes": 7405953784,
+      "tensors": 2342,
+      "data_bytes": 7405694680
+    },
+    {
+      "file": "model-00006-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00007-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00008-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00009-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00010-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00011-of-00048.safetensors",
+      "bytes": 7405953784,
+      "tensors": 2342,
+      "data_bytes": 7405694680
+    },
+    {
+      "file": "model-00012-of-00048.safetensors",
+      "bytes": 7389759032,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00013-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00014-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00015-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00016-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00017-of-00048.safetensors",
+      "bytes": 7405956128,
+      "tensors": 2342,
+      "data_bytes": 7405694680
+    },
+    {
+      "file": "model-00018-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00019-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00020-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00021-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00022-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00023-of-00048.safetensors",
+      "bytes": 7400713088,
+      "tensors": 2341,
+      "data_bytes": 7400451800
+    },
+    {
+      "file": "model-00024-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00025-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00026-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00027-of-00048.safetensors",
+      "bytes": 7395337384,
+      "tensors": 2337,
+      "data_bytes": 7395076568
+    },
+    {
+      "file": "model-00028-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00029-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00030-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00031-of-00048.safetensors",
+      "bytes": 7395337384,
+      "tensors": 2337,
+      "data_bytes": 7395076568
+    },
+    {
+      "file": "model-00032-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00033-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00034-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00035-of-00048.safetensors",
+      "bytes": 7395337384,
+      "tensors": 2337,
+      "data_bytes": 7395076568
+    },
+    {
+      "file": "model-00036-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00037-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00038-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00039-of-00048.safetensors",
+      "bytes": 7395337384,
+      "tensors": 2337,
+      "data_bytes": 7395076568
+    },
+    {
+      "file": "model-00040-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00041-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00042-of-00048.safetensors",
+      "bytes": 7389761368,
+      "tensors": 2334,
+      "data_bytes": 7389500888
+    },
+    {
+      "file": "model-00043-of-00048.safetensors",
+      "bytes": 1323837624,
+      "tensors": 2,
+      "data_bytes": 1323837440
+    },
+    {
+      "file": "model-00044-of-00048.safetensors",
+      "bytes": 2652728736,
+      "tensors": 801,
+      "data_bytes": 2652643800
+    },
+    {
+      "file": "model-00045-of-00048.safetensors",
+      "bytes": 2573998176,
+      "tensors": 798,
+      "data_bytes": 2573913560
+    },
+    {
+      "file": "model-00046-of-00048.safetensors",
+      "bytes": 2706402896,
+      "tensors": 802,
+      "data_bytes": 2706317272
+    },
+    {
+      "file": "model-00047-of-00048.safetensors",
+      "bytes": 101535150936,
+      "tensors": 6,
+      "data_bytes": 101535150272
+    },
+    {
+      "file": "model-00048-of-00048.safetensors",
+      "bytes": 101537926640,
+      "tensors": 6,
+      "data_bytes": 101537925968
+    }
+  ],
+  "sum_file_bytes": 510296708312,
+  "sum_tensor_data_bytes": 510286023000,
+  "ok": true
+}
