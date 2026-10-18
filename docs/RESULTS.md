@@ -350,6 +350,20 @@ post-load c16 check after all long-context tests measured **673.243 aggregate /
   372.979 / 22.878, so the replay is about **1.73× faster**.
 - Cached prompts were 399,872 device tokens each, zero host hits.
 
+### Cold TTFT baseline (streaming)
+
+New probe `tests/cold_ttft.py` measures time from request submission to the
+first generated content token. Distinct cold 400k prompts:
+
+| Load | TTFT values | Median | Max | Batch wall | Recall |
+| --- | --- | ---: | ---: | ---: | --- |
+| c1 | 61.841 s | 61.841 s | 61.841 s | 62.020 s | pass |
+| c4 | 62.316 / 123.088 / 183.866 / 243.633 s | 153.477 s | 243.633 s | 243.983 s | pass |
+
+This confirms serialized cold prefill: four requests receive their first token
+at roughly 62, 123, 184 and 244 s. The 2b gate is **90 s single / 300 s
+worst-of-four / 360 s four-cold batch wall**, with all codes recalled.
+
 ### Mixed prefill/decode
 
 Four warmed 2048-token decodes plus four fresh 400k prefills:
@@ -462,6 +476,9 @@ experiment, not implied by this pass. Phase 2a post-load host use was
 - `evidence/smoke-20261018T221347Z.json` — phase 2a startup smoke.
 - `evidence/tools-20261018T221347Z.json` — phase 2a startup tools.
 - `evidence/decode-throughput-ctx409600-20261018T221334Z.json` — phase 2a decode A/B.
+- `evidence/cold-ttft-phase2a-c1-20261018T231500Z.json` — single cold 400k TTFT baseline.
+- `evidence/cold-ttft-phase2a-c4-20261018T231500Z.json` — four-cold 400k TTFT baseline.
+- `evidence/phase2a-ttft-baseline-20261018T231500Z.json` — compact TTFT baseline and 2b gate.
 - `evidence/long-400000-c16-warm-20261018T223131Z.json` — phase 2a 16×400k cold + 512 warm.
 - `evidence/replay-c16-warm-20261018T224045Z.json` — phase 2a 2048-token 16-active replay.
 - `evidence/mixed-prefill-decode-w4-c4-20261018T225014Z.json` — phase 2a mixed result.

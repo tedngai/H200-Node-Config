@@ -76,10 +76,15 @@ def warm(prompt: str, output_tokens: int, batch_start: float) -> dict:
 
 
 def main() -> int:
+    global BASE, MODEL
     ap = argparse.ArgumentParser()
+    ap.add_argument("--base-url", default=BASE)
+    ap.add_argument("--model", default=MODEL)
     ap.add_argument("--output-tokens", type=int, default=512)
     ap.add_argument("--source-report", default=None)
     args = ap.parse_args()
+    BASE = args.base_url
+    MODEL = args.model
 
     report_path = args.source_report
     if report_path is None:

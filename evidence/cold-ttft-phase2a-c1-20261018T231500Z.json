@@ -1,0 +1,43 @@
+{
+  "utc": "2026-10-18T23:13:52Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "label": "cold-ttft-phase2a-c1",
+  "target_tokens": 400000,
+  "output_tokens": 512,
+  "concurrency": 1,
+  "batch_wall_s": 62.02,
+  "ttft_s": [
+    61.841
+  ],
+  "ttft_median_s": 61.841,
+  "ttft_max_s": 61.841,
+  "all_recalled": true,
+  "prompts": [
+    {
+      "codes": {
+        "start_code": "ALPHA-4C0A05-91QZ",
+        "middle_code": "BRAVO-4C0A05-44VX",
+        "end_code": "CHARLIE-4C0A05-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399975
+      },
+      "chars": 2041797
+    }
+  ],
+  "results": [
+    {
+      "slot": 0,
+      "start_offset_s": 0.006,
+      "ttft_s": 61.841,
+      "finish_offset_s": 62.02,
+      "elapsed_s": 62.013,
+      "finish_reason": "stop",
+      "prompt_tokens": 399975,
+      "completion_tokens": 40,
+      "content_chars": 57,
+      "recalled": true,
+      "error": null
+    }
+  ]
+}

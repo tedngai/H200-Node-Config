@@ -1,0 +1,34 @@
+{
+  "utc": "2026-10-18T23:18:16Z",
+  "phase": "2a",
+  "engine": "context_length=409600, interval=0, chunk=8192, tails=64",
+  "method": "streaming /v1/chat/completions, time to first content token; distinct cold synthetic 400k prompts",
+  "c1": {
+    "ttft_s": 61.841,
+    "batch_wall_s": 62.02,
+    "recalled": true
+  },
+  "c4": {
+    "ttft_s": [
+      123.088,
+      62.316,
+      183.866,
+      243.633
+    ],
+    "ttft_median_s": 153.477,
+    "ttft_max_s": 243.633,
+    "batch_wall_s": 243.983,
+    "recalled": true
+  },
+  "gate_for_2b": {
+    "single_cold_400k_ttft_s": 90,
+    "four_cold_400k_ttft_max_s": 300,
+    "four_cold_400k_batch_wall_s": 360,
+    "warm_cached_400k_ttft_s": 10
+  },
+  "evidence": {
+    "c1": "evidence/cold-ttft-phase2a-c1-20261018T231500Z.json",
+    "c4": "evidence/cold-ttft-phase2a-c4-20261018T231500Z.json"
+  },
+  "note": "Baseline shows serialized cold prefill: four requests first-token delays are ~62/123/184/244 s."
+}
