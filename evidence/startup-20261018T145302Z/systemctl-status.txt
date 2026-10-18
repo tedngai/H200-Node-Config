@@ -1,0 +1,21 @@
+● sglang-dsv41.service - SGLang DeepSeek-V4.1-Flash-1017 TP8 EP8 DSpark HiCache test (port 8013)
+     Loaded: loaded (/etc/systemd/system/sglang-dsv41.service; disabled; vendor preset: enabled)
+     Active: active (running) since Sun 2026-10-18 10:42:34 EDT; 10min ago
+    Process: 2435999 ExecStartPre=/usr/bin/docker rm -f sglang-dsv41 (code=exited, status=0/SUCCESS)
+   Main PID: 2436011 (docker)
+      Tasks: 34 (limit: 629145)
+     Memory: 12.7M
+        CPU: 103ms
+     CGroup: /system.slice/sglang-dsv41.service
+             └─2436011 /usr/bin/docker run --rm --name sglang-dsv41 --gpus all --shm-size 32g --ulimit memlock=-1:-1 --network host --ipc host --volume /raid/advtech/cache/huggingface:/root/.cache/huggingface --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True --env SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=1 --env SGLANG_DSV41_ENGRAM_HOST_TABLE_LAYOUT=private lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860 sglang serve --model-path deepseek-ai/DeepSeek-V4.1-Flash-1017 --served-model-name dsv41-flash-1017 --trust-remote-code --tp 8 --ep-size 8 --max-running-requests 4 --mem-fraction-static 0.8 --attention-backend dsv4 --moe-runner-backend flashinfer_mxfp4 --enable-decoder-swa-bounded-replay --cuda-graph-max-bs-decode 64 --speculative-algorithm DSPARK --speculative-dspark-block-size 5 --enable-hierarchical-cache --hicache-io-backend direct --hicache-mem-layout page_first_direct --hicache-ratio 2 --hicache-write-policy write_back --reasoning-parser auto --tool-call-parser auto --watchdog-timeout 3600 --enable-metrics --enable-request-time-stats-logging --enable-cache-report --log-requests --log-requests-level 1 --host 0.0.0.0 --port 8013
+
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP6 EP6] Freezing GC in Scheduler process. gen0: 1043->0, gen1: 1287->0, gen2: 1170046->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP2 EP2] Freezing GC in Scheduler process. gen0: 966->0, gen1: 1599->0, gen2: 1170071->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP4 EP4] Freezing GC in Scheduler process. gen0: 697->0, gen1: 1521->0, gen2: 1170355->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP1 EP1] Freezing GC in Scheduler process. gen0: 966->0, gen1: 1599->0, gen2: 1170056->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP7 EP7] Freezing GC in Scheduler process. gen0: 697->0, gen1: 1521->0, gen2: 1170341->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP0 EP0] Freezing GC in Scheduler process. gen0: 711->0, gen1: 1830->0, gen2: 1170739->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48] Freezing GC in Detokenizer Manager process. gen0: 427->0, gen1: 1266->0, gen2: 903146->0
+Oct 18 10:52:48 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:52:48 TP5 EP5] Freezing GC in Scheduler process. gen0: 697->0, gen1: 1521->0, gen2: 1170354->0
+Oct 18 10:53:02 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:53:02] INFO:     127.0.0.1:52740 - "GET /server_info HTTP/1.1" 200 OK
+Oct 18 10:53:02 ai-pratt-ubuntu02.pratt.edu docker[2436011]: [2026-10-18 14:53:02] INFO:     127.0.0.1:52750 - "GET /metrics HTTP/1.1" 200 OK

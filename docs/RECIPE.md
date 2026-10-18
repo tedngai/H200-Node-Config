@@ -189,6 +189,27 @@ assume `private` is still accepted.
 5. **Output is not bitwise stable across batch composition** on this backend.
    Do not use bitwise equality across different batch sizes as a quality gate.
 
+## Measured runtime allocation (2026-10-18)
+
+The engine is running with the candidate above. Measured values supersede the
+estimates in the earlier sections:
+
+| Item | Measured |
+| --- | ---: |
+| Startup to ready | 585 s |
+| GPU KV pool | **45,420,032 tokens** |
+| HiCache host pool | **90,840,064 tokens** (ratio 2) |
+| Engram host table | **386.7 GiB** total; 24,171 MiB per table per rank, 16 mappings |
+| Engram huge-page backing | 100% |
+| HBM free per GPU after load | ~7.3 GB |
+| Container RSS after load | 1.42 TiB |
+| Host available after load | ~665 GB |
+
+The engram measurement is important: 24,171 MiB per table per rank is a **4-way
+shard** of the 101.5 GB table, so with TP8 the runtime keeps two replicated
+4-way shards. That is why the host cost is ~386.7 GiB rather than the ~203 GB
+of checkpoint table bytes. Use the measured value for capacity planning.
+
 ## Checkpoint facts relevant to capacity planning
 
 From `config.json` and the safetensors index/header:

@@ -1,5 +1,9 @@
 # Operations
 
+**Current state (2026-10-18):** installed and running as
+`sglang-dsv41.service` on port 8013. Startup took 585 s. The install commands
+below are retained for reproduction; the rollback commands remain current.
+
 ## Install / start (privileged, user-run)
 
 The experiment account has Docker access but no passwordless sudo. Run these
@@ -42,6 +46,18 @@ Expected startup phases:
 
 Startup is not complete until `/server_info` responds and the ready log appears.
 A container that is still loading weights is not a failed start.
+
+### Measured startup (2026-10-18)
+
+- Container start 14:42:34 UTC; ready 14:52:39 UTC; **585 s**.
+- Engram host tables: 16 mappings × 24,171 MiB, **386.7 GiB total**, 100% huge
+  pages, pinned.
+- GPU KV pool: **45,420,032 tokens**; HiCache host pool **90,840,064 tokens**.
+- HBM free: ~22.3 GB/GPU at startup, ~7.3 GB/GPU after the first long request.
+- Container RSS after load: **1.42 TiB**; host available ~665 GB.
+- Non-fatal startup warnings: NUMA affinity not set (no `--cap-add SYS_NICE`)
+  and a FABRIC-handle export fallback to POSIX fd transport during CUDA graph
+  capture.
 
 ## Health and capacity checks
 
