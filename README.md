@@ -4,18 +4,21 @@ Isolated SGLang experiment for the DeepSeek-V4.1-Flash-1017 preview checkpoint.
 This project is deliberately separate from the live `glm53-inference` project so
 the validated GLM-5.3 service and its exact rollback path stay intact.
 
-**Status:** **scoped validation passed; running the 16-request candidate on port
-8013** (2026-10-18). The engine started in 585 s and passed chat, reasoning,
-tool-call, 100k/400k retrieval, four independent 400k cold prompts and
-four-active warmed 400k decode. Sixteen 400k requests were then accepted and all
-completed, but the peak observed was **14 running + 1–2 queued**, not 16
-simultaneous active. A scoped 256-token HiCache host hit was observed. This is
-not a production cutover; the validated GLM-5.3 service remains installed and
+**Status:** **phase 1 installed and measured; 16-active warmed decode proven on
+port 8013** (2026-10-18). The engine started in 578 s on the phase 1 restart and
+passed chat, reasoning, tool-call, 100k/400k retrieval, four independent 400k
+cold prompts and four-active warmed 400k decode. Sixteen 400k requests completed
+with the original mr16 unit, but peaked at **14 running + 1–2 queued**. With
+`--min-free-slots-delay 0`, a 2048-token warm replay reached **16 running, 0
+queued, 0 retracted**; the 512-token pass still peaked at 15 because
+server-side tokenization staggered admission. Sixteen simultaneous *cold* 400k
+prefills remain unproven. A scoped 256-token HiCache host hit was observed. This
+is not a production cutover; the validated GLM-5.3 service remains installed and
 can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
-**Prepared, not installed:** phase-1 `--min-free-slots-delay 0` and phase-2
-prefill/decode-overlap candidates. See `docs/SCHEDULER_OVERLAP_TEST.md` for the
-sequence, commands and success criteria.
+**Prepared, not installed:** phase-2 prefill/decode-overlap candidate. Phase 1
+is installed. See `docs/SCHEDULER_OVERLAP_TEST.md` for the phase 2 sequence,
+commands and success criteria.
 
 ## What is being tested
 
@@ -58,8 +61,12 @@ User-requested additions on top of the cookbook cell:
 - Test port: **8013** (the live GLM service remains on 8012).
 - Test served name: **`dsv41-flash-1017`**.
 - Current installed candidate:
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`
-  (`--max-running-requests 16`).
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
+  (`--max-running-requests 16 --min-free-slots-delay 0`).
+- Previous mr16 candidate (rollback):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
+- Prepared phase 2 overlap candidate (not installed):
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-overlap.service`.
 - Validated 4-request candidate:
   `configs/systemd/candidates/sglang-dsv41-8013.service`.
 - The test unit is **not enabled** and uses `Restart=no`, so a failed 510 GB
@@ -78,12 +85,12 @@ User-requested additions on top of the cookbook cell:
 | Non-engram weights in HBM | ~37.8 GB/GPU measured (plus 1.11 GB DSpark) |
 | H200 HBM per GPU | 141 GB |
 | Static memory fraction | 0.80 |
-| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16 start) |
-| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16) |
-| HBM free per GPU | ~7.3 GB after 4-request load; **~5.0 GB after 16-request load** |
-| Host RAM | ~2.0 TB total; **~613 GB available after 16-request load** |
-| Container RSS | **1.42 TiB** after load |
-| Startup | **585 s** (first start); ~10 min on restart |
+| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16/phase 1) |
+| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16/phase 1) |
+| HBM free per GPU | ~7.3 GB after 4-request load; **~5.0–5.4 GB after 16-request load** |
+| Host RAM | ~2.0 TB total; **~613–617 GB available after 16-request load** |
+| Container RSS | **1.34–1.42 TiB** after load |
+| Startup | **585 s** first start; **578 s** phase 1 restart |
 
 The engine is running; the actual GPU KV pool, host HiCache pool, pinned-RAM
 footprint, startup time and free memory are recorded in `evidence/` and
@@ -98,9 +105,9 @@ The user runs the stop/install/start commands personally:
 # 1. Stop the validated GLM-5.3 service and free the eight GPUs.
 sudo systemctl stop sglang-glm53.service
 
-# 2. Install and start the isolated DSV4.1 test unit.
+# 2. Install and start the isolated DSV4.1 phase 1 test unit.
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl start sglang-dsv41.service

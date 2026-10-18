@@ -1,17 +1,47 @@
 # Scheduler and prefill/decode overlap tests
 
-Status: **phase 1 prepared, not installed**. The live service is still the
-validated `max-running-requests=16` profile with the default DFlash
-min-free-slots policy (peak observed 14 running + 1–2 queued).
+Status: **phase 1 installed and measured; phase 2 prepared, not installed.**
+The installed unit is now
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
+(`--max-running-requests 16 --min-free-slots-delay 0`). Phase 1 proved 16
+simultaneous active warmed 400k decodes in a 2048-token replay, and produced the
+mixed prefill/decode baseline. Phase 2 still needs a privileged restart.
+
+## Phase 1 measured result (2026-10-18)
+
+- 16 × 400k cold pass: 991.414 s, all recalled; admission remained staggered
+  (queue 0.01–913.1 s), so this is not 16 simultaneous cold prefill.
+- 512-token warm pass: 35.173 s, 290.367 aggregate / 16.377 median tok/s;
+  peak **15** running, 0 queue, 0 retracted. Server-side
+  tokenization/ingress staggered the 16 arrivals, so this pass does not prove
+  16 active.
+- 2048-token warm replay: 96.254 s, 372.979 aggregate / 22.878 median tok/s;
+  peak **16** running, 0 queue, 0 retracted; 16 active for ~56 s. This is the
+  16-active proof.
+- Mixed baseline (4 warmed 2048-token decodes, then +4 fresh 400k prefills):
+  baseline 268.669 aggregate / 67.203 median tok/s; mixed 29.556 / 7.388;
+  ratio **0.11**; four cold prompts recalled, all completing at ~247.4–247.6 s;
+  peak running 7, queue 3, retracted 0.
+- Post-ready runtime error scan: 0 matches; smoke and tools passed.
+- Evidence: `evidence/long-400000-c16-warm-20261018T204521Z.json`,
+  `evidence/replay-c16-warm-20261018T205717Z.json`,
+  `evidence/mixed-prefill-decode-w4-c4-20261018T210728Z.json`,
+  `evidence/phase1-nodelay-summary-20261018T210803Z.json`.
+
+Phase 2 must improve the **0.11** mixed/baseline ratio without losing cold
+recall, 16-active capacity, or memory safety.
 
 ## Why these tests
 
-The 45M-token GPU pool is not the reason only 14 requests were observed. The
-DFlash min-free-slots policy auto-enables at `max_running_requests >= 8` and
-for 16 requests resolves to a threshold of 3. It admits a batch, waits for
-three slots to free, then admits the remainder. The first test removes that
-policy; the second tests whether the official H200 agentic prefill/decode
-overlap settings improve decode progress while long prefills are active.
+The 45M-token GPU pool is not the reason only 14 requests were observed in
+mr16. The DFlash min-free-slots policy auto-enables at
+`max_running_requests >= 8` and for 16 requests resolves to a threshold of 3.
+It admits a batch, waits for three slots to free, then admits the remainder.
+Phase 1 removed that policy. The 512-token phase 1 pass still peaked at 15
+because server-side tokenization/ingress staggered the 16 arrivals; a
+2048-token replay then reached 16. Phase 2 tests whether the official H200
+agentic prefill/decode overlap settings improve decode progress while long
+prefills are active.
 
 ## Phase 1 — remove the admission delay
 
@@ -54,12 +84,17 @@ curl -s http://127.0.0.1:8013/server_info | python3 -c \
 cd /home/advtech/dsv41-flash-inference
 python3 tests/long_c4_warm.py \
   --concurrency 16 --target-tokens 400000 --output-tokens 512
+
+# 16-active proof: replay the same 16 prefixes with longer output
+python3 tests/replay_c16_warm.py --output-tokens 2048
 ```
 
 Success criteria:
 
 - all 16 cold prompts recall their three marker codes;
-- warm pass peak `num_running_reqs` is **16** (not 14);
+- the 2048-token warm replay reaches peak `num_running_reqs` **16**; the
+  512-token pass alone may peak at 15 because server-side tokenization
+  staggers admission (measured phase 1 behavior);
 - peak `num_queue_reqs` is 0 or only a transient admission queue;
 - peak `num_retracted_reqs` is 0;
 - no OOM, CUDA error, watchdog event or runtime traceback;
@@ -131,11 +166,13 @@ curl -s http://127.0.0.1:8013/server_info | python3 -c \
 
 ### Phase 2 tests
 
-Run the same 16 × 400k capacity test and mixed test:
+Run the same 16 × 400k capacity test, 2048-token replay and mixed test:
 
 ```bash
 python3 tests/long_c4_warm.py \
   --concurrency 16 --target-tokens 400000 --output-tokens 512
+
+python3 tests/replay_c16_warm.py --output-tokens 2048
 
 python3 tests/mixed_prefill_decode.py \
   --warm-concurrency 4 --cold-concurrency 4 \
@@ -143,20 +180,31 @@ python3 tests/mixed_prefill_decode.py \
 ```
 
 Primary overlap success criterion: the mixed/baseline warmed decode ratio
-improves versus phase 1, with no increase in OOM, retractions or cold-recall
-failures. A small improvement is still useful; do not expect PD-style
-isolation from a scheduler interval alone.
+improves versus phase 1's **0.11**, with no increase in OOM, retractions or
+cold-recall failures. A small improvement is still useful; do not expect
+PD-style isolation from a scheduler interval alone.
 
 Secondary criteria:
 
 - cold 16 × 400k prefill still completes and recalls;
-- peak running remains 16 in the capacity test;
+- the 2048-token replay still reaches 16 running;
 - token usage and HBM headroom remain safe;
 - no watchdog or runtime errors.
 
 ## Rollback
 
-Return to the validated mr16 unit:
+Before phase 2 is installed, the exact phase 1 rollback is already on disk.
+After phase 2, return to phase 1:
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service \
+  /etc/systemd/system/sglang-dsv41.service
+sudo systemctl daemon-reload
+sudo systemctl restart sglang-dsv41.service
+```
+
+Return to the earlier mr16 unit:
 
 ```bash
 sudo install -o root -g root -m 0644 \

@@ -9,14 +9,14 @@ were cold or warm.
 | Stage | Result |
 | --- | --- |
 | 0 — Preflight | Passed |
-| 1 — Startup/resources | Passed; ready in 585 s, 45.4M-token GPU pool |
+| 1 — Startup/resources | Passed; ready in 585 s first start, 578 s phase 1 restart; 45.4M-token GPU pool |
 | 2 — OpenAI interfaces | Passed: chat, separated reasoning, tool call + second turn |
 | 3 — Short performance | Passed as a scoped measurement; c1 ~77 tok/s, c4 ~133-146 aggregate |
 | 4 — Long context | Passed: 100,001 and 399,979 tokens; four 400k cold prompts recalled |
-| 4b — 16-request 400k | **Partial**: all 16 completed; peak 14 running + 1–2 queued, not 16 active |
+| 4b — 16-request 400k | **Passed with phase 1**: mr16 peaked at 14 running + 1–2 queued; `--min-free-slots-delay 0` plus a 2048-token replay reached 16 running, 0 queued, 0 retracted |
 | 5 — HiCache restoration | **Partial**: 256-token host hit after eviction; no 400k host restore |
 | 6 — Engram host table | Passed; 386.7 GiB, 100% huge pages, pinned |
-| 7 — Stability/rollback | No runtime errors; rollback not yet exercised |
+| 7 — Stability/rollback | No post-ready runtime errors; rollback not yet exercised |
 
 Full measurements and evidence are in `docs/RESULTS.md`. The remaining gap is a
 large-prefix HiCache host restoration; the 45.4M-token GPU pool makes forced

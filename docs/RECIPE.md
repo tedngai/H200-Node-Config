@@ -71,8 +71,9 @@ SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=1
 ## Final candidate command
 
 See
-`configs/systemd/candidates/sglang-dsv41-8013.service` for the authoritative
-candidate. The rendered engine command is:
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service` for the
+current phase 1 authoritative candidate. The original 4-request candidate is
+`sglang-dsv41-8013.service`. The rendered engine command is:
 
 ```text
 sglang serve \
@@ -196,14 +197,14 @@ estimates in the earlier sections:
 
 | Item | Measured |
 | --- | ---: |
-| Startup to ready | 585 s |
-| GPU KV pool | **45,420,032 tokens** |
-| HiCache host pool | **90,840,064 tokens** (ratio 2) |
+| Startup to ready | 585 s first start; **578 s** phase 1 |
+| GPU KV pool | **45,420,032 tokens** (4-request); **44,957,952** (mr16/phase 1) |
+| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16/phase 1), ratio 2 |
 | Engram host table | **386.7 GiB** total; 24,171 MiB per table per rank, 16 mappings |
 | Engram huge-page backing | 100% |
-| HBM free per GPU after load | ~7.3 GB |
-| Container RSS after load | 1.42 TiB |
-| Host available after load | ~665 GB |
+| HBM free per GPU after load | ~7.3 GB (4-request); **5.0–5.4 GB** (phase 1) |
+| Container RSS after load | 1.34–1.42 TiB |
+| Host available after load | ~613–617 GB |
 
 The engram measurement is important: 24,171 MiB per table per rank is a **4-way
 shard** of the 101.5 GB table, so with TP8 the runtime keeps two replicated

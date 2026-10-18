@@ -1,8 +1,9 @@
 # Operations
 
 **Current state (2026-10-18):** installed and running as
-`sglang-dsv41.service` on port 8013. Startup took 585 s. The install commands
-below are retained for reproduction; the rollback commands remain current.
+`sglang-dsv41.service` on port 8013 with the phase 1
+`mr16-nodelay` unit. The phase 1 restart took 578 s. The install commands
+below use that unit; the rollback commands remain current.
 
 ## Install / start (privileged, user-run)
 
@@ -13,9 +14,9 @@ personally:
 # Stop the validated GLM-5.3 service first; it owns all eight GPUs.
 sudo systemctl stop sglang-glm53.service
 
-# Install the isolated DSV4.1 test unit (port 8013).
+# Install the isolated DSV4.1 phase 1 test unit (port 8013).
 sudo install -o root -g root -m 0644 \
-  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013.service \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service \
   /etc/systemd/system/sglang-dsv41.service
 sudo systemctl daemon-reload
 sudo systemctl start sglang-dsv41.service
@@ -140,10 +141,10 @@ sudo systemctl daemon-reload
 - **Do not run both engines at once.** The 510 GB DSV4.1 checkpoint and the GLM
   checkpoint both need all eight GPUs.
 - **Do not infer capacity from `--cuda-graph-max-bs-decode 64`.** The effective
-  admission cap is `--max-running-requests 4` in this candidate.
+  admission cap is `--max-running-requests 16` in the current phase 1 candidate.
 - **HiCache is not RAM decoding.** It retains evicted prefixes; it does not
   extend the active GPU pool or migrate a request between workers.
-- **The engram host table is pinned host memory.** It reduces available host
-  RAM by ~203 GB and is not part of the GPU KV pool.
+- **The engram host table is pinned host memory.** It consumes **386.7 GiB**
+  measured host RAM and is not part of the GPU KV pool.
 - **A cold restart is expensive.** The engram path may drop the checkpoint page
   cache; the next load can be slower than the previous one.

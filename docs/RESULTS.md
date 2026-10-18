@@ -6,10 +6,13 @@ with the user-requested DSPARK, engram host-table and HiCache additions.
 **Verdict:** the recipe starts and serves correctly on this 8xH200 host. Chat,
 separated reasoning, OpenAI tool calls, 100k/400k retrieval, four independent
 400k prefixes and four-active warmed decode all passed. A scoped HiCache host
-hit was observed. Sixteen 400k requests were also accepted and completed, but
-the peak observed was **14 running + 1–2 queued**, not 16 simultaneous active;
-see the 16-request section below. A full 400k host-restoration test was **not**
-run; see the HiCache section for why.
+hit was observed. The original mr16 16-request pass completed all requests but
+peaked at **14 running + 1–2 queued**. Phase 1 (`--min-free-slots-delay 0`)
+then proved **16 simultaneous active warmed 400k decodes** in a 2048-token
+replay (peak running 16, queue 0, retracted 0). The 512-token warm pass still
+peaked at 15 because server-side tokenization/ingress staggered admission.
+Sixteen simultaneous **cold** 400k prefills remain unproven. A full 400k
+host-restoration test was **not** run; see the HiCache section for why.
 
 ## Identity
 
@@ -21,7 +24,7 @@ run; see the HiCache section for why.
 | Image | `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860` |
 | SGLang build | `0.0.0.dev1+gda64c5cbb`, CUDA 13.0.3 |
 | API | `http://127.0.0.1:8013`, served name `dsv41-flash-1017` |
-| Startup | container start 14:42:34 UTC, ready 14:52:39 UTC; **585 s** |
+| Startup | first start 14:42:34→14:52:39 UTC, **585 s**; phase 1 restart 20:04:52→20:14:30 UTC, **578 s** |
 
 ## Effective engine state
 
@@ -31,8 +34,9 @@ From `/server_info`, the startup log and `/v1/models`:
 | --- | --- |
 | Context length | **1,048,576** (checkpoint default; `/v1/models.max_model_len`) |
 | TP / EP | 8 / 8, DP1 |
-| Max running requests | **4** in the baseline; **16** in the mr16 candidate |
-| Max total tokens | **45,420,032** (4-request start); **44,957,952** (mr16 start) |
+| Max running requests | **4** in the baseline; **16** in mr16 and phase-1 nodelay |
+| Min free slots delay | unset/default in mr16; **0** in phase 1 |
+| Max total tokens | **45,420,032** (4-request start); **44,957,952** (mr16 and phase-1 nodelay) |
 | Max prefill tokens / chunked prefill | 16,384 / 8,192 |
 | Page size | 256 |
 | Static memory fraction | 0.80 |
@@ -191,6 +195,88 @@ coding profile.
 After the 16-request warm pass, HBM free was **~5.0 GB/GPU** and host available
 was **~613 GB**. There were no OOMs or retractions.
 
+## Phase 1 — `--min-free-slots-delay 0`
+
+Installed candidate:
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`. The only
+change from mr16 is `--min-free-slots-delay 0`. The service restarted at
+20:04:52 UTC and was ready at 20:14:30 UTC (**578 s**). `/server_info` confirmed
+`max_running_requests=16`, `min_free_slots_delay=0`,
+`prefill_decode_interval=0`, `chunked_prefill_size=8192`,
+`swa_prefix_tails=null`, with HiCache and DSpark unchanged.
+
+### 16 × 400k cold pass
+
+- 16 distinct prompts, **399,970–399,979** prompt tokens each.
+- Batch wall: **991.414 s**; all 16 recalled their three marker codes.
+- Engine-reported queue durations: **0.01–913.1 s**; forward durations:
+  **63.2–990.1 s**. Client-observed completions were ~976–990 s.
+- This is still a staggered admission/prefill pipeline, **not** 16
+  simultaneous cold 400k prefills. Do not cite the 991 s wall as 16-way cold
+  prefill scaling.
+
+### 512-token warm pass
+
+- Same 16 prefixes, all **399,872 device-cached tokens** each; scheduler queue
+  was 0.01 s per request.
+- Batch wall: **35.173 s**; aggregate **290.367 tok/s**; median **16.377
+  tok/s** per request.
+- Peak sampled running: **15**; peak queue **0**; peak retracted **0**;
+  peak `token_usage` 0.18.
+- Client threads started all 16 requests within 0.09 s, but server-side
+  tokenization/ingress staggered scheduler entry. The engine decode log ramped
+  **2 → 7 → 15**, and the first 512-token request finished at 14.7 s before the
+  last request was admitted. This pass therefore does **not** prove 16 active.
+
+### 2048-token warm replay
+
+The same 16 prefixes were replayed with **2048** forced output tokens.
+
+| Measurement | Result |
+| --- | ---: |
+| Batch wall | **96.254 s** |
+| Aggregate | **372.979 tok/s** |
+| Median per request | **22.878 tok/s** |
+| Per-request range | 21.35–27.71 tok/s |
+| Peak running | **16** |
+| Peak queued | **0** |
+| Peak retracted | **0** |
+| Peak `token_usage` | 0.22 |
+| Cached tokens each | **399,872** device |
+| Completion tokens each | **2048** |
+
+Sixteen requests were simultaneously active from about **20.3 s** to
+**76.6 s** into the pass, a **~56 s** plateau. This is the direct
+16-active-decode proof for the 400k prefixes. It is still a synthetic warmed
+replay, not sustained real coding load.
+
+### Mixed prefill/decode baseline
+
+The same warmed prefixes were decoded while four fresh 400k prompts were
+admitted. Output was 2048 forced tokens in both passes.
+
+| Pass | Batch wall | Aggregate | Median | Peak running | Peak queue | Retracted |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Warmed decode only | 31.483 s | **268.669** | **67.203** | 4 | 0 | 0 |
+| Warmed decode + 4 cold 400k | 279.123 s | **29.556** | **7.388** | 7 | 3 | 0 |
+
+The mixed/baseline ratios were **0.11** for both aggregate and median
+throughput. The four cold prompts all recalled their codes; their batch wall
+was **247.601 s**, with all four completing at ~247.4–247.6 s. This is severe
+prefill/decode interference and is the phase 1 comparison point for the phase 2
+overlap candidate. It is not evidence that overlap settings will fix it.
+
+### Post-load state
+
+- HBM free: **5,161–5,545 MiB/GPU** (about 5.0–5.4 GiB).
+- Host available: **617 GiB**; container RSS **1.341 TiB**.
+- Post-ready runtime error scan: **0 matches**.
+- Post-load `smoke` and `tools` probes passed, including separated reasoning,
+  OpenAI tool call and second tool turn.
+- Known non-fatal messages: the previous container's shutdown traceback
+  (sigterm watchdog, `SystemExit: 0`) at 20:04:50 UTC, before the new container
+  started; and the FABRIC→POSIX fd fallback on all ranks at 20:13:18 UTC.
+
 ## HiCache
 
 HiCache initialized with a **90,840,064-token** host pool (ratio 2). During the
@@ -214,16 +300,18 @@ experiment, not implied by this pass.
 
 ## Stability observations
 
-- No OOM, Traceback, RuntimeError, CUDA error, watchdog event or retraction was
-  found in the container log. The only grep match for `watchdog` is the
-  `watchdog_timeout=3600.0` configuration line.
-- Startup printed non-fatal warnings:
-  - `User lacks permission to set NUMA affinity` (container lacks
-    `--cap-add SYS_NICE`).
-  - `FABRIC handle export failed ... falling back to POSIX fd transport` during
-    CUDA graph capture.
+- Post-ready runtime scan found no OOM, Traceback, RuntimeError, CUDA error,
+  watchdog event or retraction; see
+  `evidence/postload-phase1-20261018T210803Z/errors.txt`.
+- Known non-fatal messages: the previous container's shutdown traceback
+  (sigterm watchdog, `SystemExit: 0`) at 20:04:50 UTC, before the phase 1
+  container started; and the FABRIC→POSIX fd fallback at 20:13:18 UTC.
+- Startup also printed `User lacks permission to set NUMA affinity` (container
+  lacks `--cap-add SYS_NICE`).
 - Post-load state was ready and idle: 0 running, 0 queued, 0 retracted.
-- HBM free after load was ~7.3 GB per GPU; host available ~665 GB.
+- After phase 1, HBM free was **5.0–5.4 GiB/GPU**, host available **617 GiB**,
+  container RSS **1.341 TiB**. The mr16 post-load values were ~5.0 GiB free
+  HBM/GPU and ~613 GiB host available.
 
 ## Evidence
 
@@ -241,18 +329,26 @@ experiment, not implied by this pass.
 - `evidence/long-400k-20261018T145610Z.json`
 - `evidence/long-400k-c4-20261018T145739Z.json`
 - `evidence/long-400k-c4-warm-20261018T150723Z.json`
-- `evidence/long-400000-c16-warm-20261018T160533Z.json` — 16-request cold+warm.
-- `evidence/replay-c16-warm-20261018T161736Z.json` — 16-request warm replay.
-- `evidence/postload-mr16-20261018T161850Z/` — post-16 metrics, GPU/RAM, errors.
+- `evidence/long-400000-c16-warm-20261018T160533Z.json` — mr16 16-request cold+warm.
+- `evidence/replay-c16-warm-20261018T161736Z.json` — mr16 16-request warm replay.
+- `evidence/postload-mr16-20261018T161850Z/` — post-mr16 metrics, GPU/RAM, errors.
+- `evidence/long-400000-c16-warm-20261018T204521Z.json` — phase 1 16×400k cold + 512 warm.
+- `evidence/replay-c16-warm-20261018T205717Z.json` — phase 1 2048-token 16-active replay.
+- `evidence/mixed-prefill-decode-w4-c4-20261018T210728Z.json` — phase 1 mixed baseline.
+- `evidence/postload-phase1-20261018T210803Z/` — post-phase-1 metrics, GPU/RAM, errors.
+- `evidence/postload-smoke-phase1-20261018T210748Z.json`
+- `evidence/postload-tools-phase1-20261018T210748Z.json`
+- `evidence/phase1-nodelay-summary-20261018T210803Z.json` — compact phase 1 summary.
 - `evidence/postload-smoke-20261018T150748Z.json`
 - `evidence/postload-20261018T150754Z/` — post-load metrics, GPU/RAM, logs.
 
 ## What this does not prove
 
 - Sustained real coding/agent load or broad model-quality equivalence.
-- Four simultaneous cold 400k prefills (the cold test was staggered).
-- **16 simultaneous active 400k decodes** (peak observed was 14 running + 1–2
-  queued).
+- **16 simultaneous cold 400k prefills**; cold admission remained staggered.
+- Sustained 16-active coding sessions; the 16-active result is a ~56 s synthetic
+  warmed decode replay.
 - A 400k HiCache host restoration (only a 256-token host hit was observed).
 - Exact 1,048,576-token occupancy.
 - Production readiness behind the `pratt-high` gateway or on port 8012.
+- That the phase 2 overlap settings improve the 0.11 mixed/baseline ratio.
