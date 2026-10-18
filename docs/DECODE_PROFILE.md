@@ -20,6 +20,18 @@ Step time = `running × accept_len / gen_tps` from the decode log. Short and
 verify step. During c16 the GPUs were 100% busy but only 13–18% memory-bandwidth
 utilized at ~400 W of 700 W, i.e. latency/compute-bound kernels.
 
+### Scripted phase 1 baseline for A/B
+
+`tests/decode_throughput.py` was added to repeat the same coding prompts,
+temperature 0, 1024 output tokens and live gauges. Phase 1 baseline
+(`evidence/decode-throughput-baseline-20261018T215614Z.json`, two rounds):
+
+| Load | Aggregate tok/s (rounds 1/2) | Median per request | Peak running |
+| --- | ---: | ---: | ---: |
+| c1 | 132.884 / 146.106 | 132.894 / 146.113 | 1 |
+| c4 | 259.018 / 253.966 | 65.819 / 64.559 | 4 |
+| c16 | 335.794 / 337.024 | 21.727 / 21.968 | **16** (0 queue, 0 retracted) |
+
 ## Root cause: the H200 indexer scores the full configured context width
 
 Torch profile, TP0, 6 decode steps:
@@ -63,7 +75,10 @@ masking to their 16k candidate window.
 
    409,600 matches the 400k approved target. Requests above the cap are
    rejected, not truncated. `/v1/models` will report the new limit; client
-   context/compaction limits must be at or below it.
+   context/compaction limits must be at or below it. A phase 2a candidate is
+   prepared at
+   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`;
+   apply/validate via `docs/CONTEXT_409600_TEST.md`. It is not installed.
 2. **Tune Triton block-FP8 GEMM configs.** All ten `block_shape=[32, 32]`
    dense shapes use default configs on H200 (startup "Config file not
    found"). They are 34% of single-user step time and latency-bound. Tuned

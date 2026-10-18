@@ -1,0 +1,9 @@
+index, memory.used [MiB], memory.total [MiB], utilization.gpu [%], power.draw [W], clocks.current.sm [MHz]
+0, 138014 MiB, 143771 MiB, 0 %, 123.02 W, 1980 MHz
+1, 138110 MiB, 143771 MiB, 0 %, 120.67 W, 1980 MHz
+2, 138110 MiB, 143771 MiB, 0 %, 122.64 W, 1980 MHz
+3, 138110 MiB, 143771 MiB, 0 %, 124.24 W, 1980 MHz
+4, 138110 MiB, 143771 MiB, 0 %, 124.36 W, 1980 MHz
+5, 138110 MiB, 143771 MiB, 0 %, 118.46 W, 1980 MHz
+6, 138110 MiB, 143771 MiB, 0 %, 124.38 W, 1980 MHz
+7, 137630 MiB, 143771 MiB, 0 %, 116.08 W, 1980 MHz

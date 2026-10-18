@@ -14,6 +14,10 @@ peaked at 15 because server-side tokenization/ingress staggered admission.
 Sixteen simultaneous **cold** 400k prefills remain unproven. A full 400k
 host-restoration test was **not** run; see the HiCache section for why.
 
+Prepared next step: **phase 2a**, a single `--context-length 409600` change.
+It is not installed. See `docs/DECODE_PROFILE.md` and
+`docs/CONTEXT_409600_TEST.md`.
+
 ## Identity
 
 | Item | Value |

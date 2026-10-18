@@ -1,0 +1,9 @@
+{
+  "sglang:num_running_reqs": 0.0,
+  "sglang:num_queue_reqs": 0.0,
+  "sglang:num_retracted_reqs": 0.0,
+  "sglang:max_total_num_tokens": 44957952.0,
+  "sglang:max_total_num_tokens_swa": 59904.0,
+  "sglang:token_usage": 0.0,
+  "sglang:hicache_host_used_tokens": 9728.0
+}

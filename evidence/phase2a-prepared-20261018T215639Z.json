@@ -1,0 +1,81 @@
+{
+  "status": "prepared_not_installed",
+  "utc": "2026-10-18T21:56:39Z",
+  "candidate": "configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service",
+  "candidate_sha256": "c3c2ab14829bcf2ee65a1b3c827ed40aeccf81f7e6f06a8f5c3b09860d3ceceb",
+  "installed_unit_sha256": "b42dee454f69be53e9913c55b32b161913138b4f757a779e476b9c051e70acdb",
+  "only_engine_change": {
+    "--context-length": "409600"
+  },
+  "installed_context_tokens": 1048576,
+  "prepared_context_tokens": 409600,
+  "expected": {
+    "max_model_len": 409600,
+    "swa_tokens": 59904,
+    "indexer_width_ratio1_approx": 409920,
+    "projected_c16_step_ms": "~120",
+    "projected_c16_throughput_gain": "~1.8x unmeasured",
+    "projected_c1_step_ms": "~27"
+  },
+  "phase1_scripted_baseline": {
+    "c1": {
+      "aggregate_tok_s": [
+        132.884,
+        146.106
+      ],
+      "aggregate_median": 139.495,
+      "per_request_median_tok_s": [
+        132.894,
+        146.113
+      ],
+      "per_request_median_of_rounds": 139.504,
+      "peak_running": 1.0,
+      "peak_queue": 0.0,
+      "peak_retracted": 0.0
+    },
+    "c4": {
+      "aggregate_tok_s": [
+        259.018,
+        253.966
+      ],
+      "aggregate_median": 256.492,
+      "per_request_median_tok_s": [
+        65.819,
+        64.559
+      ],
+      "per_request_median_of_rounds": 65.189,
+      "peak_running": 4.0,
+      "peak_queue": 0.0,
+      "peak_retracted": 0.0
+    },
+    "c16": {
+      "aggregate_tok_s": [
+        335.794,
+        337.024
+      ],
+      "aggregate_median": 336.409,
+      "per_request_median_tok_s": [
+        21.727,
+        21.968
+      ],
+      "per_request_median_of_rounds": 21.848,
+      "peak_running": 16.0,
+      "peak_queue": 0.0,
+      "peak_retracted": 0.0
+    }
+  },
+  "baseline_evidence": "evidence/decode-throughput-baseline-20261018T215614Z.json",
+  "profile_evidence": "evidence/decode-profile-20261018T213400Z",
+  "preflight_evidence": "evidence/preflight-ctx409600-20261018T215639Z",
+  "runbook": "docs/CONTEXT_409600_TEST.md",
+  "rollback": [
+    "configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service",
+    "configs/systemd/candidates/sglang-dsv41-8013-mr16.service"
+  ],
+  "idle_at_prepare": {
+    "running": 0,
+    "queued": 0,
+    "retracted": 0
+  },
+  "note": "Projected gains from the measured kernel profile; not measured until the candidate is installed and tested."
+}

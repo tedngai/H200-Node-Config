@@ -1,11 +1,14 @@
 # Scheduler and prefill/decode overlap tests
 
-Status: **phase 1 installed and measured; phase 2 prepared, not installed.**
-The installed unit is now
+Status: **phase 1 installed and measured; phase 2a prepared, not installed.**
+The installed unit is
 `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
 (`--max-running-requests 16 --min-free-slots-delay 0`). Phase 1 proved 16
 simultaneous active warmed 400k decodes in a 2048-token replay, and produced the
-mixed prefill/decode baseline. Phase 2 still needs a privileged restart.
+mixed prefill/decode baseline. Before this overlap test, phase 2a adds only
+`--context-length 409600` to address the decode-side indexer cost; see
+`docs/CONTEXT_409600_TEST.md`. This overlap candidate remains a later step and
+still needs a privileged restart.
 
 ## Phase 1 measured result (2026-10-18)
 
