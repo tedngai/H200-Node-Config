@@ -1,0 +1,164 @@
+{
+  "utc_window": "2026-10-18T21:29:23Z..2026-10-18T21:36:05Z",
+  "service": "sglang-dsv41.service phase 1 (mr16-nodelay), unchanged; engine idle before and after",
+  "workload": "synthetic short coding prompts (36-60 prompt tokens), natural sampling, no ignore_eos, max_tokens cap reached; not private user code",
+  "client_observed": {
+    "c1_coding_1536tok": [
+      {
+        "tok_s": 140.79,
+        "elapsed_s": 10.91
+      },
+      {
+        "tok_s": 160.03,
+        "elapsed_s": 9.598
+      }
+    ],
+    "c4_coding_1024tok": {
+      "aggregate_tok_s": 240.9,
+      "median_req_tok_s": 62.0
+    },
+    "c16_coding_1024tok": {
+      "aggregate_tok_s": 309.3,
+      "median_req_tok_s": 20.1
+    },
+    "c16_coding_2048tok_during_dmon": {
+      "aggregate_tok_s": 340.0,
+      "median_req_tok_s": 21.8
+    }
+  },
+  "dspark_accept_len_from_decode_log": {
+    "c1_range": "3.12-5.67",
+    "c4_median": 4.22,
+    "c16_median": 3.91
+  },
+  "estimated_step_ms_from_decode_log": {
+    "short_c4": 65.7,
+    "short_c16": 201.6,
+    "400k_c4_phase1": 65.2,
+    "400k_c16_phase1": 201.9,
+    "note": "step = running*accept_len/gen_tps; short and 400k contexts give the same step time"
+  },
+  "gpu_during_c16": {
+    "sm_busy_pct": 100,
+    "mem_bw_util_pct": "13-18",
+    "power_w": "~400 of 700"
+  },
+  "torch_profile": {
+    "method": "POST /start_profile num_steps=6 activities=[GPU], TP0 trace analysed",
+    "kernel_busy_ms_per_step": {
+      "c1": 33.2,
+      "c16": 212.2
+    },
+    "by_group_ms_per_step": {
+      "c1": {
+        "fp8_dense_gemm_triton": 11.29,
+        "indexer_logits": 8.6,
+        "moe": 4.56,
+        "other": 3.48,
+        "allreduce": 1.77,
+        "hyperconnections": 1.41,
+        "torch_topk": 1.02,
+        "torch_index_gather": 0.62,
+        "memcpy32_post": 0.4,
+        "engram": 0.01
+      },
+      "c16": {
+        "indexer_logits": 136.39,
+        "other": 19.39,
+        "fp8_dense_gemm_triton": 11.51,
+        "moe": 11.14,
+        "torch_topk": 8.2,
+        "hyperconnections": 8.08,
+        "allreduce": 6.05,
+        "torch_index_gather": 5.85,
+        "memcpy32_post": 5.6,
+        "engram": 0.02
+      }
+    },
+    "fp4_index_logits_kernel_grids": {
+      "c1": [
+        {
+          "grid": [
+            6,
+            16389,
+            1
+          ],
+          "L": 1048896,
+          "calls_per_step": 5,
+          "mean_ms": 1.32
+        },
+        {
+          "grid": [
+            6,
+            8195,
+            1
+          ],
+          "L": 524480,
+          "calls_per_step": 3,
+          "mean_ms": 0.66
+        }
+      ],
+      "c16": [
+        {
+          "grid": [
+            96,
+            16389,
+            1
+          ],
+          "L": 1048896,
+          "calls_per_step": 5,
+          "mean_ms": 20.98
+        },
+        {
+          "grid": [
+            96,
+            8195,
+            1
+          ],
+          "L": 524480,
+          "calls_per_step": 3,
+          "mean_ms": 10.5
+        }
+      ]
+    },
+    "interpretation": "rows = 6 verify tokens per request; every TP rank scores every row over the full configured context width (context_len 1,048,576 + extra), independent of actual context"
+  },
+  "source_refs": {
+    "kernel": "sglang/kernels/ops/attention/dsv4/sm90_fp4_indexer.py (Triton SM90 fallback; DeepGEMM fp8_fp4 mqa-logits needs SM100/SM120)",
+    "caller": "sglang/srt/layers/attention/deepseek_v4_backend.py::_low_ratio_index_topk_sm90_decode, lmax=min(metadata.max_c4_seq_len, req_to_token.shape[1]//ratio)",
+    "capture_width": "MAX_SEQ_LEN_FOR_CAPTURE = req_to_token.shape[1]; req_to_token max_context_len = model_config.context_len + extra",
+    "dp_attention_constraint": "arg_groups/deepseek_v4_hook.py: --enable-decoder-swa-bounded-replay cannot be combined with DP attention",
+    "v41_unsupported": "two-batch overlap, HiSparse, PP, non-DSpark speculative"
+  },
+  "untuned_fp8_block32_triton_shapes": [
+    "N=1280,K=5120",
+    "N=1536,K=5120",
+    "N=1792,K=5120",
+    "N=25600,K=6144",
+    "N=4096,K=1280",
+    "N=5120,K=1024",
+    "N=5120,K=15360",
+    "N=5120,K=288",
+    "N=512,K=5120",
+    "N=576,K=5120"
+  ],
+  "post_probe": {
+    "running": 0,
+    "queued": 0,
+    "retracted": 0,
+    "runtime_errors_excluding_request_logs": 0
+  },
+  "projection_not_measured": {
+    "context_length_409600": {
+      "L_factor": 0.391,
+      "c16_step_ms": "~113-121 (from 212)",
+      "c1_step_ms": "~27 (from 33)"
+    },
+    "context_length_262144": {
+      "L_factor": 0.25,
+      "c16_step_ms": "~93-100",
+      "c1_step_ms": "~25.5"
+    },
+    "basis": "scale indexer + torch topk + index gather time by L factor; other kernels unchanged"
+  }
+}
