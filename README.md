@@ -4,12 +4,14 @@ Isolated SGLang experiment for the DeepSeek-V4.1-Flash-1017 preview checkpoint.
 This project is deliberately separate from the live `glm53-inference` project so
 the validated GLM-5.3 service and its exact rollback path stay intact.
 
-**Status:** **validated scoped test, running on port 8013** (2026-10-18). The
-engine started in 585 s and passed chat, reasoning, tool-call, 100k/400k
-retrieval, four independent 400k cold prompts and four-active warmed 400k
-decode. A scoped 256-token HiCache host hit was observed. This is not a
-production cutover; the validated GLM-5.3 service remains installed and can be
-restarted for rollback. See `docs/RESULTS.md` for the measured results.
+**Status:** **scoped validation passed; running the 16-request candidate on port
+8013** (2026-10-18). The engine started in 585 s and passed chat, reasoning,
+tool-call, 100k/400k retrieval, four independent 400k cold prompts and
+four-active warmed 400k decode. Sixteen 400k requests were then accepted and all
+completed, but the peak observed was **14 running + 1–2 queued**, not 16
+simultaneous active. A scoped 256-token HiCache host hit was observed. This is
+not a production cutover; the validated GLM-5.3 service remains installed and
+can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
 
 ## What is being tested
 
@@ -51,7 +53,11 @@ User-requested additions on top of the cookbook cell:
 
 - Test port: **8013** (the live GLM service remains on 8012).
 - Test served name: **`dsv41-flash-1017`**.
-- New systemd unit: `configs/systemd/candidates/sglang-dsv41-8013.service`.
+- Current installed candidate:
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`
+  (`--max-running-requests 16`).
+- Validated 4-request candidate:
+  `configs/systemd/candidates/sglang-dsv41-8013.service`.
 - The test unit is **not enabled** and uses `Restart=no`, so a failed 510 GB
   load does not loop and thrash the GPUs.
 - This is not a production cutover. Moving the public `pratt-high` alias or
@@ -68,11 +74,12 @@ User-requested additions on top of the cookbook cell:
 | Non-engram weights in HBM | ~37.8 GB/GPU measured (plus 1.11 GB DSpark) |
 | H200 HBM per GPU | 141 GB |
 | Static memory fraction | 0.80 |
-| GPU KV pool | **45,420,032 tokens** |
-| HiCache host pool | **90,840,064 tokens** (ratio 2) |
-| Host RAM | ~2.0 TB total; ~665 GB available after load |
+| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16 start) |
+| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16) |
+| HBM free per GPU | ~7.3 GB after 4-request load; **~5.0 GB after 16-request load** |
+| Host RAM | ~2.0 TB total; **~613 GB available after 16-request load** |
 | Container RSS | **1.42 TiB** after load |
-| Startup | **585 s** |
+| Startup | **585 s** (first start); ~10 min on restart |
 
 The engine is running; the actual GPU KV pool, host HiCache pool, pinned-RAM
 footprint, startup time and free memory are recorded in `evidence/` and

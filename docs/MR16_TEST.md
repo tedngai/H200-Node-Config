@@ -1,5 +1,26 @@
 # 16-active 400k test
 
+## Result (2026-10-18)
+
+**16 requests were accepted and all completed, but 16 simultaneous active
+decode was not observed.** Peak was **14 running + 1–2 queued**, with zero
+retractions.
+
+- Cold pass: 16 × ~400k prompts, all recalled; batch wall **995.5 s**;
+  prefill admission was heavily staggered (queue durations up to 918 s).
+- Warm pass: 399,872 device-cached tokens each; batch wall **35.0 s**;
+  **290.8 aggregate / 17.05 median per-request tok/s**; peak 14 running,
+  2 queued, 0 retracted; `token_usage` 0.18.
+- Warm replay: **317.5 aggregate / 16.95 median tok/s**; peak 14 running,
+  1 queued, 0 retracted; `token_usage` 0.16.
+- Post-load HBM free: **~5.0 GB/GPU**; host available **~613 GB**.
+- No OOM or runtime errors.
+
+The likely admission limiter is the DSpark/DFlash min-free-slots policy, not
+the `max_running_requests=16` cap. Forcing 16 simultaneous would require
+`--min-free-slots-delay 0` and another restart. The current service is running
+the 16-request candidate.
+
 ## Goal
 
 Test whether the current DeepSeek-V4.1-Flash-1017 profile can admit **16
