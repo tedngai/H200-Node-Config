@@ -64,6 +64,17 @@ staggered scheduler entry and the first request finished before the last was
 admitted. The 2048-token replay is the valid 16-active proof. Do **not** claim
 16 simultaneous cold 400k prefills; the cold pass remained staggered.
 
+## Decode profile finding — read before phase 2
+
+A 2026-10-18 21:29–21:36 UTC diagnostic (`docs/DECODE_PROFILE.md`,
+`evidence/decode-profile-20261018T213400Z/`) found that decode step time is set
+by batch size, not context: ~33 ms at c1 and ~202 ms at c16 for both short and
+400k prompts. 64% of the c16 step is the SM90 Triton DSA indexer scoring the
+full **configured** 1,048,576-token width for every verify row. The
+recommended next step is phase 2a: phase 1 plus `--context-length 409600` only
+(projected ~1.8× at c16, unmeasured), then the overlap flags. This is a
+recommendation pending user decision; no unit has been prepared or installed.
+
 ## Phase 2 plan — prefill/decode overlap candidate
 
 Candidate (prepared, **not installed**):

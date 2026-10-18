@@ -127,6 +127,8 @@ API identity remain exactly as installed before this experiment.
 
 - `HANDOFF.md` — restart-safe current state, phase 1 results, phase 2 runbook,
   rollback and non-claims.
+- `docs/DECODE_PROFILE.md` — decode kernel profile, root cause of batch-scaled
+  step time, ranked optimization options.
 - `docs/RESULTS.md` — measured startup, memory, interface, throughput,
   400k, four-active and HiCache results.
 - `docs/RECIPE.md` — cookbook provenance, exact flags, additions and omissions.
