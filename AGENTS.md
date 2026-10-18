@@ -15,20 +15,21 @@ The validated GLM-5.3 service and its rollback path must be preserved. Do not
 change `/etc/systemd/system/sglang-glm53.service` or the public alias as a side
 effect of work in this repository.
 
-Current measured state (phase 1, 2026-10-18): with
-`--min-free-slots-delay 0`, a 2048-token warm replay proved **16 simultaneous
-active 400k decodes** (peak 16 running, 0 queued, 0 retracted); the 512-token
-pass peaked at 15 because server-side tokenization staggered admission. Sixteen
-simultaneous **cold** 400k prefills are still unproven. A decode profile found
-that step time is batch-scaled and that the SM90 indexer scoring the configured
-1,048,576-token width is 64% of the c16 step. Phase 2a, a single
-`--context-length 409600` change, is prepared but not installed. The overlap
-flags remain a later step. Do not claim production readiness or sustained load.
-See `docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
+Current measured state (phase 2a, 2026-10-18): `context_length=409600` with
+`--min-free-slots-delay 0`. The 2048-token warm replay proved **16 simultaneous
+active 400k decodes** (peak 16 running, 0 queued, 0 retracted) at **704.5
+tok/s** aggregate; c16 scripted decode is **660.5 tok/s** (1.96× phase 1).
+Sixteen cold 400k prompts all recalled in 978.7 s, but prefill ran one new
+sequence per batch, so 16 simultaneous cold prefills are still unproven. The
+mixed 4-warm/4-cold result is **31.342 tok/s** and ratio **0.072**; absolute
+mixed decode improved only ~6%. Post-load HBM free is **7.0–7.5 GiB/GPU (minimum 7.0)**.
+The overlap candidate is prepared but not installed and retains the context
+cap. Do not claim production readiness or sustained load. See
+`docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
 `docs/CONTEXT_409600_TEST.md`.
 
 **When resuming after a restart, read `HANDOFF.md` first.** It records the
-live unit state, phase 1 evidence, the phase 2a runbook, rollback, and
+live unit state, phase 2a evidence, the overlap runbook, rollback, and
 the exact constraints for the next session.
 
 ## Git repository
@@ -40,9 +41,11 @@ the exact constraints for the next session.
 - Commit all project changes before pushing. Keep the working tree clean.
 - The installed unit is `/etc/systemd/system/sglang-dsv41.service`; the
   committed source of truth is
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`. They
-  currently match. The earlier `sglang-dsv41-8013-mr16.service` is the exact
-  rollback from phase 1. Record any intentional divergence.
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`.
+  They currently match. The earlier
+  `sglang-dsv41-8013-mr16-nodelay.service` is the exact rollback to phase 1,
+  and `sglang-dsv41-8013-mr16.service` is the deeper mr16 rollback. Record any
+  intentional divergence.
 
 ## GitHub credentials
 

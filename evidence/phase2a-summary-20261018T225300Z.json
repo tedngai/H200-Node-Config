@@ -1,0 +1,203 @@
+{
+  "status": "installed_and_scoped_validation_passed",
+  "utc_installed": "2026-10-18T22:02:18Z",
+  "utc_ready": "2026-10-18T22:11:52Z",
+  "startup_wall_seconds": 574,
+  "unit": "/etc/systemd/system/sglang-dsv41.service",
+  "candidate": "configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service",
+  "unit_sha256": "c3c2ab14829bcf2ee65a1b3c827ed40aeccf81f7e6f06a8f5c3b09860d3ceceb",
+  "effective": {
+    "context_length": 409600,
+    "max_model_len": 409600,
+    "max_running_requests": 16,
+    "min_free_slots_delay": 0,
+    "chunked_prefill_size": 8192,
+    "prefill_decode_interval": 0,
+    "swa_prefix_tails_default": 64,
+    "swa_tokens": 59904,
+    "max_total_num_tokens": 44957952,
+    "hicache_ratio": 2.0,
+    "speculative_algorithm": "DSPARK",
+    "speculative_draft_tokens": 6
+  },
+  "decode_ab": {
+    "baseline": {
+      "1": {
+        "aggregate": [
+          132.884,
+          146.106
+        ],
+        "aggregate_median": 139.495,
+        "per_request_median": [
+          132.894,
+          146.113
+        ],
+        "per_request_median_of_rounds": 139.504,
+        "peak_running": 1.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      },
+      "4": {
+        "aggregate": [
+          259.018,
+          253.966
+        ],
+        "aggregate_median": 256.492,
+        "per_request_median": [
+          65.819,
+          64.559
+        ],
+        "per_request_median_of_rounds": 65.189,
+        "peak_running": 4.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      },
+      "16": {
+        "aggregate": [
+          335.794,
+          337.024
+        ],
+        "aggregate_median": 336.409,
+        "per_request_median": [
+          21.727,
+          21.968
+        ],
+        "per_request_median_of_rounds": 21.848,
+        "peak_running": 16.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      }
+    },
+    "phase2a": {
+      "1": {
+        "aggregate": [
+          167.846,
+          180.506
+        ],
+        "aggregate_median": 174.176,
+        "per_request_median": [
+          167.861,
+          180.514
+        ],
+        "per_request_median_of_rounds": 174.188,
+        "peak_running": 1.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      },
+      "4": {
+        "aggregate": [
+          398.087,
+          390.674
+        ],
+        "aggregate_median": 394.38,
+        "per_request_median": [
+          103.768,
+          105.762
+        ],
+        "per_request_median_of_rounds": 104.765,
+        "peak_running": 4.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      },
+      "16": {
+        "aggregate": [
+          646.416,
+          674.551
+        ],
+        "aggregate_median": 660.484,
+        "per_request_median": [
+          42.691,
+          44.511
+        ],
+        "per_request_median_of_rounds": 43.601,
+        "peak_running": 16.0,
+        "peak_queue": 0.0,
+        "peak_retracted": 0.0
+      }
+    },
+    "aggregate_ratio_phase2a_over_baseline": {
+      "1": 1.249,
+      "4": 1.538,
+      "16": 1.963
+    },
+    "c16_target_at_least_1_5x": true,
+    "c16_postload_aggregate_tok_s": 673.243,
+    "c16_postload_median_tok_s": 43.758
+  },
+  "cold_16x400k": {
+    "batch_wall_s": 978.719,
+    "all_recalled": true,
+    "prompt_tokens_min": 399970,
+    "prompt_tokens_max": 399979,
+    "caveat": "Prefill logs show one new sequence per batch; cold prefill was interleaved/one-at-a-time, not a 16-sequence batch."
+  },
+  "warm_512": {
+    "batch_wall_s": 23.131,
+    "aggregate_tok_s": 474.665,
+    "median_tok_s": 28.105,
+    "peak_running": 10.0,
+    "caveat": "Faster decode plus staggered ingress; 512-token pass did not prove 16 active."
+  },
+  "replay_2048": {
+    "batch_wall_s": 55.576,
+    "aggregate_tok_s": 704.503,
+    "median_tok_s": 41.426,
+    "peak_running": 16.0,
+    "peak_queue": 0.0,
+    "peak_retracted": 0.0
+  },
+  "mixed_w4_c4": {
+    "baseline_aggregate_tok_s": 434.154,
+    "baseline_median_tok_s": 106.543,
+    "mixed_aggregate_tok_s": 31.342,
+    "mixed_median_tok_s": 7.848,
+    "aggregate_ratio": 0.072,
+    "median_ratio": 0.074,
+    "cold_batch_wall_s": 244.04,
+    "all_cold_recalled": true,
+    "peak_running": 7.0,
+    "peak_queue": 3.0,
+    "peak_retracted": 0.0,
+    "note": "Absolute mixed decode improved about 6% versus phase 1, but the warmed baseline improved more, so the ratio fell from 0.11 to 0.072."
+  },
+  "near_limit": {
+    "prompt_tokens": 408985,
+    "completion_tokens": 40,
+    "total_tokens": 409025,
+    "recalled": true,
+    "elapsed_s": 63.977,
+    "over_cap_request": "HTTP 400 rejected (max_completion_tokens too large)"
+  },
+  "postload": {
+    "hbm_used_mib_min": 136116,
+    "hbm_used_mib_max": 136596,
+    "hbm_free_mib_min": 7175,
+    "hbm_free_mib_max": 7655,
+    "host_available_gb": 616,
+    "container_rss_tib": 1.337,
+    "running": 0,
+    "queued": 0,
+    "retracted": 0,
+    "runtime_error_matches": 0,
+    "serving_time_compile_warnings": 16,
+    "compile_warning_note": "_hc_mix_stats_reduce_kernel compiled after serving started (~2.84-3.43 s per rank); non-fatal one-time stall on first long requests."
+  },
+  "evidence": {
+    "baseline": "evidence/decode-throughput-baseline-20261018T215614Z.json",
+    "decode_ab": "evidence/decode-throughput-ctx409600-20261018T221334Z.json",
+    "long": "evidence/long-400000-c16-warm-20261018T223131Z.json",
+    "replay": "evidence/replay-c16-warm-20261018T224045Z.json",
+    "mixed": "evidence/mixed-prefill-decode-w4-c4-20261018T225014Z.json",
+    "postload": "evidence/postload-ctx409600-20261018T225142Z",
+    "startup": "evidence/startup-ctx409600-20261018T221345Z",
+    "postload_c16": "evidence/decode-throughput-ctx409600-postload-20261018T225237Z.json",
+    "near_limit": "evidence/near-limit-409k-ctx409600-20261018T225343Z.json",
+    "over_cap": "evidence/over-cap-rejection-ctx409600-20261018T225343Z.json"
+  },
+  "non_claims": [
+    "Scoped synthetic tests, not sustained real coding load.",
+    "Cold 16x400k prefill was not a 16-sequence batch.",
+    "No 400k HiCache host restoration.",
+    "Not a production cutover; port 8012 and pratt-high unchanged."
+  ]
+}

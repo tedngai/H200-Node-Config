@@ -1,0 +1,5 @@
+sglang:hicache_host_used_tokens 20480.0
+sglang:num_queue_reqs 0.0
+sglang:num_retracted_reqs 0.0
+sglang:num_running_reqs 0.0
+sglang:token_usage 0.01

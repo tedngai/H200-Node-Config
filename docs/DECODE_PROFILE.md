@@ -1,9 +1,10 @@
 # Decode profile and optimization assessment — 2026-10-18
 
-Scoped diagnostic on the installed phase 1 unit (`mr16-nodelay`), engine idle
-before and after. Workload: synthetic short coding prompts, natural sampling,
-no `ignore_eos`. Evidence: `evidence/decode-profile-20261018T213400Z/`.
-Nothing was installed or restarted.
+Scoped diagnostic on the phase 1 unit (`mr16-nodelay`), engine idle before and
+after. Workload: synthetic short coding prompts, natural sampling, no
+`ignore_eos`. Evidence: `evidence/decode-profile-20261018T213400Z/`.
+The phase 2a context cap was subsequently installed and measured; see the
+phase 2a section below and `docs/RESULTS.md`.
 
 ## Finding: decode cost scales with batch size, not context
 
@@ -64,29 +65,24 @@ masking to their 16k candidate window.
 
 ## Opportunities (ranked)
 
-1. **Cap `--context-length` (config only, single flag).** `L` scales with
-   `context_len`. Projected from the profile (not measured):
-
-   | Cap | `L` factor | c16 step | c1 step |
-   | --- | ---: | ---: | ---: |
-   | 1,048,576 (now) | 1.00 | 212 ms | 33 ms |
-   | 409,600 | 0.39 | ~113–121 ms (~1.8×) | ~27 ms (~1.2×) |
-   | 262,144 | 0.25 | ~93–100 ms (~2.1×) | ~25.5 ms (~1.3×) |
-
-   409,600 matches the 400k approved target. Requests above the cap are
-   rejected, not truncated. `/v1/models` will report the new limit; client
-   context/compaction limits must be at or below it. A phase 2a candidate is
-   prepared at
-   `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`;
-   apply/validate via `docs/CONTEXT_409600_TEST.md`. It is not installed.
+1. **Cap `--context-length` — installed as phase 2a.** Measured on 2026-10-18:
+   409,600 raised c16 aggregate decode from 336.4 to **660.5 tok/s (1.96×)**,
+   c4 from 256.5 to 394.4 (1.54×), and c1 from 139.5 to 174.2 (1.25×).
+   `max_model_len` is 409600 and requests above it are rejected, not truncated;
+   client context/compaction limits must be at or below the cap. The SWA pool
+   (`swa_tokens=59904`) and full KV pool (44,957,952) are unchanged.
+   A 262,144 cap is untested; the phase 1 projection was about 2.1× at c16.
+   See `docs/CONTEXT_409600_TEST.md` and `docs/RESULTS.md`.
 2. **Tune Triton block-FP8 GEMM configs.** All ten `block_shape=[32, 32]`
    dense shapes use default configs on H200 (startup "Config file not
-   found"). They are 34% of single-user step time and latency-bound. Tuned
-   JSON configs can be mounted read-only without changing the image. Tuning
-   needs GPU time while the engine is stopped. Gain is unmeasured.
-3. **Raise concurrency only after (1).** The GPU pool is 44.96M tokens versus
-   6.55M for 16 × 409,600, so memory is not the limit; per-request step cost
-   is. Re-measure c16/c24/c32 with a per-user tok/s floor after the cap.
+   found"). They were 34% of the phase 1 c1 step and remain about 11.3 ms, now
+   a larger share of the reduced c1 step. Tuned JSON configs can be mounted
+   read-only without changing the image. Tuning needs GPU time while the engine
+   is stopped. Gain is unmeasured.
+3. **Raise concurrency after phase 2a.** The GPU pool is still 44.96M tokens
+   versus 6.55M for 16 × 409,600, so memory is not the limit; per-request step
+   cost is. Re-measure c16/c24/c32 with a per-user tok/s floor after the cap.
+   C16 already runs at about 42–45 tok/s per request with 0 queue.
 4. **DP attention (larger change, later).** It would remove the 8× redundant
    per-rank indexer work, and the cookbook's high-concurrency Blackwell cells
    use it. In this build it is incompatible with
@@ -99,26 +95,69 @@ masking to their 16k candidate window.
 Not worth pursuing now: engram back to HBM (gather is 0.02 ms/step); MoE
 backend changes (5% at c16). V4.1 rejects two-batch overlap.
 
-## Effect on the phase 2 plan
+## Phase 2a measured (installed)
 
-Phase 2 (`--prefill-decode-interval 16`, `--chunked-prefill-size 4096`,
-`--swa-prefix-tails 1024`) targets prefill/decode interference, not the decode
-bottleneck. The interval multiplies decode step time: at today's ~200 ms c16
-step, 16 rounds is ≥3.2 s between prefill chunks, and a cold 400k prompt has
-~98 chunks at 4096. Cold time-to-first-token could grow by minutes under load.
+Phase 2a is installed at `context_length=409600`; startup was 574 s. Measured
+on the same scripted prompts:
+
+| Load | Phase 1 aggregate | Phase 2a aggregate | Ratio |
+| --- | ---: | ---: | ---: |
+| c1 | 139.495 (median of rounds) | **174.176** | 1.249× |
+| c4 | 256.492 | **394.381** | 1.538× |
+| c16 | 336.409 | **660.484** | **1.963×** |
+
+The 2048-token 16-active replay improved from 96.254 s / 372.979 tok/s to
+**55.576 s / 704.503 tok/s** (1.73× wall, 1.89× aggregate), with peak 16
+running, 0 queue and 0 retracted. A post-load c16 run measured 673.243 tok/s.
+
+From the measured rate and the observed accept length (~4.4), the c16 step is
+now roughly **105–110 ms**, versus 212 ms profiled in phase 1. This is derived
+from throughput, not a fresh kernel profile. The remaining c16 cost is spread
+across dense FP8 GEMM, MoE, top-k/index gather and all-reduce; the indexer is
+no longer the single dominant term.
+
+Cold 16 × 400k completed in 978.719 s with all codes recalled, but prefill logs
+still show one new sequence per batch, so it was interleaved rather than a
+16-sequence cold batch. The 512-token warm pass reached 474.665 tok/s but only
+peak 10 running because faster decode plus ingress stagger finished early
+requests first. The replay is the 16-active proof.
+
+Mixed prefill/decode remains the weak point: the warmed baseline rose to
+434.154 tok/s, the mixed case to 31.342 tok/s, and the ratio fell to **0.072**
+(phase 1: 0.11). Absolute mixed decode improved about 6%; the ratio fell because
+the baseline improved more. Prefill interference is still severe.
+
+Memory improved: idle HBM was about 121.4 GB/GPU instead of ~138 GB, and
+post-load free HBM was **7.0–7.5 GiB/GPU (minimum 7.0)** instead of 5.0–5.4 GiB, with the
+same 44,957,952-token KV pool and `swa_tokens=59904`. The cap reduced
+indexer/CUDA-graph scratch, not KV capacity.
+
+## Effect on the next experiments
+
+Phase 2a is complete. At the new c16 step of about 105–110 ms, the overlap
+candidate's `--prefill-decode-interval 16` still means roughly 1.7 s between
+prefill chunks, and a cold 400k prompt has ~98 chunks at 4096. Cold
+time-to-first-token could still grow by minutes under load, so the interval
+needs an explicit cold-TTFT ceiling and a mixed-test comparison against the new
+**31.342 tok/s / 0.072** baseline.
+
 Recommended order:
 
-1. Phase 2a: phase 1 + `--context-length 409600` only; re-run c1/c4/c16 short,
-   16 × 400k + 2048 replay, mixed test, tools/reasoning.
-2. Phase 2b: add interval + chunk size, with an explicit cold-TTFT ceiling.
-3. Phase 2c: `--swa-prefix-tails 1024` separately, as a multi-session
-   prefix-reuse test (~8 GB/GPU, affordable given pool headroom).
+1. Phase 2b: add `--prefill-decode-interval` and `--chunked-prefill-size 4096`
+   together, with a cold-TTFT ceiling; keep `--swa-prefix-tails` at default.
+2. Phase 2c: test `--swa-prefix-tails 1024` separately as a multi-session
+   prefix-reuse experiment (~8 GB/GPU; the current pool headroom can afford it,
+   but 16 active requests do not inherently need 1024 tails).
+3. Independently, tune the Triton block-FP8 GEMM configs and measure c24/c32.
+   Neither requires changing model weights or the serving shape.
 
 ## Acceptance note
 
 Realistic coding output accepted 3.1–5.7 tokens per verify step (c16 median
 3.91), close to the forced-output 400k tests. The earlier 77 tok/s c1 result
-used generic prose; coding c1 measured 141–160 tok/s.
+used generic prose. Phase 1 coding c1 measured 132.9–146.1 tok/s; phase 2a c1
+measured **167.8–180.5 tok/s**. Phase 2a c16 per-request medians were
+**42.7–44.5 tok/s** with 0 queue and 0 retracted.
 
 ## Minor host observations
 

@@ -1,0 +1,18 @@
+[2026-10-18 22:08:31 TP0 EP0] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP0 EP0] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP5 EP5] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP6 EP6] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP4 EP4] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP5 EP5] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP3 EP3] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP6 EP6] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP7 EP7] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP4 EP4] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP3 EP3] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP7 EP7] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP2 EP2] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP1 EP1] DSV4 SWA sizing: mode=cap, swa_tokens=59904, request_cap+headroom=59904, prefix_tails=64
+[2026-10-18 22:08:31 TP2 EP2] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:08:31 TP1 EP1] DSV4 memory calculation: bytes_per_full_token=1670.75, available_bytes=71.29 GB, c128_state_fixed=0.00 GB, swa_fixed=1.34 GB, full_token=44957952
+[2026-10-18 22:10:56 TP0 EP0] max_total_num_tokens=44957952, chunked_prefill_size=8192, max_prefill_tokens=16384, max_running_requests=16, context_len=409600, available_gpu_mem=21.73 GB
+[2026-10-18 22:11:52] The server is fired up and ready to roll!

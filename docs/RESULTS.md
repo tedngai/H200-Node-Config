@@ -14,9 +14,14 @@ peaked at 15 because server-side tokenization/ingress staggered admission.
 Sixteen simultaneous **cold** 400k prefills remain unproven. A full 400k
 host-restoration test was **not** run; see the HiCache section for why.
 
-Prepared next step: **phase 2a**, a single `--context-length 409600` change.
-It is not installed. See `docs/DECODE_PROFILE.md` and
-`docs/CONTEXT_409600_TEST.md`.
+**Phase 2a is installed and measured** (2026-10-18 22:02 UTC, ready in 574 s):
+a single `--context-length 409600` cap. C16 decode rose to **660.5 tok/s**
+(1.963× phase 1), the 16-active 2048-token replay reached **704.5 tok/s** with
+peak 16 running / 0 queued / 0 retracted, 16 × 400k cold again recalled all
+codes, and a 409k near-limit prompt recalled correctly. The mixed/baseline
+ratio fell to **0.072** because the warmed baseline improved more than the
+mixed case; absolute mixed decode improved about 6%. See the phase 2a section
+and `docs/DECODE_PROFILE.md`.
 
 ## Identity
 
@@ -28,9 +33,14 @@ It is not installed. See `docs/DECODE_PROFILE.md` and
 | Image | `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860` |
 | SGLang build | `0.0.0.dev1+gda64c5cbb`, CUDA 13.0.3 |
 | API | `http://127.0.0.1:8013`, served name `dsv41-flash-1017` |
-| Startup | first start 14:42:34→14:52:39 UTC, **585 s**; phase 1 restart 20:04:52→20:14:30 UTC, **578 s** |
+| Installed context cap | **409,600** (phase 2a); phase 1 used 1,048,576 |
+| Startup | first start 14:42:34→14:52:39 UTC, **585 s**; phase 1 restart 20:04:52→20:14:30 UTC, **578 s**; phase 2a restart 22:02:18→22:11:52 UTC, **574 s** |
 
-## Effective engine state
+## Effective engine state — phase 1 (historical)
+
+The table below records phase 1. Phase 2a changes only `context_length` to
+**409600**; every other flag and pool size below is unchanged. Current phase 2a
+values are in the phase 2a section.
 
 From `/server_info`, the startup log and `/v1/models`:
 
@@ -281,11 +291,106 @@ overlap candidate. It is not evidence that overlap settings will fix it.
   (sigterm watchdog, `SystemExit: 0`) at 20:04:50 UTC, before the new container
   started; and the FABRIC→POSIX fd fallback on all ranks at 20:13:18 UTC.
 
+## Phase 2a — context cap 409600 (installed 2026-10-18 22:02 UTC)
+
+Candidate:
+`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`.
+It is the phase 1 unit plus exactly one engine flag:
+
+```text
+--context-length 409600
+```
+
+Started at 22:02:18 UTC and was ready at 22:11:52 UTC (**574 s**).
+`/v1/models.max_model_len` and `/server_info.context_length` both report
+**409600**. The phase 1 settings are otherwise unchanged:
+`max_running_requests=16`, `min_free_slots_delay=0`, `chunked_prefill_size=8192`,
+`prefill_decode_interval=0`, default 64 SWA prefix tails, DSpark block size 5,
+HiCache ratio 2.
+
+Startup memory:
+
+- `DSV4 SWA sizing`: **59904 tokens**, `prefix_tails=64` — unchanged.
+- `DSV4 memory calculation`: **44,957,952 full tokens** — unchanged.
+- HBM used at idle: **121,334–121,430 MiB/GPU**, versus about 138,000 MiB in
+  phase 1. The cap reduces indexer/CUDA-graph scratch outside the KV pool.
+- HBM after all long-context load: **136,116–136,596 MiB/GPU**, leaving
+  **7,175–7,655 MiB (7.0–7.5 GiB) free** versus 5.0–5.4 GiB in phase 1.
+- Host available **616 GB**; container RSS **1.337 TiB**.
+
+### Decode A/B
+
+Same `tests/decode_throughput.py` prompts, temperature 0, 1024 output tokens,
+two rounds. Values are aggregate tok/s for rounds 1/2.
+
+| Load | Phase 1 | Phase 2a | Ratio of medians | Phase 2a per-request median |
+| --- | ---: | ---: | ---: | ---: |
+| c1 | 132.884 / 146.106 | **167.846 / 180.506** | 1.249× | 167.9 / 180.5 |
+| c4 | 259.018 / 253.966 | **398.087 / 390.674** | 1.538× | 103.8 / 105.8 |
+| c16 | 335.794 / 337.024 | **646.416 / 674.551** | **1.963×** | 42.7 / 44.5 |
+
+All runs reached the requested concurrency with 0 queue and 0 retracted. A
+post-load c16 check after all long-context tests measured **673.243 aggregate /
+43.758 median tok/s**, still peak 16. This clears the 1.5× c16 gate.
+
+### 16 × 400k cold and warm
+
+- Cold batch wall **978.719 s** (phase 1: 991.414 s); all 16 prompts
+  (399,970–399,979 tokens) recalled their three codes.
+- Prefill logs show **one new sequence per batch** (777 prefill batches), so
+  cold prefill was interleaved/one-at-a-time, **not** a 16-sequence batch. Do
+  not claim 16 simultaneous cold prefills.
+- 512-token warm pass: **23.131 s**, aggregate **474.665 tok/s**, median
+  **28.105 tok/s**, peak running **10**, 0 queue, 0 retracted. Faster decode
+  plus staggered ingress let early requests finish before all 16 were admitted;
+  this pass does not prove 16 active.
+- 2048-token replay: **55.576 s**, aggregate **704.503 tok/s**, median
+  **41.426 tok/s**, peak **16 running**, 0 queue, 0 retracted. Sixteen were
+  concurrently active from about 14.6 s to 30.3 s. Phase 1 was 96.254 s /
+  372.979 / 22.878, so the replay is about **1.73× faster**.
+- Cached prompts were 399,872 device tokens each, zero host hits.
+
+### Mixed prefill/decode
+
+Four warmed 2048-token decodes plus four fresh 400k prefills:
+
+| Pass | Batch wall | Aggregate | Median | Peak running | Peak queue | Retracted |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Warmed only | 21.732 s | **434.154** | **106.543** | 4 | 0 | 0 |
+| Warm + 4 cold 400k | 264.691 s | **31.342** | **7.848** | 7 | 3 | 0 |
+
+The four cold prompts all recalled their codes; cold batch wall was **244.04 s**
+(phase 1: 247.601 s). The mixed/baseline ratio fell to **0.072 aggregate /
+0.074 median** from phase 1's 0.11. This is not a regression in absolute mixed
+decode: mixed aggregate improved about **6.0%** (29.556 → 31.342) and median
+about **6.2%** (7.388 → 7.848). The ratio fell because the warmed baseline
+improved much more. Prefill/decode interference remains severe and is still the
+target of the overlap experiment.
+
+### Near-limit context and rejection
+
+- A 408,985-token prompt returned 40 output tokens (total **409,025**) and
+  recalled all three codes in **63.977 s**. It fits under the 409,600 cap.
+- A request with `max_completion_tokens=409700` was rejected with HTTP **400**
+  (`max_completion_tokens is too large`), not truncated.
+
+### Post-load
+
+- 0 runtime errors after excluding request/response logs and the server_args
+  line; idle 0 running / 0 queued / 0 retracted.
+- 16 non-fatal one-time compile warnings: `_hc_mix_stats_reduce_kernel` took
+  about 2.84–3.43 s to compile after serving started on the first long
+  requests. This can add a one-time stall to the first request; it was not a
+  runtime failure.
+- Post-load smoke, separated reasoning, tool call and second tool turn passed.
+- HiCache host use was 20,480 tokens. No large 400k host restoration was run.
+
 ## HiCache
 
-HiCache initialized with a **90,840,064-token** host pool (ratio 2). During the
-tests it backed up and evicted **45,056 tokens**, with **0 dropped tokens**.
-Post-load host usage was 5,632 tokens.
+HiCache initialized with a **90,840,064-token** host pool in the 4-request
+start (ratio 2); mr16 through phase 2a report **89,915,904**. During the tests
+it backed up and evicted **45,056 tokens**, with **0 dropped tokens**.
+Post-load host usage was 5,632 tokens in phase 1 and 20,480 in phase 2a.
 
 A genuine but small host hit was observed after GPU eviction:
 
@@ -300,7 +405,8 @@ tier is functional, but it is **not** a 400k host-restoration test.
 A large host-restore test was not run because the GPU pool is 45.4M tokens.
 Forcing eviction of a 400k prefix would require roughly 45M distinct prompt
 tokens of pressure (many rounds of four 400k or 1M prompts). That is a separate
-experiment, not implied by this pass.
+experiment, not implied by this pass. Phase 2a post-load host use was
+**20,480 tokens**; no large restore was attempted.
 
 ## Stability observations
 
@@ -316,6 +422,11 @@ experiment, not implied by this pass.
 - After phase 1, HBM free was **5.0–5.4 GiB/GPU**, host available **617 GiB**,
   container RSS **1.341 TiB**. The mr16 post-load values were ~5.0 GiB free
   HBM/GPU and ~613 GiB host available.
+- Phase 2a post-load: HBM free **7,175–7,655 MiB/GPU (7.0–7.5 GiB)**, host available
+  **616 GB**, container RSS **1.337 TiB**, 0 running / 0 queued / 0 retracted.
+- Phase 2a runtime error scan: **0 matches**. One non-fatal one-time message
+  class remains: `_hc_mix_stats_reduce_kernel` compiled after serving started
+  (2.84–3.43 s per rank) on the first long requests.
 
 ## Evidence
 
@@ -343,16 +454,43 @@ experiment, not implied by this pass.
 - `evidence/postload-smoke-phase1-20261018T210748Z.json`
 - `evidence/postload-tools-phase1-20261018T210748Z.json`
 - `evidence/phase1-nodelay-summary-20261018T210803Z.json` — compact phase 1 summary.
+- `evidence/decode-profile-20261018T213400Z/` — kernel profile, traces and scripts.
+- `evidence/preflight-ctx409600-20261018T215639Z/` — phase 2a idle preflight.
+- `evidence/decode-throughput-baseline-20261018T215614Z.json` — scripted phase 1 decode baseline.
+- `evidence/phase2a-prepared-20261018T215639Z.json` — phase 2a preparation summary.
+- `evidence/startup-ctx409600-20261018T221345Z/` — phase 2a startup and effective flags.
+- `evidence/smoke-20261018T221347Z.json` — phase 2a startup smoke.
+- `evidence/tools-20261018T221347Z.json` — phase 2a startup tools.
+- `evidence/decode-throughput-ctx409600-20261018T221334Z.json` — phase 2a decode A/B.
+- `evidence/long-400000-c16-warm-20261018T223131Z.json` — phase 2a 16×400k cold + 512 warm.
+- `evidence/replay-c16-warm-20261018T224045Z.json` — phase 2a 2048-token 16-active replay.
+- `evidence/mixed-prefill-decode-w4-c4-20261018T225014Z.json` — phase 2a mixed result.
+- `evidence/near-limit-409k-ctx409600-20261018T225343Z.json` — 409k retrieval.
+- `evidence/long-20261018T225126Z.json` — earlier 409k retrieval probe.
+- `evidence/over-cap-rejection-ctx409600-20261018T225343Z.json` — HTTP 400 boundary check.
+- `evidence/postload-ctx409600-20261018T225142Z/` — post-load metrics, GPU/RAM, errors.
+- `evidence/postload-smoke-ctx409600-20261018T225142Z.json`
+- `evidence/postload-tools-ctx409600-20261018T225143Z.json`
+- `evidence/decode-throughput-ctx409600-postload-20261018T225237Z.json`
+- `evidence/phase2a-summary-20261018T225300Z.json` — compact phase 2a summary.
 - `evidence/postload-smoke-20261018T150748Z.json`
 - `evidence/postload-20261018T150754Z/` — post-load metrics, GPU/RAM, logs.
 
 ## What this does not prove
 
 - Sustained real coding/agent load or broad model-quality equivalence.
-- **16 simultaneous cold 400k prefills**; cold admission remained staggered.
-- Sustained 16-active coding sessions; the 16-active result is a ~56 s synthetic
-  warmed decode replay.
-- A 400k HiCache host restoration (only a 256-token host hit was observed).
-- Exact 1,048,576-token occupancy.
+- **16 simultaneous cold 400k prefills**; phase 2a cold prefill used one new
+  sequence per batch, so it remained interleaved rather than a 16-sequence
+  batch.
+- Sustained 16-active coding sessions; the 16-active result is a **~16 s**
+  synthetic warmed-decode plateau (shorter than phase 1's ~56 s because decode
+  is faster).
+- A 400k HiCache host restoration (only small host hits were observed; phase 2a
+  post-load host use was 20,480 tokens).
+- Exact 409,600-token occupancy; the near-limit probe reached 409,025 total.
 - Production readiness behind the `pratt-high` gateway or on port 8012.
-- That the phase 2 overlap settings improve the 0.11 mixed/baseline ratio.
+- That the phase 2 overlap settings improve prefill interference. Phase 2a
+  lowered the mixed/baseline ratio to 0.072 because the warmed baseline
+  improved; absolute mixed decode improved only about 6%.
+- That the one-time `_hc_mix_stats_reduce_kernel` compile stall is eliminated;
+  it remains a first-request latency risk until precompiled.

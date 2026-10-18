@@ -164,7 +164,7 @@ assume `private` is still accepted.
 
 | Omitted | Why |
 | --- | --- |
-| `--context-length` | Left at the checkpoint default in phase 1. The prepared phase 2a candidate sets **409600** to shrink the H200 indexer's configured scoring width; it is not installed. See `docs/CONTEXT_409600_TEST.md`. |
+| `--context-length` | Left at the checkpoint default in phase 1. Phase 2a installed **409600** to shrink the H200 indexer's configured scoring width; it remains in the prepared overlap candidate. See `docs/CONTEXT_409600_TEST.md`. |
 | `--chunked-prefill-size` | Left at the image default. The detailed H200 agentic cell uses 4096, but the selected low-latency cell does not. |
 | `--swa-prefix-tails` | Left at the recipe default. The detailed agentic cell tunes it per concurrency; this is a scoped test. |
 | `--max-prefill-tokens`, `--prefill-decode-interval` | Agentic throughput tuning, not part of the selected low-latency cell. |

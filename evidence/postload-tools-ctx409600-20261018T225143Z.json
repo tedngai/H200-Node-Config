@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-18T22:51:43Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-flash-1017",
+  "mode": "tools",
+  "result": {
+    "first_elapsed_s": 0.38,
+    "first_tool_calls": [
+      {
+        "id": "call_3d7c2cae004a4551a46b6e6a",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "arguments": "{\"location\": \"Beijing\"}"
+        }
+      }
+    ],
+    "second_elapsed_s": 0.291,
+    "second_content": "The weather in Beijing is currently **clear** with a temperature of **21\u00b0C** (about 70\u00b0F).",
+    "second_reasoning": "",
+    "second_tool_calls": [],
+    "usage": {
+      "prompt_tokens": 382,
+      "total_tokens": 409,
+      "completion_tokens": 27,
+      "prompt_tokens_details": {
+        "cached_tokens": 256
+      },
+      "reasoning_tokens": 1
+    },
+    "ok": true
+  },
+  "ok": true
+}
