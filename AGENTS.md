@@ -7,9 +7,10 @@ This file adds project-specific instructions to the global
 
 This repository documents and tests `deepseek-ai/DeepSeek-V4.1-Flash-1017` on
 the 8xH200 node using the cookbook H200 Flash-1017 FP4 low-latency recipe with
-DSPARK, engram host tables and HiCache. It is an isolated test on port **8013**
-with served name **`dsv41-flash-1017`**; it is not the production `pratt-high`
-service on port 8012.
+DSPARK, engram host tables and HiCache. It currently serves the client-facing
+**8012 / pratt-high** endpoint with the scoped-tested phase 2b profile. A
+production boot candidate is prepared, but the results here are not a
+production quality/SLA qualification.
 
 The validated GLM-5.3 service and its rollback path must be preserved. Do not
 change `/etc/systemd/system/sglang-glm53.service` or the public alias as a side
@@ -42,7 +43,9 @@ the exact constraints for the next session.
   `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`.
   They currently match. The 8012 phase 2a unit is the exact fallback that
   preserves the endpoint; the 8013 phase 1/mr16 units are historical test
-  endpoints. Record any intentional divergence.
+  endpoints. The production boot candidate is
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b-production.service`,
+  prepared but not installed. Record any intentional divergence.
 
 ## GitHub credentials
 
@@ -116,8 +119,10 @@ retry by putting the token in the URL or in git config.
 
 - Use `python3 -m py_compile` on changed test scripts before committing.
 - Keep `docs/` and `README.md` consistent with measured results.
-- The service is not enabled and uses `Restart=no`; do not enable it without
-  approval.
+- The service is not enabled and uses `Restart=no`; do not enable or restart it
+  without explicit approval. The prepared production candidate adds bounded
+  crash restart and boot enablement, but the user runs privileged
+  install/enable/restart commands.
 - Record effective flags, startup time, memory headroom, errors and the
   distinction between cold prefill, GPU-cached reuse, host-cache restoration
   and decode.
