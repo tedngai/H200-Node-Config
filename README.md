@@ -16,7 +16,10 @@ HiCache host hit was observed. See `docs/RESULTS.md`.
 
 **Prepared, not installed:** phase-2c SWA-tails candidate. Phase 2b is
 installed on **8012 / pratt-high**; see `docs/SCHEDULER_OVERLAP_TEST.md` for the
-separate tails test.
+separate tails test. A **production boot candidate** is also prepared,
+preserving every 2b flag while adding bounded crash restart and a `/raid`
+mount dependency. The installed 2b unit is currently disabled at boot and uses
+`Restart=no`; see `docs/OPERATIONS.md` for the exact enable/reboot procedure.
 
 ## What is being tested
 

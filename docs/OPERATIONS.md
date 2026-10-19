@@ -5,7 +5,90 @@
 `mr16-nodelay-ctx409600-overlap2b` unit. The 8012 phase 2a candidate is the
 rollback that preserves the endpoint; phase 2c tails is a separate test.
 
-## Install / start (privileged, user-run)
+## Production boot enablement (prepared, not installed)
+
+The tested 2b unit is **not enabled** and has `Restart=no`. The production
+candidate is:
+
+```text
+configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b-production.service
+```
+
+It preserves every tested 2b flag and adds only operational hardening:
+
+- `Restart=on-failure` with `RestartSec=30`;
+- `StartLimitIntervalSec=1800` / `StartLimitBurst=3`, so a bad 510 GB load
+  cannot loop forever;
+- `RequiresMountsFor=/raid/advtech/cache/huggingface`, so boot fails rather
+  than starting with a missing model/cache mount;
+- the existing `Requires=docker.service nvidia-fabricmanager.service` and
+  `Conflicts=sglang-glm53.service sglang-glm53-flash.service` are retained.
+
+### Install and enable (user-run; needs sudo)
+
+First confirm the engine is idle (`0 running / 0 queued`) and decide the
+maintenance window. Startup takes about **9–10 minutes**. Then:
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /home/advtech/dsv41-flash-inference/configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b-production.service \
+  /etc/systemd/system/sglang-dsv41.service
+sudo systemctl daemon-reload
+
+# Keep the GLM units installed for rollback, but stop them and their boot autostart.
+sudo systemctl disable --now sglang-glm53.service sglang-glm53-flash.service
+
+# Start DSV4.1 at boot.
+sudo systemctl enable sglang-dsv41.service
+sudo systemctl restart sglang-dsv41.service
+```
+
+Do not use both engines at once; both need all eight GPUs. Disabling the GLM
+units does **not** delete or modify them. Rollback to GLM is
+`systemctl disable --now sglang-dsv41.service`, then
+`systemctl enable --now sglang-glm53.service`.
+
+### Verify before rebooting
+
+```bash
+systemctl is-enabled sglang-dsv41.service
+systemctl is-enabled sglang-glm53.service sglang-glm53-flash.service
+systemctl show sglang-dsv41.service \
+  -p Restart -p RestartUSec -p StartLimitBurst -p StartLimitIntervalUSec
+curl -s http://127.0.0.1:8012/v1/models | python3 -c \
+  'import json,sys; print([(m["id"],m.get("max_model_len")) for m in json.load(sys.stdin)["data"]])'
+systemctl show sglang-dsv41.service -p NRestarts -p ActiveState -p SubState
+```
+
+Expected: DSV4 `enabled`; both GLM services `disabled`; `Restart=on-failure`;
+model `pratt-high`, `max_model_len=409600`; 0 restarts.
+
+### Reboot proof and post-boot check
+
+Only an actual reboot proves boot auto-start. After a scheduled reboot:
+
+```bash
+systemctl is-active sglang-dsv41.service
+systemctl is-enabled sglang-dsv41.service
+docker ps --filter name=sglang-dsv41
+curl -s http://127.0.0.1:8012/v1/models
+nvidia-smi
+systemctl show sglang-dsv41.service -p NRestarts -p ActiveState -p SubState
+```
+
+Expect one DSV4 container, eight GPUs, `pratt-high`, and no competing GLM
+container. The first request may wait for the ~9–10 minute model load. If the
+unit enters `failed`, inspect `journalctl -u sglang-dsv41.service` and
+`docker logs sglang-dsv41`; fix the cause before allowing another restart.
+
+This is operational boot/restart hardening, not a claim of sustained
+production load or gateway qualification. The single node has no warm standby;
+a reboot or crash recovery is a roughly 10-minute outage.
+
+## Manual 2b install / start (not boot-enabled)
+
+Use this only for a temporary 2b test or an endpoint-preserving rollback; for
+boot-enabled production use the section above.
 
 The experiment account has Docker access but no passwordless sudo. Run these
 personally:

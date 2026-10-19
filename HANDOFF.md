@@ -20,6 +20,16 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 - Image:
   `lmsysorg/sglang@sha256:4a5d132a06a77c8331e15845f2e925adc788b00105097ad55409afa3f4fa4860`
 - Service is **active and idle** at handoff: 0 running, 0 queued, 0 retracted.
+  The installed unit is currently **disabled at boot** and uses `Restart=no`.
+- Production boot candidate (prepared, **not installed**):
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b-production.service`.
+  It preserves all 2b flags and adds `Restart=on-failure` (30 s),
+  `StartLimitIntervalSec=1800`/`StartLimitBurst=3`, and
+  `RequiresMountsFor=/raid/advtech/cache/huggingface`. See
+  `docs/OPERATIONS.md`.
+- Both `sglang-glm53.service` and `sglang-glm53-flash.service` are currently
+  **enabled** at boot but inactive. Disable both when installing the DSV4
+  production unit; keep them installed for rollback.
 - The GLM-5.3 unit is unchanged and stopped. The DSV4 unit intentionally binds
   **8012 / pratt-high**; the gateway and client configs were not changed.
 
