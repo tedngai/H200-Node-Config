@@ -15,22 +15,19 @@ The validated GLM-5.3 service and its rollback path must be preserved. Do not
 change `/etc/systemd/system/sglang-glm53.service` or the public alias as a side
 effect of work in this repository.
 
-Current measured state (phase 2a, 2026-10-18): `context_length=409600` with
-`--min-free-slots-delay 0`. The 2048-token warm replay proved **16 simultaneous
-active 400k decodes** (peak 16 running, 0 queued, 0 retracted) at **704.5
-tok/s** aggregate; c16 scripted decode is **660.5 tok/s** (1.96× phase 1).
-Sixteen cold 400k prompts all recalled in 978.7 s, but prefill ran one new
-sequence per batch, so 16 simultaneous cold prefills are still unproven. The
-mixed 4-warm/4-cold result is **31.342 tok/s** and ratio **0.072**; absolute
-mixed decode improved only ~6%. Post-load HBM free is **7.0–7.5 GiB/GPU (minimum 7.0)**.
-The phase 2b overlap candidate is prepared but not installed and retains the
-context cap; it will serve **8012 / pratt-high**. Phase 2c tails is a separate
+Current measured state (phase 2b, 2026-10-19): installed on **8012 /
+pratt-high** with `context_length=409600`, `--prefill-decode-interval 16`,
+`--chunked-prefill-size 4096` and default tails. Mixed 4-warm/4-cold decode is
+**292.4 tok/s** (ratio **0.649**, 9.33× phase 2a's 31.3). The cold-TTFT gate
+passed (74.7 s single; four-cold max 268.3 s / wall 268.5 s). Costs: c16 decode
+is 643.4 tok/s (0.974× phase 2a), 16 × 400k cold wall is 1068.9 s, and the
+2048 replay wall is 81.6 s due to a straggler. Phase 2c tails is a separate
 candidate. Do not claim production readiness or sustained load. See
 `docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
-`docs/CONTEXT_409600_TEST.md`.
+`docs/SCHEDULER_OVERLAP_TEST.md`.
 
 **When resuming after a restart, read `HANDOFF.md` first.** It records the
-live unit state, phase 2a evidence, the overlap runbook, rollback, and
+live unit state, phase 2b evidence, the separate tails runbook, rollback, and
 the exact constraints for the next session.
 
 ## Git repository
@@ -42,11 +39,10 @@ the exact constraints for the next session.
 - Commit all project changes before pushing. Keep the working tree clean.
 - The installed unit is `/etc/systemd/system/sglang-dsv41.service`; the
   committed source of truth is
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`.
-  They currently match. The earlier
-  `sglang-dsv41-8013-mr16-nodelay.service` is the exact rollback to phase 1,
-  and `sglang-dsv41-8013-mr16.service` is the deeper mr16 rollback. Record any
-  intentional divergence.
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`.
+  They currently match. The 8012 phase 2a unit is the exact fallback that
+  preserves the endpoint; the 8013 phase 1/mr16 units are historical test
+  endpoints. Record any intentional divergence.
 
 ## GitHub credentials
 

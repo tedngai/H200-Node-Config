@@ -1,0 +1,14 @@
+max_running_requests=16
+min_free_slots_delay=0
+context_length=409600
+chunked_prefill_size=4096
+prefill_decode_interval=16
+swa_prefix_tails=None
+enable_hierarchical_cache=True
+hicache_ratio=2.0
+speculative_algorithm='DSPARK'
+speculative_dspark_block_size=5
+mem_fraction_static=0.8
+max_total_num_tokens=45075200
+status='ready'
+startup_time={'load_weight': 289.39679161738604, 'kv_cache_allocation': 2.941796274855733, 'scheduler_e2e': 513.5398483229801, 'cuda_graph': {'prefill': 0.0, 'decode': 0.0, 'target_verify': 28.957078027538955, 'draft_prefill': 0.0, 'draft_decode': 12.605139213614166, 'draft_extend': 0.0}, 'tokenizer_e2e': 527.1051786122844}

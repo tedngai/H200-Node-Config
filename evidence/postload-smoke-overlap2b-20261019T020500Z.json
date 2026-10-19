@@ -1,0 +1,76 @@
+{
+  "utc": "2026-10-19T02:05:11Z",
+  "base_url": "http://127.0.0.1:8012",
+  "model": "pratt-high",
+  "mode": "smoke",
+  "result": {
+    "models": {
+      "object": "list",
+      "data": [
+        {
+          "id": "pratt-high",
+          "object": "model",
+          "created": 1792375511,
+          "owned_by": "sglang",
+          "root": "pratt-high",
+          "parent": null,
+          "max_model_len": 409600
+        }
+      ]
+    },
+    "plain": {
+      "elapsed_s": 0.195,
+      "content": "SMOKE-OK",
+      "reasoning_content": "",
+      "tool_calls": [],
+      "usage": {
+        "prompt_tokens": 13,
+        "total_tokens": 19,
+        "completion_tokens": 6,
+        "prompt_tokens_details": null,
+        "reasoning_tokens": 0
+      },
+      "ok": true
+    },
+    "reasoning": {
+      "elapsed_s": 0.517,
+      "content": "Average speed = distance \u00f7 time = 240 km \u00f7 1.5 h = **160 km/h**.",
+      "reasoning_content": "We need answer simple. Need be careful maybe average speed = distance/time = 240/1.5 = 160 km/h. Need concise.",
+      "tool_calls": [],
+      "usage": {
+        "prompt_tokens": 55,
+        "total_tokens": 109,
+        "completion_tokens": 54,
+        "prompt_tokens_details": null,
+        "reasoning_tokens": 31
+      },
+      "ok": true
+    },
+    "tools": {
+      "elapsed_s": 0.457,
+      "content": "",
+      "reasoning_content": "The user wants weather in Beijing. Call the tool.",
+      "tool_calls": [
+        {
+          "id": "call_d93eb85e181d4fd3abbe575f",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "get_weather",
+            "arguments": "{\"location\": \"Beijing\"}"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 304,
+        "total_tokens": 355,
+        "completion_tokens": 51,
+        "prompt_tokens_details": null,
+        "reasoning_tokens": 12
+      },
+      "finish_reason": "tool_calls",
+      "ok": true
+    }
+  },
+  "ok": true
+}

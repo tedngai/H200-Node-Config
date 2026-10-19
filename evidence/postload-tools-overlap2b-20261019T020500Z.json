@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-19T02:05:12Z",
+  "base_url": "http://127.0.0.1:8012",
+  "model": "pratt-high",
+  "mode": "tools",
+  "result": {
+    "first_elapsed_s": 0.413,
+    "first_tool_calls": [
+      {
+        "id": "call_175e969529574c2ba0d289a9",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "arguments": "{\"location\": \"Beijing\"}"
+        }
+      }
+    ],
+    "second_elapsed_s": 0.32,
+    "second_content": "The weather in Beijing is currently **clear** with a temperature of **21\u00b0C** (about 70\u00b0F).",
+    "second_reasoning": "",
+    "second_tool_calls": [],
+    "usage": {
+      "prompt_tokens": 382,
+      "total_tokens": 409,
+      "completion_tokens": 27,
+      "prompt_tokens_details": {
+        "cached_tokens": 256
+      },
+      "reasoning_tokens": 1
+    },
+    "ok": true
+  },
+  "ok": true
+}

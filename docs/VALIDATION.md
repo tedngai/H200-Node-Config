@@ -41,8 +41,11 @@ eviction expensive.
 Record from the startup log and `/server_info`:
 
 - [ ] SGLang version/build and pinned image digest.
-- [ ] Model path, served name, **context cap 409600**, TP8, EP8, static
-      fraction 0.80; `/v1/models.max_model_len=409600`.
+- [ ] Model path, served name **pratt-high**, **context cap 409600**, TP8, EP8,
+      static fraction 0.80; `/v1/models.max_model_len=409600`.
+- [ ] Phase 2b: `prefill_decode_interval=16`, `chunked_prefill_size=4096`,
+      `swa_tokens≈51,712`, full pool ≈45,075,200; or the expected values for
+      the installed candidate.
 - [ ] Resolved attention backend (`dsv4`), MoE runner (`flashinfer_mxfp4`),
       FP8 GEMM backend, DSpark enabled and block size 5.
 - [ ] HiCache enabled, ratio 2, direct I/O, `page_first_direct`, `write_back`.

@@ -1,0 +1,170 @@
+{
+  "status": "installed_scoped_validation_with_cold_and_replay_tradeoffs",
+  "endpoint": {
+    "port": 8012,
+    "served_model": "pratt-high"
+  },
+  "utc_start": "2026-10-18T23:31:16Z",
+  "utc_ready": "2026-10-18T23:40:38Z",
+  "startup_wall_seconds": 562,
+  "effective": {
+    "context_length": 409600,
+    "max_model_len": 409600,
+    "max_running_requests": 16,
+    "min_free_slots_delay": 0,
+    "chunked_prefill_size": 4096,
+    "prefill_decode_interval": 16,
+    "swa_prefix_tails_default": 64,
+    "swa_tokens": 51712,
+    "max_total_num_tokens": 45075200,
+    "hicache_host_total_tokens": 90150400
+  },
+  "decode_ab": {
+    "phase2a_aggregate_tok_s": {
+      "c1": 174.176,
+      "c4": 394.38,
+      "c16": 660.484
+    },
+    "phase2b_aggregate_tok_s": {
+      "c1": 181.144,
+      "c4": 413.995,
+      "c16": 643.358
+    },
+    "phase2b_raw_c1": [
+      172.711,
+      189.577
+    ],
+    "phase2b_raw_c4": [
+      412.05,
+      415.941
+    ],
+    "phase2b_raw_c16": [
+      626.744,
+      659.971
+    ],
+    "ratio_to_phase2a": {
+      "c1": 1.04,
+      "c4": 1.05,
+      "c16": 0.974
+    },
+    "peak_running": 16,
+    "peak_queue_transient_c16": 15,
+    "peak_retracted": 0,
+    "note": "c16 about 2-3% lower; c1/c4 about 4-5% higher; c16 queue gauge has a submission transient."
+  },
+  "cold_ttft": {
+    "c1_s": 74.721,
+    "c4_s": [
+      68.378,
+      135.406,
+      201.636,
+      268.29
+    ],
+    "c4_median_s": 168.521,
+    "c4_max_s": 268.29,
+    "c4_wall_s": 268.498,
+    "gate": {
+      "single_s": 90,
+      "c4_max_s": 300,
+      "c4_wall_s": 360
+    },
+    "gate_pass": true,
+    "all_recalled": true
+  },
+  "cold_16x400k": {
+    "batch_wall_s": 1068.931,
+    "all_recalled": true,
+    "completion_times_s": [
+      68.135,
+      201.954,
+      135.088,
+      267.982,
+      335.009,
+      401.924,
+      468.057,
+      535.055,
+      601.608,
+      668.432,
+      801.897,
+      735.447,
+      868.688,
+      1002.147,
+      935.394,
+      1068.829
+    ],
+    "note": "Completions are serialized roughly every 67 s; worst request is ~10% slower than phase 2a, early requests are much faster."
+  },
+  "warm_512": {
+    "batch_wall_s": 24.226,
+    "aggregate_tok_s": 452.91,
+    "median_tok_s": 26.548,
+    "peak_running": 11.0,
+    "peak_queue": 0.0,
+    "peak_retracted": 0.0
+  },
+  "replay_2048": {
+    "batch_wall_s": 81.579,
+    "aggregate_tok_s": 715.822,
+    "median_tok_s": 42.864,
+    "peak_running": 16.0,
+    "peak_queue": 0.0,
+    "peak_retracted": 0.0,
+    "note": "Aggregate slightly better than phase 2a, but one request straggled to 81 s; wall 81.6 vs 55.6 s."
+  },
+  "mixed_w4_c4": {
+    "baseline_aggregate_tok_s": 450.436,
+    "baseline_median_tok_s": 112.789,
+    "mixed_aggregate_tok_s": 292.388,
+    "mixed_median_tok_s": 68.797,
+    "aggregate_ratio": 0.649,
+    "median_ratio": 0.61,
+    "cold_batch_wall_s": 283.96,
+    "all_cold_recalled": true,
+    "peak_running": 4.0,
+    "peak_queue": 3.0,
+    "peak_retracted": 0.0,
+    "phase2a_mixed_aggregate_tok_s": 31.342,
+    "phase2a_ratio": 0.072,
+    "gain_vs_phase2a_mixed": "9.33x"
+  },
+  "postload": {
+    "hbm_used_mib_min": 130068,
+    "hbm_used_mib_max": 130548,
+    "hbm_free_mib_min": 13223,
+    "hbm_free_mib_max": 13703,
+    "host_available_gb": 617,
+    "container_rss_tib": 1.336,
+    "running": 0,
+    "queued": 0,
+    "retracted": 0,
+    "runtime_error_matches": 0,
+    "serving_time_compile_warnings": 16
+  },
+  "verdict": "TTFT gate passed; mixed decode improved ~9.3x and ratio 0.649; c16 decode within ~3%; cold 16 wall +9.2% and replay wall +46.8% due to a straggler. Keep for user coding evaluation, do not call production-qualified.",
+  "evidence": {
+    "startup": "evidence/startup-overlap2b-20261019T011800Z",
+    "ttft_c1": "evidence/cold-ttft-overlap2b-c1-20261019T012000Z.json",
+    "ttft_c4": "evidence/cold-ttft-overlap2b-c4-20261019T012000Z.json",
+    "decode_c16": "evidence/decode-throughput-overlap2b-20261019T012525Z.json",
+    "decode_c1c4": "evidence/decode-throughput-overlap2b-c1c4-20261019T020557Z.json",
+    "long": "evidence/long-400000-c16-warm-20261019T014443Z.json",
+    "replay": "evidence/replay-c16-warm-20261019T015435Z.json",
+    "mixed": "evidence/mixed-prefill-decode-w4-c4-20261019T020449Z.json",
+    "postload": "evidence/postload-overlap2b-20261019T020500Z",
+    "near_limit_2b": "evidence/near-limit-409k-overlap2b-20261019T021000Z.json"
+  },
+  "non_claims": [
+    "Scoped synthetic tests, not sustained real coding load.",
+    "Cold 16x400k remains serialized, not 16 simultaneous cold prefills.",
+    "No 400k HiCache host restoration.",
+    "Not production-qualified behind the gateway."
+  ],
+  "near_limit_2b": {
+    "prompt_tokens": 408976,
+    "completion_tokens": 31,
+    "total_tokens": 409007,
+    "recalled": true,
+    "elapsed_s": 69.436,
+    "over_cap_status": "400_not_retested"
+  }
+}
