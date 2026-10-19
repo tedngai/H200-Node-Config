@@ -89,7 +89,7 @@ image's `private` layout does **not** produce a single 8-way shard per table:
 The measured per-rank size is exactly one quarter of a 101.5 GB table
 (24,170 MiB), so the runtime is holding **two replicated 4-way shards** across
 the TP8 group, not one 8-way shard. Capacity planning must use the measured
-**~386.7 GiB**, not the naive 203 GB checkpoint-byte estimate.
+**386,736 MiB (~378 GiB)**, not the naive 203 GB checkpoint-byte estimate.
 
 Startup log examples:
 
