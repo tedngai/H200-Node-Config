@@ -227,8 +227,9 @@ sudo systemctl start sglang-glm53.service
 
 ## After validation
 
-Update `docs/RESULTS.md`, `docs/DECODE_PROFILE.md`, `docs/HANDOFF.md`, `PROGRESS.xml`
-and `INFERENCE_CONTEXT.md`; commit and push `dsv41-flash-1017`. If the cap
-works, the next isolated step is the overlap pair (`--prefill-decode-interval`
-and `--chunked-prefill-size`), with an explicit cold time-to-first-token
-ceiling; test `--swa-prefix-tails 1024` separately afterward.
+Update `docs/RESULTS.md`, `docs/DECODE_PROFILE.md`, `docs/HANDOFF.md`,
+`PROGRESS.xml` and `INFERENCE_CONTEXT.md`; commit and push `main` and
+`dsv41-flash-1017`. If the cap works, the next isolated step is the overlap pair
+(`--prefill-decode-interval` and `--chunked-prefill-size`), with an explicit
+cold time-to-first-token ceiling; test `--swa-prefix-tails 1024` separately
+afterward.
