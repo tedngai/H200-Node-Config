@@ -10,7 +10,7 @@ experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 ## Current state
 
 - Project: `/home/advtech/dsv41-flash-inference`
-- Branch: `dsv41-flash-1017`
+- Public branch: `main` (recipe); development branch: `dsv41-flash-1017`
 - Remote: `https://github.com/tedngai/H200-Node-Config.git`
 - Live unit: `/etc/systemd/system/sglang-dsv41.service`
 - Installed candidate (phase 2b):
@@ -319,8 +319,9 @@ prefix reuse with long gaps. Do not treat it as a 16-active decode test.
 
 After the runs, capture a post-load evidence directory, update
 `docs/RESULTS.md`, `docs/SCHEDULER_OVERLAP_TEST.md`, `PROGRESS.xml`,
-`INFERENCE_CONTEXT.md`, commit the project, and push the `dsv41-flash-1017`
-branch. Do not push this project's history to `main`.
+`INFERENCE_CONTEXT.md`, commit the project, and push both `main` and
+`dsv41-flash-1017`. `main` is the public recipe branch; the former GLM-5.3
+history is archived at `glm53-main-archive`.
 
 ## Rollback
 
@@ -363,8 +364,9 @@ sudo systemctl start sglang-glm53.service
 
 ## Git and documentation state
 
-- Local `dsv41-flash-1017` is the project source of truth and is pushed to
-  `origin/dsv41-flash-1017`.
+- Local `main` and `dsv41-flash-1017` point at the same project commit and are
+  pushed to the remote. `main` is the public recipe; `dsv41-flash-1017` is the
+  development/history branch.
 - Phase 1 commit: `88538bb` — "Record phase 1 16-active and mixed
   prefill/decode baseline". Phase 2a preparation commit: `37a683f`; the phase
   2b results update is the current branch head (see `git log`).
@@ -374,7 +376,7 @@ sudo systemctl start sglang-glm53.service
   `docs/VALIDATION.md` reflect phase 2b/2c.
 - The global `PROGRESS.xml`, `INFERENCE_CONTEXT.md`, and
   `NEXT_EXPERIMENT.md` were updated and synced to `glm53-inference/docs`.
-  Those sync commits are **local only**; `main` was intentionally not pushed.
+  Those sync commits are **local only**; the public `main` is the recipe branch.
 
 ## Hard constraints and non-claims
 
@@ -412,7 +414,7 @@ sudo systemctl start sglang-glm53.service
    ratio to **0.649**, cold wall to **1068.9 s**, and TTFT to
    90/300/360 s.
 6. Check recall, queue/retractions, OOM, cold TTFT and post-load HBM.
-7. Update docs/evidence, commit and push `dsv41-flash-1017`.
+7. Update docs/evidence, commit and push `main` and `dsv41-flash-1017`.
 8. Test `--swa-prefix-tails 1024` separately via the
    `sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service`
    candidate.
