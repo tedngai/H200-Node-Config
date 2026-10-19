@@ -1,0 +1,43 @@
+{
+  "utc": "2026-10-19T01:19:38Z",
+  "base_url": "http://127.0.0.1:8012",
+  "model": "pratt-high",
+  "label": "cold-ttft-overlap2b-c1",
+  "target_tokens": 400000,
+  "output_tokens": 512,
+  "concurrency": 1,
+  "batch_wall_s": 74.915,
+  "ttft_s": [
+    74.721
+  ],
+  "ttft_median_s": 74.721,
+  "ttft_max_s": 74.721,
+  "all_recalled": true,
+  "prompts": [
+    {
+      "codes": {
+        "start_code": "ALPHA-4EC5AC-91QZ",
+        "middle_code": "BRAVO-4EC5AC-44VX",
+        "end_code": "CHARLIE-4EC5AC-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399972
+      },
+      "chars": 2041797
+    }
+  ],
+  "results": [
+    {
+      "slot": 0,
+      "start_offset_s": 0.006,
+      "ttft_s": 74.721,
+      "finish_offset_s": 74.914,
+      "elapsed_s": 74.908,
+      "finish_reason": "stop",
+      "prompt_tokens": 399972,
+      "completion_tokens": 37,
+      "content_chars": 57,
+      "recalled": true,
+      "error": null
+    }
+  ]
+}

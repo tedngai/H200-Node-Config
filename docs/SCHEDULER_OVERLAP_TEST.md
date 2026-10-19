@@ -1,13 +1,11 @@
 # Scheduler and prefill/decode overlap tests
 
-Status: **phase 2a installed and measured; phase 2b/2c prepared, not installed.**
-The installed unit is
-`configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
-(`--max-running-requests 16 --min-free-slots-delay 0 --context-length 409600`).
-Phase 1 proved 16 simultaneous active warmed 400k decodes in a 2048-token
-replay and produced the first mixed baseline. Phase 2a then raised c16 decode
-1.96× and changed the mixed baseline. Phase 2b (interval + chunk) and phase 2c
-(tails) are prepared but not installed; both still need a privileged restart.
+Status: **phase 2b installed and measured on 8012/pratt-high; phase 2c
+prepared, not installed.** The installed unit is
+`configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`.
+Phase 1 proved 16 simultaneous active warmed 400k decodes; phase 2a raised c16
+decode 1.96× and changed the mixed baseline; phase 2b then raised mixed decode
+from 31.3 to **292.4 tok/s**. Phase 2c (tails) remains a separate future test.
 
 ## Phase 1 measured result (2026-10-18)
 
@@ -168,9 +166,9 @@ Changes on top of the installed phase 2a unit (which retains
 --chunked-prefill-size 4096
 ```
 
-`--swa-prefix-tails` stays at the default 64, so the SWA and full-KV pools
-should remain 59,904 / 44,957,952. These are the published scheduler settings,
-intended to keep decode progressing while long prefixes are queued. The tail
+`--swa-prefix-tails` stays at the default 64. The 4096 chunk size changes the
+SWA request cap from 59,904 to **51,712** and raises the full KV pool to
+**45,075,200**; these were measured at startup, not assumed. The tail
 reservation is deliberately moved to phase 2c so it can be attributed.
 
 ### Cold TTFT gate
@@ -197,7 +195,23 @@ python3 tests/cold_ttft.py --base-url http://127.0.0.1:8012 \
 The 8013/dsv41 names are the historical phase 2a test endpoint; 2b is installed
 as **8012 / pratt-high**.
 
-Install/restart:
+### Phase 2b measured result
+
+| Check | Result |
+| --- | --- |
+| TTFT gate | c1 **74.721 s**; c4 max **268.290 s** / wall **268.498 s** — pass |
+| c1 / c4 decode | **181.1 / 414.0 tok/s** (1.04× / 1.05× phase 2a) |
+| c16 decode | **643.4 tok/s** (0.974× phase 2a) |
+| 16 × 400k cold | **1068.9 s**, all recalled; completions serialized ~67 s apart |
+| 2048 replay | **715.8 aggregate / 42.9 median**, peak 16, 0 queue; wall **81.6 s** (one straggler) |
+| Mixed 4-warm/4-cold | **292.4 aggregate / 68.8 median**, ratio **0.649** (phase 2a 31.3 / 0.072); cold wall 284.0 s; peak 4, queue 3, 0 retracted |
+| Post-load | 0 runtime errors; HBM free 12.9–13.4 GiB/GPU; tools/reasoning pass |
+
+Verdict: cold-TTFT and mixed-load goals pass. Decode is within a few percent;
+the cold 16-request wall is ~9% slower and the replay has a straggler. This is
+good enough for real coding evaluation, not production qualification.
+
+Install/restart (already applied):
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -236,12 +250,10 @@ python3 tests/mixed_prefill_decode.py --base-url http://127.0.0.1:8012 \
   --target-tokens 400000 --output-tokens 2048
 ```
 
-Primary overlap success criterion: absolute mixed warmed decode exceeds the
-phase 2a **31.342 tok/s** without an increase in OOM, retractions or cold-recall
-failures, and cold wall/time-to-first-token stays within the pre-agreed
-ceiling. Report the mixed/baseline ratio against phase 2a's **0.072**; do not
-use the old 0.11 comparison. A small absolute improvement is still useful; do
-not expect PD-style isolation from a scheduler interval alone.
+Primary overlap criterion (met): mixed warmed decode exceeds phase 2a's
+**31.342 tok/s** without OOM/retraction/cold-recall failures, within the cold
+ceiling. Measured **292.388 tok/s, ratio 0.649**. For future re-tests, compare
+against these phase 2b values; the old 0.11 comparison is obsolete.
 
 Secondary criteria:
 

@@ -1,0 +1,9 @@
+index, memory.used [MiB], memory.total [MiB], utilization.gpu [%]
+0, 130452 MiB, 143771 MiB, 0 %
+1, 130548 MiB, 143771 MiB, 84 %
+2, 130548 MiB, 143771 MiB, 64 %
+3, 130548 MiB, 143771 MiB, 88 %
+4, 130548 MiB, 143771 MiB, 91 %
+5, 130548 MiB, 143771 MiB, 91 %
+6, 130548 MiB, 143771 MiB, 94 %
+7, 130068 MiB, 143771 MiB, 25 %

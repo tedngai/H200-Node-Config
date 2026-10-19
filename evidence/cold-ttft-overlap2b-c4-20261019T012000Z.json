@@ -1,0 +1,115 @@
+{
+  "utc": "2026-10-19T01:24:27Z",
+  "base_url": "http://127.0.0.1:8012",
+  "model": "pratt-high",
+  "label": "cold-ttft-overlap2b-c4",
+  "target_tokens": 400000,
+  "output_tokens": 512,
+  "concurrency": 4,
+  "batch_wall_s": 268.498,
+  "ttft_s": [
+    68.378,
+    135.406,
+    201.636,
+    268.29
+  ],
+  "ttft_median_s": 168.521,
+  "ttft_max_s": 268.29,
+  "all_recalled": true,
+  "prompts": [
+    {
+      "codes": {
+        "start_code": "ALPHA-7EA924-91QZ",
+        "middle_code": "BRAVO-7EA924-44VX",
+        "end_code": "CHARLIE-7EA924-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399969
+      },
+      "chars": 2041797
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-CAC6A5-91QZ",
+        "middle_code": "BRAVO-CAC6A5-44VX",
+        "end_code": "CHARLIE-CAC6A5-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399972
+      },
+      "chars": 2041797
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-2174EF-91QZ",
+        "middle_code": "BRAVO-2174EF-44VX",
+        "end_code": "CHARLIE-2174EF-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399969
+      },
+      "chars": 2041797
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-7F6D90-91QZ",
+        "middle_code": "BRAVO-7F6D90-44VX",
+        "end_code": "CHARLIE-7F6D90-73NW",
+        "approx_chars": 2041797,
+        "calibrated_tokens": 399975
+      },
+      "chars": 2041797
+    }
+  ],
+  "results": [
+    {
+      "slot": 0,
+      "start_offset_s": 0.008,
+      "ttft_s": 68.378,
+      "finish_offset_s": 68.581,
+      "elapsed_s": 68.573,
+      "finish_reason": "stop",
+      "prompt_tokens": 399969,
+      "completion_tokens": 34,
+      "content_chars": 55,
+      "recalled": true,
+      "error": null
+    },
+    {
+      "slot": 1,
+      "start_offset_s": 0.014,
+      "ttft_s": 135.406,
+      "finish_offset_s": 135.621,
+      "elapsed_s": 135.606,
+      "finish_reason": "stop",
+      "prompt_tokens": 399972,
+      "completion_tokens": 37,
+      "content_chars": 55,
+      "recalled": true,
+      "error": null
+    },
+    {
+      "slot": 2,
+      "start_offset_s": 0.022,
+      "ttft_s": 201.636,
+      "finish_offset_s": 201.845,
+      "elapsed_s": 201.823,
+      "finish_reason": "stop",
+      "prompt_tokens": 399969,
+      "completion_tokens": 34,
+      "content_chars": 55,
+      "recalled": true,
+      "error": null
+    },
+    {
+      "slot": 3,
+      "start_offset_s": 0.028,
+      "ttft_s": 268.29,
+      "finish_offset_s": 268.498,
+      "elapsed_s": 268.47,
+      "finish_reason": "stop",
+      "prompt_tokens": 399975,
+      "completion_tokens": 40,
+      "content_chars": 57,
+      "recalled": true,
+      "error": null
+    }
+  ]
+}

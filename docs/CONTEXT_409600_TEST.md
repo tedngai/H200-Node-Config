@@ -6,6 +6,10 @@ Status: **installed 2026-10-18 22:02 UTC; scoped validation passed.** Candidate:
 configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service
 ```
 
+Phase 2b (interval + chunk) was subsequently installed on 8012/pratt-high; see
+`docs/SCHEDULER_OVERLAP_TEST.md` and `docs/RESULTS.md`. This runbook remains the
+phase 2a reference and rollback.
+
 Preparation summary: `evidence/phase2a-prepared-20261018T215639Z.json`.
 Preflight idle snapshot: `evidence/preflight-ctx409600-20261018T215639Z/`.
 Measured summary: `evidence/phase2a-summary-20261018T225300Z.json`.

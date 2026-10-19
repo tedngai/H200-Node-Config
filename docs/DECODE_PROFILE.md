@@ -95,7 +95,7 @@ masking to their 16k candidate window.
 Not worth pursuing now: engram back to HBM (gather is 0.02 ms/step); MoE
 backend changes (5% at c16). V4.1 rejects two-batch overlap.
 
-## Phase 2a measured (installed)
+## Phase 2a measured (historical; phase 2b now installed)
 
 Phase 2a is installed at `context_length=409600`; startup was 574 s. Measured
 on the same scripted prompts:
@@ -132,24 +132,44 @@ post-load free HBM was **7.0–7.5 GiB/GPU (minimum 7.0)** instead of 5.0–5.4 
 same 44,957,952-token KV pool and `swa_tokens=59904`. The cap reduced
 indexer/CUDA-graph scratch, not KV capacity.
 
+## Phase 2b measured (installed)
+
+Phase 2b is installed on **8012 / pratt-high**. It adds
+`--prefill-decode-interval 16` and `--chunked-prefill-size 4096`, keeps
+`context_length=409600` and default tails, and changes the pools to
+`swa_tokens=51,712` / `max_total_num_tokens=45,075,200`.
+
+- Cold TTFT gate passed: single **74.721 s** (≤90); four-cold
+  **68.4/135.4/201.6/268.3 s**, max 268.3 (≤300), wall 268.5 (≤360).
+- Short decode vs phase 2a: c1 **181.1** (1.04×), c4 **414.0** (1.05×),
+  c16 **643.4** (0.974×). C16 has a transient submission queue, no retractions.
+- 16 × 400k cold: **1068.9 s**, all recalled, completions serialized ~67 s apart;
+  worst request ~10% slower than phase 2a, early requests much faster.
+- 2048 replay: **715.8 aggregate / 42.9 median tok/s**, peak 16, queue 0, but
+  wall **81.6 s** because one request straggled to 81.4 s (phase 2a 55.6 s).
+- Mixed 4-warm/4-cold: **292.4 aggregate / 68.8 median**, ratio **0.649**,
+  vs phase 2a **31.3 / 0.072**. Absolute mixed decode is **9.33×** phase 2a;
+  cold wall 284.0 s, all recalled, no retractions.
+
+Verdict: the overlap setting fixes most of the mixed prefill/decode collapse,
+at the cost of serialized cold completions and a replay straggler. It is the
+right candidate for real coding evaluation, not a production qualification.
+
 ## Effect on the next experiments
 
-Phase 2a is complete. At the new c16 step of about 105–110 ms, the overlap
-candidate's `--prefill-decode-interval 16` still means roughly 1.7 s between
-prefill chunks, and a cold 400k prompt has ~98 chunks at 4096. Cold
-time-to-first-token could still grow by minutes under load, so the interval
-needs an explicit cold-TTFT ceiling and a mixed-test comparison against the new
-**31.342 tok/s / 0.072** baseline.
+Phase 2b is installed. Do not add more scheduler flags before real coding
+traffic is measured on `pratt-high`; the synthetic mixed gain is large but the
+cold/replay trade-offs are real.
 
 Recommended order:
 
-1. Phase 2b: add `--prefill-decode-interval` and `--chunked-prefill-size 4096`
-   together, with a cold-TTFT ceiling; keep `--swa-prefix-tails` at default.
+1. Run real client coding/agent tasks through 8012/pratt-high and measure
+   end-to-end task time, TTFT, and any queue growth.
 2. Phase 2c: test `--swa-prefix-tails 1024` separately as a multi-session
-   prefix-reuse experiment (~8 GB/GPU; the current pool headroom can afford it,
-   but 16 active requests do not inherently need 1024 tails).
-3. Independently, tune the Triton block-FP8 GEMM configs and measure c24/c32.
-   Neither requires changing model weights or the serving shape.
+   prefix-reuse experiment (~8 GB/GPU; 16 active requests do not inherently
+   need 1024 tails).
+3. Tune the Triton block-FP8 GEMM configs and measure c24/c32 if more
+   concurrency is needed. Neither changes model weights or serving shape.
 
 ## Acceptance note
 
@@ -157,7 +177,9 @@ Realistic coding output accepted 3.1–5.7 tokens per verify step (c16 median
 3.91), close to the forced-output 400k tests. The earlier 77 tok/s c1 result
 used generic prose. Phase 1 coding c1 measured 132.9–146.1 tok/s; phase 2a c1
 measured **167.8–180.5 tok/s**. Phase 2a c16 per-request medians were
-**42.7–44.5 tok/s** with 0 queue and 0 retracted.
+**42.7–44.5 tok/s** with 0 queue and 0 retracted. Phase 2b c1/c4 medians were
+**172.7–189.6 / 105.5–107.6 tok/s**, and c16 **41.5–43.9 tok/s** with a
+transient submission queue.
 
 ## Minor host observations
 

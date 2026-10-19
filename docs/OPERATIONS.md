@@ -1,10 +1,9 @@
 # Operations
 
-**Current state (2026-10-18):** installed and running as
-`sglang-dsv41.service` on port 8013 with the phase 2a
-`mr16-nodelay-ctx409600` unit. The next step is phase 2b on **8012 /
-pratt-high**; the install command below uses that unit. The 8012 phase 2a
-candidate is the rollback that preserves the endpoint.
+**Current state (2026-10-19):** installed and running as
+`sglang-dsv41.service` on **8012 / pratt-high** with the phase 2b
+`mr16-nodelay-ctx409600-overlap2b` unit. The 8012 phase 2a candidate is the
+rollback that preserves the endpoint; phase 2c tails is a separate test.
 
 ## Install / start (privileged, user-run)
 
@@ -154,8 +153,9 @@ sudo systemctl daemon-reload
 - **Do not run both engines at once.** The 510 GB DSV4.1 checkpoint and the GLM
   checkpoint both need all eight GPUs.
 - **Do not infer capacity from `--cuda-graph-max-bs-decode 64`.** The effective
-  admission cap is `--max-running-requests 16` in the current phase 2a
-  candidate, and the context cap is 409,600 tokens.
+  admission cap is `--max-running-requests 16` in the current phase 2b
+  candidate, the context cap is 409,600 tokens, and the measured SWA cap is
+  51,712 tokens.
 - **HiCache is not RAM decoding.** It retains evicted prefixes; it does not
   extend the active GPU pool or migrate a request between workers.
 - **The engram host table is pinned host memory.** It consumes **386.7 GiB**

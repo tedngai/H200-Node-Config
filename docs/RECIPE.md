@@ -160,14 +160,14 @@ assume `private` is still accepted.
 | metrics/cache-report/logging | Observability only. Needed to prove active requests, KV pool, HiCache hits and resolved backends. Does not change model math. |
 | port 8013 / name `dsv41-flash-1017` | Isolation from the live `pratt-high`/8012 service. Not a production cutover. |
 
-## Deliberate omissions
+## Cookbook deviations and omissions
 
 | Omitted | Why |
 | --- | --- |
-| `--context-length` | Left at the checkpoint default in phase 1. Phase 2a installed **409600** to shrink the H200 indexer's configured scoring width; it remains in the prepared overlap candidate. See `docs/CONTEXT_409600_TEST.md`. |
-| `--chunked-prefill-size` | Left at the image default. The detailed H200 agentic cell uses 4096, but the selected low-latency cell does not. |
-| `--swa-prefix-tails` | Left at the recipe default. The detailed agentic cell tunes it per concurrency; this is a scoped test. |
-| `--max-prefill-tokens`, `--prefill-decode-interval` | Agentic throughput tuning, not part of the selected low-latency cell. |
+| `--context-length` | Left at the checkpoint default in phase 1. Phase 2a installed **409600**; phase 2b retains it. See `docs/CONTEXT_409600_TEST.md`. |
+| `--chunked-prefill-size` | Left at 8192 in phases 1/2a. Phase 2b installed **4096**; it also changed the measured SWA cap to 51,712. |
+| `--swa-prefix-tails` | Left at default 64. A separate phase 2c candidate sets **1024**; it is prepared, not installed. |
+| `--max-prefill-tokens`, `--prefill-decode-interval` | `max_prefill_tokens` stays 16384. Phase 2b installed **`--prefill-decode-interval 16`**; phase 2a used 0. |
 | EAGLE/MTP flags | Not supported by this checkpoint; DSPARK replaces them. |
 | Dynamo, NATS, etcd, Mooncake, PD disaggregation | The selected shape is single-node aggregated with the plain SGLang OpenAI server. |
 | Multi-node flags | Single node only. |

@@ -1,0 +1,16 @@
+[2026-10-19 01:18:28 TP2 EP2] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.86 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP5 EP5] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.86 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP7 EP7] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.87 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP3 EP3] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.87 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP1 EP1] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.87 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP0 EP0] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.88 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP6 EP6] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.88 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:18:28 TP4 EP4] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.88 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP3 EP3] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.87 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP0 EP0] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.88 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP6 EP6] Triton kernel '_hc_mix_stats_reduce_kernel' took 2.89 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP5 EP5] Triton kernel '_hc_mix_stats_reduce_kernel' took 3.13 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP4 EP4] Triton kernel '_hc_mix_stats_reduce_kernel' took 3.13 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP1 EP1] Triton kernel '_hc_mix_stats_reduce_kernel' took 3.13 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP2 EP2] Triton kernel '_hc_mix_stats_reduce_kernel' took 3.17 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.
+[2026-10-19 01:19:37 TP7 EP7] Triton kernel '_hc_mix_stats_reduce_kernel' took 3.47 s to compile after serving started. Serving-time compilation can stall the engine; pre-compile it during engine init.

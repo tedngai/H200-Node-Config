@@ -4,21 +4,19 @@ Isolated SGLang experiment for the DeepSeek-V4.1-Flash-1017 preview checkpoint.
 This project is deliberately separate from the live `glm53-inference` project so
 the validated GLM-5.3 service and its exact rollback path stay intact.
 
-**Status:** **phase 2a installed and measured; 16-active warmed decode proven on
-port 8013** (2026-10-18). The engine started in 574 s on the phase 2a restart
-with `--context-length 409600`. Scripted c16 decode is **660.5 tok/s** (1.96×
-phase 1); the 2048-token warm replay reached **704.5 tok/s** with 16 running,
-0 queued, 0 retracted. Sixteen cold 400k prompts all recalled in 978.7 s, but
-prefill remained one new sequence per batch, so 16 simultaneous *cold* 400k
-prefills are still unproven. A scoped 256-token HiCache host hit was observed.
-This is not a production cutover; the validated GLM-5.3 service remains installed
-and can be restarted for rollback. See `docs/RESULTS.md` for the measured results.
+**Status:** **phase 2b installed and measured on 8012 / pratt-high**
+(2026-10-19). It retains the 409,600 context cap and adds
+`--prefill-decode-interval 16` / `--chunked-prefill-size 4096`. Mixed
+4-warm/4-cold decode rose from **31.3 to 292.4 tok/s** (ratio **0.649** vs
+0.072), while the cold-TTFT gate passed (74.7 s single; four-cold max 268.3 s /
+wall 268.5 s). Costs: c16 decode 643.4 tok/s (0.974× phase 2a), 16 × 400k cold
+wall **1068.9 s**, and the 16-active replay wall **81.6 s** due to one
+straggler. This is a scoped result, not production qualification. A scoped
+HiCache host hit was observed. See `docs/RESULTS.md`.
 
-**Prepared, not installed:** phase-2b scheduler-overlap and phase-2c SWA-tails
-candidates; both retain the 409,600 context cap and will serve
-**8012 / pratt-high**. Phase 2a is installed. See
-`docs/SCHEDULER_OVERLAP_TEST.md` for the sequence, commands and success
-criteria.
+**Prepared, not installed:** phase-2c SWA-tails candidate. Phase 2b is
+installed on **8012 / pratt-high**; see `docs/SCHEDULER_OVERLAP_TEST.md` for the
+separate tails test.
 
 ## What is being tested
 
@@ -58,28 +56,23 @@ User-requested additions on top of the cookbook cell:
 
 ## Test identity and safety boundary
 
-- Test port: **8013** (the live GLM service remains on 8012).
-- Test served name: **`dsv41-flash-1017`**.
-- Current installed candidate (phase 2a):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`
-  (`--max-running-requests 16 --min-free-slots-delay 0 --context-length 409600`).
-- Previous phase 1 candidate (rollback):
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay.service`
-  (`--max-running-requests 16 --min-free-slots-delay 0`).
-- Prepared phase 2b scheduler-overlap candidate (not installed; later step,
-  serves **8012 / pratt-high**, retains `--context-length 409600`, default tails):
-  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`.
-- Prepared phase 2c SWA-tails candidate (not installed; separate test,
-  serves **8012 / pratt-high**):
+- Test port: **8012** (the live GLM service also uses 8012 and is stopped).
+- Test served name: **`pratt-high`**.
+- Current installed candidate (phase 2b):
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`
+  (`--prefill-decode-interval 16 --chunked-prefill-size 4096`, context 409600).
+- Phase 2a fallback on the same endpoint:
+  `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600.service`.
+- Prepared phase 2c SWA-tails candidate (not installed; separate test):
   `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-tails1024.service`.
-- Previous mr16 candidate:
-  `configs/systemd/candidates/sglang-dsv41-8013-mr16.service`.
-- Validated 4-request candidate:
-  `configs/systemd/candidates/sglang-dsv41-8013.service`.
+- Historical 8013 test candidates:
+  `configs/systemd/candidates/sglang-dsv41-8013-mr16-nodelay-ctx409600.service`,
+  `...-8013-mr16-nodelay.service`, `...-8013-mr16.service`.
 - The test unit is **not enabled** and uses `Restart=no`, so a failed 510 GB
   load does not loop and thrash the GPUs.
-- This is not a production cutover. Moving the public `pratt-high` alias or
-  port 8012 to this model requires a separate change and client validation.
+- This is not a production qualification. The engine intentionally serves the
+  client-facing 8012/pratt-high endpoint, but gateway/client behavior still
+  needs separate validation.
 - The live GLM unit and its 400k DP4+MTP+HiCache configuration are preserved
   unchanged for rollback.
 
@@ -92,12 +85,12 @@ User-requested additions on top of the cookbook cell:
 | Non-engram weights in HBM | ~37.8 GB/GPU measured (plus 1.11 GB DSpark) |
 | H200 HBM per GPU | 141 GB |
 | Static memory fraction | 0.80 |
-| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16 through phase 2a) |
-| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16 through phase 2a) |
-| HBM free per GPU | ~7.3 GB after 4-request load; **~7.0–7.5 GiB after phase 2a load** |
-| Host RAM | ~2.0 TB total; **~616 GB available after phase 2a load** |
-| Container RSS | **1.337 TiB** after phase 2a load |
-| Startup | **585 s** first start; **578 s** phase 1; **574 s** phase 2a |
+| GPU KV pool | **45,420,032 tokens** (4-request start); **44,957,952** (mr16/phase 1); **45,075,200** (phase 2b) |
+| HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16/phase 2a); **90,150,400** (phase 2b) |
+| HBM free per GPU | ~7.3 GB after 4-request load; **~12.9–13.4 GiB after phase 2b load** (cache state differs from 2a) |
+| Host RAM | ~2.0 TB total; **~617 GB available after phase 2b load** |
+| Container RSS | **1.336 TiB** after phase 2b load |
+| Startup | **585 s** first start; **578 s** phase 1; **574 s** phase 2a; **562 s** phase 2b |
 
 The engine is running; the actual GPU KV pool, host HiCache pool, pinned-RAM
 footprint, startup time and free memory are recorded in `evidence/` and
@@ -132,19 +125,21 @@ API identity remain exactly as installed before this experiment.
 
 ## Documentation
 
-- `HANDOFF.md` — restart-safe current state, phase 2a results, overlap runbook,
+- `HANDOFF.md` — restart-safe current state, phase 2b results, tails runbook,
   rollback and non-claims.
 - `docs/DECODE_PROFILE.md` — decode kernel profile, root cause of batch-scaled
-  step time, ranked optimization options.
-- `docs/CONTEXT_409600_TEST.md` — installed phase 2a context-cap results,
-  apply/verify commands, validation sequence, criteria and rollback.
-- `docs/RESULTS.md` — measured startup, memory, interface, throughput,
-  400k, four-active and HiCache results.
+  step time and phase 2a/2b measurements.
+- `docs/CONTEXT_409600_TEST.md` — phase 2a context-cap reference, apply/verify
+  commands, validation sequence, criteria and rollback.
+- `docs/SCHEDULER_OVERLAP_TEST.md` — phase 2b overlap results and phase 2c
+  tails plan.
+- `docs/RESULTS.md` — measured startup, memory, interfaces, decode, long
+  context, mixed load and HiCache results.
 - `docs/RECIPE.md` — cookbook provenance, exact flags, additions and omissions.
 - `docs/VALIDATION.md` — staged checks and evidence requirements.
 - `docs/OPERATIONS.md` — startup, monitoring, shutdown and rollback.
-- `configs/systemd/candidates/` — pinned candidate unit.
-- `tests/` — OpenAI chat, reasoning, tool-call and long-context probes.
+- `configs/systemd/candidates/` — pinned candidate units.
+- `tests/` — chat, reasoning, tools, long-context, cold-TTFT and decode probes.
 - `evidence/` — pre-change snapshot and timestamped test reports.
 
 ## Non-claims

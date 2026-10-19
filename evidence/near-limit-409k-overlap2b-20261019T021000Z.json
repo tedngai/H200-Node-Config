@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-19T02:13:57Z",
+  "base_url": "http://127.0.0.1:8012",
+  "model": "pratt-high",
+  "mode": "long",
+  "result": {
+    "elapsed_s": 69.436,
+    "prompt_tokens": 408976,
+    "completion_tokens": 31,
+    "content": "ALPHA-443345-91QZ, BRAVO-443345-44VX, CHARLIE-443345-73NW",
+    "reasoning_content": "",
+    "tool_calls": [],
+    "usage": {
+      "prompt_tokens": 408976,
+      "total_tokens": 409007,
+      "completion_tokens": 31,
+      "prompt_tokens_details": null,
+      "reasoning_tokens": 0
+    },
+    "codes": {
+      "start_code": "ALPHA-443345-91QZ",
+      "middle_code": "BRAVO-443345-44VX",
+      "end_code": "CHARLIE-443345-73NW",
+      "approx_chars": 2087775,
+      "calibrated_tokens": 408972
+    },
+    "recalled": true,
+    "target_tokens": 409000,
+    "approx_chars": 2087775
+  },
+  "ok": true
+}
