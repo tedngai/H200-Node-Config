@@ -134,7 +134,7 @@ A container that is still loading weights is not a failed start.
 ### Measured startup (2026-10-18)
 
 - Container start 14:42:34 UTC; ready 14:52:39 UTC; **585 s**.
-- Engram host tables: 16 mappings × 24,171 MiB, **386.7 GiB total**, 100% huge
+- Engram host tables: 16 mappings × 24,171 MiB, **386,736 MiB total**, 100% huge
   pages, pinned.
 - GPU KV pool: **45,420,032 tokens**; HiCache host pool **90,840,064 tokens**.
 - HBM free: ~22.3 GB/GPU at startup, ~7.3 GB/GPU after the first long request.
@@ -241,7 +241,7 @@ sudo systemctl daemon-reload
   51,712 tokens.
 - **HiCache is not RAM decoding.** It retains evicted prefixes; it does not
   extend the active GPU pool or migrate a request between workers.
-- **The engram host table is pinned host memory.** It consumes **386.7 GiB**
+- **The engram host table is pinned host memory.** It consumes **386,736 MiB**
   measured host RAM and is not part of the GPU KV pool.
 - **A cold restart is expensive.** The engram path may drop the checkpoint page
   cache; the next load can be slower than the previous one.

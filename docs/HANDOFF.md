@@ -1,5 +1,8 @@
 # Handoff — DeepSeek-V4.1-Flash-1017 phase 2b installed and measured
 
+> This is the operational handoff, kept separate from the public recipe
+> `README.md`. Paths below are relative to the repository root.
+
 Updated: 2026-10-19. This is the restart-safe handoff for the isolated DSV4.1
 experiment. Read `/home/advtech/AGENTS.md`, then this file, then
 `docs/RESULTS.md` and `docs/SCHEDULER_OVERLAP_TEST.md`.

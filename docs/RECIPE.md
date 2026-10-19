@@ -1,5 +1,12 @@
 # Recipe provenance and exact launch settings
 
+> **Current profile:** this document records the cookbook provenance and the
+> phase 1/2a command shape. The public recipe is `README.md`; the current
+> phase 2b unit is
+> `configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b.service`
+> (16 running requests, context 409600, prefill-decode interval 16, chunk 4096,
+> port 8012). Do not use the phase 1 command below as the current deployment.
+
 ## Source
 
 Cookbook page:
@@ -200,7 +207,7 @@ estimates in the earlier sections:
 | Startup to ready | 585 s first start; **578 s** phase 1 |
 | GPU KV pool | **45,420,032 tokens** (4-request); **44,957,952** (mr16/phase 1) |
 | HiCache host pool | **90,840,064 tokens** (4-request); **89,915,904** (mr16/phase 1), ratio 2 |
-| Engram host table | **386.7 GiB** total; 24,171 MiB per table per rank, 16 mappings |
+| Engram host table | **386,736 MiB** total; 24,171 MiB per table per rank, 16 mappings |
 | Engram huge-page backing | 100% |
 | HBM free per GPU after load | ~7.3 GB (4-request); **5.0–5.4 GB** (phase 1) |
 | Container RSS after load | 1.34–1.42 TiB |
@@ -208,8 +215,8 @@ estimates in the earlier sections:
 
 The engram measurement is important: 24,171 MiB per table per rank is a **4-way
 shard** of the 101.5 GB table, so with TP8 the runtime keeps two replicated
-4-way shards. That is why the host cost is ~386.7 GiB rather than the ~203 GB
-of checkpoint table bytes. Use the measured value for capacity planning.
+4-way shards. That is why the host cost is 386,736 MiB (~378 GiB) rather than the
+~203 GB of checkpoint table bytes. Use the measured value for capacity planning.
 
 ## Checkpoint facts relevant to capacity planning
 

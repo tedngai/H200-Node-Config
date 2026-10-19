@@ -27,16 +27,17 @@ candidate. Do not claim production readiness or sustained load. See
 `docs/RESULTS.md`, `docs/DECODE_PROFILE.md` and
 `docs/SCHEDULER_OVERLAP_TEST.md`.
 
-**When resuming after a restart, read `HANDOFF.md` first.** It records the
+**When resuming after a restart, read `docs/HANDOFF.md` first.** It records the
 live unit state, phase 2b evidence, the separate tails runbook, rollback, and
-the exact constraints for the next session.
+the exact constraints for the next session. The public-facing recipe is
+`README.md`; keep operational chronology out of it.
 
 ## Git repository
 
 - Remote: `https://github.com/tedngai/H200-Node-Config.git`
-- Working branch: **`dsv41-flash-1017`**
-- Do **not** push this project's history to `main`; `main` belongs to the
-  existing H200 node configuration repository and must remain untouched.
+- Public recipe branch: **`main`**. The former GLM-5.3 `main` history is
+  preserved on the `glm53-main-archive` branch.
+- The `dsv41-flash-1017` branch remains as the development/history branch.
 - Commit all project changes before pushing. Keep the working tree clean.
 - The installed unit is `/etc/systemd/system/sglang-dsv41.service`; the
   committed source of truth is
@@ -103,13 +104,17 @@ trap 'rm -f "$ASKPASS"' EXIT
 
 GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 \
   git push origin dsv41-flash-1017
+GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 \
+  git push origin dsv41-flash-1017:main
 ```
 
-After pushing, verify the branch and clean state:
+The initial promotion of the unrelated DSV4 history required a one-time
+`--force-with-lease`; after that, `main` and `dsv41-flash-1017` should point at
+the same commit and the command above is a fast-forward. Verify:
 
 ```bash
 git status --short --branch
-git ls-remote --heads origin dsv41-flash-1017
+git ls-remote --heads origin main dsv41-flash-1017
 ```
 
 If authentication fails, report the error but do not print the token. Do not
