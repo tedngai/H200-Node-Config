@@ -1,0 +1,2 @@
+sgl-deepseek-recipe==0.2.1 --hash=sha256:3dadc9e081e85af2a8681b34c02e63fd8cbd80096799e724578bf245b54bbaf6
+xgrammar==0.2.9 --hash=sha256:3326c9fb5864922fde7b52efea9c7e83b91a8f5bf81dbb5f5164d23410dfdae4

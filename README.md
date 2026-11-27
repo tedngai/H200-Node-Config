@@ -2,22 +2,26 @@
 
 Run `deepseek-ai/DeepSeek-V4.1-Flash-1017` on one Linux machine with **8 × H200
 141 GB GPUs, about 2 TB of host RAM, and local NVMe**. SGLang serves the model
-with TP8/EP8, DSpark, native Engram host tables and HiCache. The reference
-profile uses a **409,600-token context** and **16 running requests**.
+with TP8/EP8, native Engram host tables and HiCache. Both reference profiles
+use a **409,600-token context** and **16 running requests**.
 
 This repository contains the systemd launcher, test harness and measured
 inference results. It is an experimental recipe: successful loading, measured
 speed, populated context capacity and feature correctness are separate
 milestones. It is not a turnkey distribution or a production SLA.
 
-**Last measured:** 2026-10-19 on the reference 8×H200 host.
+**Latest: [AngelSpec DFly2 pilot and production recipe](docs/ANGELSPEC_TEST.md)**
+(2026-11-27). The eight-H200 pilot reached 240.7 / 621.1 / 1,749.3 aggregate
+tok/s at c1/c4/c16 and passed tools, sampled SQL, and cold ~400K recall.
+The same-image DSpark control did not run to completion. The sections below
+retain the measured October **DSpark phase 2b** baseline and rollback recipe.
 
-## 1. Current status
+## 1. DSpark phase 2b baseline (2026-10-19)
 
 | Item | Verified result or current limit |
 | --- | --- |
 | Model precision | Published mixed precision: FP4 routed experts, FP8/BF16 components, FP8 Engram. No EXL3 conversion or pruning. |
-| Local inference | Running on **8012 / `pratt-high`** and completing chat, reasoning and tool requests. |
+| Local inference | Served **8012 / `pratt-high`** and completed chat, reasoning and tool requests. |
 | Context | **409,600 tokens**; a 409,007-token total near-limit request recalled correctly. Exact full 409,600-token occupancy is not tested. |
 | GPU KV capacity | **45,075,200 full tokens + 51,712 SWA tokens** in the phase 2b profile. |
 | Host KV tier | **90,150,400 HiCache token slots**, ratio 2. A 256-token host hit was observed; a 400k host restoration was not run. |

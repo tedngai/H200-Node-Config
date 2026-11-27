@@ -1,0 +1,91 @@
+{
+  "utc": "2026-11-27T14:23:35Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-angelspec",
+  "mode": "smoke",
+  "result": {
+    "models": {
+      "object": "list",
+      "data": [
+        {
+          "id": "dsv41-angelspec",
+          "object": "model",
+          "created": 1795789415,
+          "owned_by": "sglang",
+          "root": "dsv41-angelspec",
+          "parent": null,
+          "max_model_len": 409600
+        }
+      ]
+    },
+    "plain": {
+      "elapsed_s": 0.385,
+      "content": "SMOKE-OK",
+      "reasoning_content": "",
+      "tool_calls": [],
+      "usage": {
+        "prompt_tokens": 13,
+        "total_tokens": 19,
+        "completion_tokens": 6,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "reasoning_tokens": 0,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "ok": true
+    },
+    "reasoning": {
+      "elapsed_s": 0.392,
+      "content": "Average speed = distance \u00f7 time = 240 km \u00f7 1.5 h = **160 km/h**.",
+      "reasoning_content": "We need answer simple. Need think carefully maybe trick? 240 km in 1.5 h average speed = 240/1.5 = 160 km/h. Need concise.",
+      "tool_calls": [],
+      "usage": {
+        "prompt_tokens": 55,
+        "total_tokens": 117,
+        "completion_tokens": 62,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "reasoning_tokens": 39,
+        "completion_tokens_details": {
+          "reasoning_tokens": 39
+        }
+      },
+      "ok": true
+    },
+    "tools": {
+      "elapsed_s": 5.581,
+      "content": "I'll check the weather in Beijing for you.",
+      "reasoning_content": "",
+      "tool_calls": [
+        {
+          "id": "call_b2ceb987312940ef8b4d07b9",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "get_weather",
+            "arguments": "{\"location\": \"Beijing\"}"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 304,
+        "total_tokens": 353,
+        "completion_tokens": 49,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "reasoning_tokens": 1,
+        "completion_tokens_details": {
+          "reasoning_tokens": 1
+        }
+      },
+      "finish_reason": "tool_calls",
+      "ok": true
+    }
+  },
+  "ok": true
+}

@@ -1,0 +1,76 @@
+[Unit]
+Description=SGLang DeepSeek-V4.1-Flash-1017 TP8 EP8 DFly2 HiCache (8012, pratt-high)
+Wants=network-online.target
+After=network-online.target docker.service nvidia-fabricmanager.service
+Requires=docker.service nvidia-fabricmanager.service
+RequiresMountsFor=/raid/user/cache/huggingface /raid/user/cache/sglang/angelspec
+Conflicts=sglang-glm53.service sglang-glm53-flash.service
+StartLimitIntervalSec=1800
+StartLimitBurst=3
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=30
+ExecStartPre=/usr/bin/test -r /raid/user/cache/sglang/angelspec/DS-V4.1-Flash-DFly2-B6/d08e55a6897b1974307ea9771038838de5986e66/config.json
+ExecStartPre=/usr/bin/test -d /raid/user/cache/sglang/angelspec/runtime-82308b9d9
+ExecStartPre=-/usr/bin/docker rm -f sglang-dsv41
+ExecStart=/usr/bin/docker run --rm --pull never \
+  --name sglang-dsv41 \
+  --gpus all \
+  --shm-size 32g \
+  --ulimit memlock=-1:-1 \
+  --network host \
+  --ipc host \
+  --mount type=bind,source=/raid/user/cache/huggingface,target=/root/.cache/huggingface,readonly \
+  --mount type=bind,source=/raid/user/cache/sglang/angelspec/DS-V4.1-Flash-DFly2-B6/d08e55a6897b1974307ea9771038838de5986e66,target=/opt/dfly2-draft,readonly \
+  --mount type=bind,source=/raid/user/cache/sglang/angelspec/runtime-82308b9d9,target=/root/.cache/sglang \
+  --env HF_HUB_OFFLINE=1 \
+  --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+  sha256:d8f59019486c911daa7b0e1b6872c91a513ce1cf1a9b096b678a2fb3378c6b2d \
+  sglang serve \
+  --model-path deepseek-ai/DeepSeek-V4.1-Flash-1017 \
+  --revision 1bae0e1088993b9b82de08f59de5be5a34e42170 \
+  --served-model-name pratt-high \
+  --trust-remote-code \
+  --tp 8 \
+  --ep-size 8 \
+  --max-running-requests 16 \
+  --min-free-slots-delay 0 \
+  --context-length 409600 \
+  --prefill-decode-interval 16 \
+  --chunked-prefill-size 4096 \
+  --mem-fraction-static 0.8 \
+  --attention-backend dsv4 \
+  --dsv4-attn-backend flashmla \
+  --moe-runner-backend flashinfer_mxfp4 \
+  --enable-decoder-swa-bounded-replay \
+  --cuda-graph-max-bs-decode 64 \
+  --cuda-graph-backend-prefill disabled \
+  --engram-config '{"placement":"cpu","replication":"none"}' \
+  --speculative-algorithm DFLY \
+  --speculative-draft-model-path /opt/dfly2-draft \
+  --enable-hierarchical-cache \
+  --hicache-io-backend direct \
+  --hicache-mem-layout page_first_direct \
+  --hicache-ratio 2 \
+  --hicache-write-policy write_back \
+  --reasoning-parser auto \
+  --tool-call-parser auto \
+  --watchdog-timeout 3600 \
+  --enable-metrics \
+  --enable-request-time-stats-logging \
+  --enable-cache-report \
+  --log-requests \
+  --log-requests-level 1 \
+  --host 0.0.0.0 \
+  --port 8012
+ExecStop=/usr/bin/docker stop -t 120 sglang-dsv41
+TimeoutStartSec=infinity
+TimeoutStopSec=180
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

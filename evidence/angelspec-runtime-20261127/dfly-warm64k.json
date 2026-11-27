@@ -1,0 +1,128 @@
+{
+  "utc": "2026-11-27T14:24:55Z",
+  "target_tokens": 64000,
+  "concurrency": 4,
+  "output_tokens": 1024,
+  "prompts": [
+    {
+      "codes": {
+        "start_code": "ALPHA-C032B6-91QZ",
+        "middle_code": "BRAVO-C032B6-44VX",
+        "end_code": "CHARLIE-C032B6-73NW",
+        "approx_chars": 326255,
+        "calibrated_tokens": 63935
+      },
+      "chars": 326255
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-3DC08A-91QZ",
+        "middle_code": "BRAVO-3DC08A-44VX",
+        "end_code": "CHARLIE-3DC08A-73NW",
+        "approx_chars": 326255,
+        "calibrated_tokens": 63938
+      },
+      "chars": 326255
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-E620C7-91QZ",
+        "middle_code": "BRAVO-E620C7-44VX",
+        "end_code": "CHARLIE-E620C7-73NW",
+        "approx_chars": 326255,
+        "calibrated_tokens": 63935
+      },
+      "chars": 326255
+    },
+    {
+      "codes": {
+        "start_code": "ALPHA-B9A057-91QZ",
+        "middle_code": "BRAVO-B9A057-44VX",
+        "end_code": "CHARLIE-B9A057-73NW",
+        "approx_chars": 326255,
+        "calibrated_tokens": 63935
+      },
+      "chars": 326255
+    }
+  ],
+  "cold": {
+    "batch_wall_s": 7.533,
+    "results": [
+      {
+        "elapsed_s": 7.53,
+        "prompt_tokens": 63939,
+        "content": "ALPHA-C032B6-91QZ, BRAVO-C032B6-44VX, CHARLIE-C032B6-73NW"
+      },
+      {
+        "elapsed_s": 3.832,
+        "prompt_tokens": 63942,
+        "content": "ALPHA-3DC08A-91QZ, BRAVO-3DC08A-44VX, CHARLIE-3DC08A-73NW"
+      },
+      {
+        "elapsed_s": 1.957,
+        "prompt_tokens": 63939,
+        "content": "ALPHA-E620C7-91QZ, BRAVO-E620C7-44VX, CHARLIE-E620C7-73NW"
+      },
+      {
+        "elapsed_s": 5.58,
+        "prompt_tokens": 63939,
+        "content": "ALPHA-B9A057-91QZ, BRAVO-B9A057-44VX, CHARLIE-B9A057-73NW"
+      }
+    ],
+    "all_prompt_tokens": [
+      63939,
+      63942,
+      63939,
+      63939
+    ],
+    "all_recalled": true
+  },
+  "warm": {
+    "batch_wall_s": 5.322,
+    "results": [
+      {
+        "elapsed_s": 4.295,
+        "prompt_tokens": 63939,
+        "completion_tokens": 1024,
+        "tok_s": 238.407,
+        "cached_tokens": 63744,
+        "content_head": "ALPHA-C032B6-91QZ, BRAVO-C032B6-44VX, CHARLIE-C032B6-73NW<\uff5cend\u2581of\u2581sentence\uff5c>\n<\uff5cend\u2581of\u2581sentence\uff5c><\uff5cbegin\u2581of\u2581sentence\uff5c># Answer\n\nALPHA-C032B6-91QZ, BRAVO-C032B6-4"
+      },
+      {
+        "elapsed_s": 5.041,
+        "prompt_tokens": 63942,
+        "completion_tokens": 1024,
+        "tok_s": 203.138,
+        "cached_tokens": 63744,
+        "content_head": "ALPHA-3DC08A-91QZ, BRAVO-3DC08A-44VX, CHARLIE-3DC08A-73NW<\uff5cend\u2581of\u2581sentence\uff5c>\n<\uff5cend\u2581of\u2581sentence\uff5c><\uff5cbegin\u2581of\u2581sentence\uff5c># Final Answer\n\nALPHA-3DC08A-91QZ, BRAVO-3D"
+      },
+      {
+        "elapsed_s": 3.975,
+        "prompt_tokens": 63939,
+        "completion_tokens": 1024,
+        "tok_s": 257.601,
+        "cached_tokens": 63744,
+        "content_head": "ALPHA-E620C7-91QZ, BRAVO-E620C7-44VX, CHARLIE-E620C7-73NW<\uff5cend\u2581of\u2581sentence\uff5c>\n<\uff5cend\u2581of\u2581sentence\uff5c><\uff5cbegin\u2581of\u2581sentence\uff5c># Final  \nALPHA-E620C7-91QZ, BRAVO-E620C7-4"
+      },
+      {
+        "elapsed_s": 5.04,
+        "prompt_tokens": 63939,
+        "completion_tokens": 1024,
+        "tok_s": 203.179,
+        "cached_tokens": 63744,
+        "content_head": "ALPHA-B9A057-91QZ, BRAVO-B9A057-44VX, CHARLIE-B9A057-73NW<\uff5cend\u2581of\u2581sentence\uff5c>\n<\uff5cend\u2581of\u2581sentence\uff5c><\uff5cbegin\u2581of\u2581sentence\uff5c># Answer\nALPHA-B9A057-91QZ, BRAVO-B9A057-44"
+      }
+    ],
+    "aggregate_tok_s": 902.325,
+    "median_tok_s": 220.793
+  },
+  "gauges": {
+    "samples": 10,
+    "peak_running": 4.0,
+    "peak_queue": 3.0,
+    "peak_retracted": 0.0,
+    "peak_token_usage": 0.06,
+    "peak_hicache_host_used_tokens": 25344.0,
+    "hicache_host_total_tokens": 89589248.0
+  }
+}

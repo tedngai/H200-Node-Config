@@ -1,0 +1,38 @@
+{
+  "utc": "2026-11-27T14:23:42Z",
+  "base_url": "http://127.0.0.1:8013",
+  "model": "dsv41-angelspec",
+  "mode": "tools",
+  "result": {
+    "first_elapsed_s": 0.603,
+    "first_tool_calls": [
+      {
+        "id": "call_0b34c95f28714faea74a664a",
+        "index": 0,
+        "type": "function",
+        "function": {
+          "name": "get_weather",
+          "arguments": "{\"location\": \"Beijing\"}"
+        }
+      }
+    ],
+    "second_elapsed_s": 0.322,
+    "second_content": "The weather in Beijing is currently **21\u00b0C and clear** \u2014 pleasant conditions with clear skies.",
+    "second_reasoning": "",
+    "second_tool_calls": [],
+    "usage": {
+      "prompt_tokens": 377,
+      "total_tokens": 399,
+      "completion_tokens": 22,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "reasoning_tokens": 1,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1
+      }
+    },
+    "ok": true
+  },
+  "ok": true
+}

@@ -32,6 +32,14 @@ about 2–3% lower, 16 × 400k cold wall **+9.2%** with serialized completions, 
 the 16-active replay wall **81.6 s vs 55.6 s** because one request straggled.
 This is a scoped result; it is not production-qualified.
 
+**AngelSpec DFly2 pilot (2026-11-27):** the full checkpoint served at
+**240.7 / 621.1 / 1,749.3 aggregate tok/s** at c1/c4/c16 on short coding
+prompts; observed c16 active count was 16. The sampled SQL task and cold
+~400K recall passed. The previous production DSpark build measured
+**184.0 / 393.6 aggregate tok/s** at c1/c4. The operator selected DFly2 for
+promotion and the same-image DSpark control was stopped before readiness.
+See [`ANGELSPEC_TEST.md`](ANGELSPEC_TEST.md).
+
 ## Identity
 
 | Item | Value |

@@ -1,14 +1,14 @@
 # Operations
 
-**Current state (2026-10-19):** installed and running as
-`sglang-dsv41.service` on **8012 / pratt-high** with the phase 2b
-`mr16-nodelay-ctx409600-overlap2b` unit. The 8012 phase 2a candidate is the
-rollback that preserves the endpoint; phase 2c tails is a separate test.
+**2026-11-27:** the operator selected DFly2 after the full-checkpoint pilot.
+The prior phase 2b DSpark unit is the exact rollback. Follow
+[`ANGELSPEC_TEST.md`](ANGELSPEC_TEST.md) for the DFly2 install and readiness
+check on **8012 / pratt-high**. Both GLM units are disabled.
 
-## Production boot enablement (prepared, not installed)
+## Prior DSpark production unit
 
-The tested 2b unit is **not enabled** and has `Restart=no`. The production
-candidate is:
+The original 2b test unit used `Restart=no` and was not boot-enabled. The
+DSpark production rollback unit is:
 
 ```text
 configs/systemd/candidates/sglang-dsv41-8012-pratt-high-mr16-nodelay-ctx409600-overlap2b-production.service

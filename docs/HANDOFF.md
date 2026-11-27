@@ -7,6 +7,13 @@ Updated: 2026-10-19. This is the restart-safe handoff for the isolated DSV4.1
 experiment. Read `/home/user/AGENTS.md`, then this file, then
 `docs/RESULTS.md` and `docs/SCHEDULER_OVERLAP_TEST.md`.
 
+**2026-11-27 update:** DFly2 passed the full-checkpoint pilot and was
+installed as the production unit. The pinned container started at
+14:44:57 UTC; API readiness was pending at the first check.
+Both GLM units are disabled. See
+[`ANGELSPEC_TEST.md`](ANGELSPEC_TEST.md) for results, installation and rollback.
+The 2026-10-19 observations below describe the previous test unit.
+
 ## Current state
 
 - Project: `/home/user/dsv41-flash-inference`
