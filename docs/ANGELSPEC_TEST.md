@@ -92,10 +92,14 @@ Raw client evidence: `evidence/angelspec-runtime-20261127/`.
 
 ## Production promotion
 
-The operator installed the DFly2 unit. Its pinned container started at
-14:44:57 UTC and was still loading during
-the 14:45:39 UTC check. The unit keeps the `8012/pratt-high` endpoint and
-reuses the dedicated test compilation cache.
+DFly2 is serving production at `8012/pratt-high`. With the preserved test
+compilation cache, the container started at 14:44:57 UTC and logged readiness
+at 14:50:58 UTC (**6 min 1 s**). Live settings matched the pilot, including
+409,600 context, 16 maximum active requests, HiCache, and six verify slots.
+Chat, separated reasoning, tool parsing and a two-turn tool exchange passed
+after startup. Zero service restarts and zero retractions were observed;
+minimum HBM free after smoke was **24,388 MiB**. The GPU and HiCache pools
+matched the pilot. This is a startup and interface check.
 
 To reproduce, run `bash scripts/build_angelspec.sh` from the repository root
 and resolve `local/dsv41-angelspec:82308b9d9` to its local image ID with
